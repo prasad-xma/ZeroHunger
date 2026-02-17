@@ -1,6 +1,6 @@
 
 
-// admin middleware
+// authorized role middleware
 const authorizedRole = (...roles) => {
     return (req, res, next) => {
         
