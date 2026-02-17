@@ -20,7 +20,7 @@ To get started with the ZeroHunger project, follow the instructions in the respe
 
 - For the backend, navigate to the `server` directory and follow the setup instructions in `server/README.md`.
 
-## Contributing
+## Contributors
 
 > Prasad Manamperi - [GitHub](https://github.com/prasad-xma ) | [LinkedIn](https://www.linkedin.com/in/prasad-manamperi-5599b9362/)
 
