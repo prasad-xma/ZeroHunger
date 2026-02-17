@@ -6,6 +6,7 @@ require('dotenv').config();
 const authRoutes = require('./modules/auth/auth.routes');
 
 // ----- User routes -----
+const userRoutes = require('./modules/users/user.routes');
 
 
 
@@ -24,6 +25,9 @@ app.use(express.json());
 
 // ----- Auth routes -----
 app.use('/api/auth', authRoutes);
+
+// ----- User routes -----
+app.use('/api/users', userRoutes);
 
 
 
