@@ -1,5 +1,14 @@
 require('dotenv').config();
 
+// ************ IMPORT ROUTES ************
+
+// ----- Auth routes -----
+const authRoutes = require('./modules/auth/auth.routes');
+
+// ----- User routes -----
+
+
+
 const connectDB = require('./config/db');
 const cors = require('cors');
 
@@ -13,6 +22,8 @@ app.use(express.json());
 
 /***************************** ROUTES ***********************/
 
+// ----- Auth routes -----
+app.use('/api/auth', authRoutes);
 
 
 
