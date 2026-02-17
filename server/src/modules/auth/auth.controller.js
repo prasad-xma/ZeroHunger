@@ -1,5 +1,6 @@
 const User = require('../users/user.model');
 const { hashPassword, comparePassword } = require('../utils/hashPassword');
+const { generateToken, verifyToken } = require('../utils/generateToken');
 
 
 // user registration
@@ -34,7 +35,41 @@ const register = async (req, res) => {
 
 
     } catch (err) {
-        console.error(`Registration fail.. ${err.messafe}`);
+        console.error(`Registration fail.. ${err.message}`);
         return res.status(500).json({message: "User registration failed..."});
+    }
+};
+
+// user login
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // check email and password
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+
+        // find user by email
+        const user = await User.findOne({email});
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        // compare password
+        const isPasswordMatch = await comparePassword(password, user.password);
+        if (!isPasswordMatch) {
+            return res.status(400).json({ message: "Invalid password" });
+        }
+
+        // generate token 
+        const token = generateToken(user._id, user.role);
+        
+        // return response with token
+        return res.status(200).json({ message: "User logged in successfully", token });
+        
+    } catch (err) {
+        console.error(`Login fail... ${err.message}`);
+        return res.status(500).json({message: "User login failed..."});
     }
 };
