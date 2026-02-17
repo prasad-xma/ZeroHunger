@@ -73,3 +73,29 @@ const login = async (req, res) => {
         return res.status(500).json({message: "User login failed..."});
     }
 };
+
+// user logout 
+const logout = async (req, res) => {
+    try {
+        // extract token from headers
+        const token = req.headers.authorization.split(" ")[1];
+        
+        // verify token
+        const decoded = await verifyToken(token);
+        
+        res.clearCookie("token", { httpOnly: true });
+        
+        return res.status(200).json({ message: "User logged out successfully" });
+        
+    } catch (err) {
+        console.error(`Logout fail... ${err.message}`);
+        return res.status(500).json({message: "User logout failed..."});
+
+    }
+};
+
+module.exports = {
+    register,
+    login,
+    logout
+};
