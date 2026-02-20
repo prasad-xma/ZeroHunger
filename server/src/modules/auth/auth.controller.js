@@ -1,6 +1,6 @@
 const User = require('../users/user.model');
-const { hashPassword, comparePassword } = require('../utils/hashPassword');
-const { generateToken, verifyToken } = require('../utils/generateToken');
+const { hashPassword, comparePassword } = require('../../utils/authUtils/passwordUtils');
+const { generateToken, verifyToken } = require('../../utils/authUtils/tokenUtils');
 
 
 // user registration
