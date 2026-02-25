@@ -11,7 +11,10 @@ const userRoutes = require('./modules/users/user.routes');
 // ----- Nutrition routes -----
 const nutritionRoutes = require('./modules/nutrition/nutrition.routes');
 
-// ----- Weekly planner routes ----
+// ----- Meal routes -----
+const mealRoutes = require('./modules/meals/meal.routes');
+
+// ----- Weekly planner routes -----
 const weeklyMealRoutes = require('./modules/weeklyMealPlanner/weeklyMeal.routes');
 
 const connectDB = require('./config/db');
@@ -34,7 +37,10 @@ app.use('/api/users', userRoutes);
 // ----- Nutrition routes -----
 app.use('/api/nutrition', nutritionRoutes);
 
-// ----- Weekly planner routes ----
+// ----- Meal routes -----
+app.use('/api/meals', mealRoutes);
+
+// ----- Weekly planner routes -----
 app.use('/api/meal-plan', weeklyMealRoutes);
 
 // port
@@ -43,7 +49,7 @@ const PORT = process.env.PORT || 5000;
 // establish the db connection and start the server
 (async () => {
   try {
-    // establish the db connection
+    
     await connectDB();
 
     app.listen(PORT, () => {
