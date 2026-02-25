@@ -15,7 +15,7 @@ const nutritionRoutes = require('./modules/nutrition/nutrition.routes');
 const mealRoutes = require('./modules/meals/meal.routes');
 
 // ----- Weekly planner routes -----
-const weeklyMealRoutes = require('./modules/weeklyMealPlanner/weeklyMeal.routes');
+const weeklyMealRoutes = require('./modules/weekly_meal_planner/weeklyMeal.routes');
 
 const connectDB = require('./config/db');
 const cors = require('cors');
