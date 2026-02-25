@@ -43,7 +43,7 @@ const PORT = process.env.PORT || 5000;
 // establish the db connection and start the server
 (async () => {
   try {
-    // establish the db connection
+    
     await connectDB();
 
     app.listen(PORT, () => {

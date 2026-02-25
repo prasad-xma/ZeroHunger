@@ -1,4 +1,4 @@
-// server/src/modules/meals/meal.model.js
+
 
 const mongoose = require("mongoose");
 

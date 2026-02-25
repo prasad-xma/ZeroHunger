@@ -1,4 +1,4 @@
-// server/src/modules/meals/meal.controller.js
+
 
 const Meal = require("./meal.model");
 const { validateMealInput, validateMealUpdateInput } = require("./meal.validators");

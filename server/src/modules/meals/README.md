@@ -168,7 +168,7 @@ Use Postman or similar to test endpoints:
 
 - Add image upload functionality
 - Implement meal categories/tags
-- Add user favorites/ratings
+- Add user favorites
 - Pagination for large meal lists
 - Advanced search filters (by nutrition, ingredients)
 

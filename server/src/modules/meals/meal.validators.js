@@ -1,4 +1,4 @@
-// server/src/modules/meals/meal.validators.js
+
 
 function isString(s) {
   return typeof s === "string" && s.trim().length > 0;

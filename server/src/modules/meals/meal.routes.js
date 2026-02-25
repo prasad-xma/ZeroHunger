@@ -1,4 +1,4 @@
-// server/src/modules/meals/meal.routes.js
+
 
 const express = require("express");
 const controller = require("./meal.controller");
