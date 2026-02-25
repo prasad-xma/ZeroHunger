@@ -14,6 +14,9 @@ const nutritionRoutes = require('./modules/nutrition/nutrition.routes');
 // ----- Meal routes -----
 const mealRoutes = require('./modules/meals/meal.routes');
 
+// ----- Weekly planner routes -----
+const weeklyMealRoutes = require('./modules/weeklyMealPlanner/weeklyMeal.routes');
+
 const connectDB = require('./config/db');
 const cors = require('cors');
 
@@ -36,6 +39,9 @@ app.use('/api/nutrition', nutritionRoutes);
 
 // ----- Meal routes -----
 app.use('/api/meals', mealRoutes);
+
+// ----- Weekly planner routes -----
+app.use('/api/meal-plan', weeklyMealRoutes);
 
 // port
 const PORT = process.env.PORT || 5000;
