@@ -1,4 +1,5 @@
 const HealthRecommendation = require('./healthRecommendation.model');
+const { calculateAllHealthMetrics } = require('./healthCalculations.utils');
 
 // Create or update health recommendation questionnaire
 const createHealthProfile = async (req, res) => {
@@ -6,11 +7,21 @@ const createHealthProfile = async (req, res) => {
         const userId = req.user.id; // Get user ID from authenticated request
         const { user_profile, profile_name } = req.body;
 
+        // Calculate health metrics
+        const calculatedMetrics = calculateAllHealthMetrics(user_profile);
+
         // Create new profile (allowing multiple profiles per user)
         const healthProfile = new HealthRecommendation({
             userId,
             user_profile,
-            profile_name: profile_name || 'Default Profile'
+            profile_name: profile_name || 'Default Profile',
+            recommendations: {
+                ...calculatedMetrics,
+                meal_suggestions: [],
+                exercise_recommendations: [],
+                lifestyle_tips: []
+            },
+            status: 'generated'
         });
 
         await healthProfile.save();
@@ -172,22 +183,40 @@ const updateHealthProfile = async (req, res) => {
         const { profileId } = req.params;
         const { user_profile, profile_name } = req.body;
 
-        const healthProfile = await HealthRecommendation.findOneAndUpdate(
-            { _id: profileId, userId, is_active: true },
-            { 
-                user_profile,
-                profile_name,
-                status: 'updated'
-            },
-            { new: true }
-        );
+        // Calculate health metrics with updated data
+        const calculatedMetrics = calculateAllHealthMetrics(user_profile);
 
-        if (!healthProfile) {
+        // Get existing profile to preserve other recommendation data
+        const existingProfile = await HealthRecommendation.findOne({ 
+            _id: profileId, 
+            userId, 
+            is_active: true 
+        });
+
+        if (!existingProfile) {
             return res.status(404).json({
                 success: false,
                 message: 'Health profile not found'
             });
         }
+
+        const healthProfile = await HealthRecommendation.findOneAndUpdate(
+            { _id: profileId, userId, is_active: true },
+            { 
+                user_profile,
+                profile_name,
+                recommendations: {
+                    ...existingProfile.recommendations,
+                    ...calculatedMetrics,
+                    // Preserve existing suggestions and tips
+                    meal_suggestions: existingProfile.recommendations.meal_suggestions || [],
+                    exercise_recommendations: existingProfile.recommendations.exercise_recommendations || [],
+                    lifestyle_tips: existingProfile.recommendations.lifestyle_tips || []
+                },
+                status: 'updated'
+            },
+            { new: true }
+        );
 
         return res.status(200).json({
             success: true,
@@ -204,11 +233,66 @@ const updateHealthProfile = async (req, res) => {
     }
 };
 
+// Recalculate health metrics for existing profile
+const recalculateHealthMetrics = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { profileId } = req.params;
+
+        // Get existing profile
+        const existingProfile = await HealthRecommendation.findOne({ 
+            _id: profileId, 
+            userId, 
+            is_active: true 
+        });
+
+        if (!existingProfile) {
+            return res.status(404).json({
+                success: false,
+                message: 'Health profile not found'
+            });
+        }
+
+        // Recalculate metrics
+        const calculatedMetrics = calculateAllHealthMetrics(existingProfile.user_profile);
+
+        const healthProfile = await HealthRecommendation.findOneAndUpdate(
+            { _id: profileId, userId, is_active: true },
+            { 
+                recommendations: {
+                    ...existingProfile.recommendations,
+                    ...calculatedMetrics,
+                    // Preserve existing suggestions and tips
+                    meal_suggestions: existingProfile.recommendations.meal_suggestions || [],
+                    exercise_recommendations: existingProfile.recommendations.exercise_recommendations || [],
+                    lifestyle_tips: existingProfile.recommendations.lifestyle_tips || []
+                },
+                status: 'generated'
+            },
+            { new: true }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: 'Health metrics recalculated successfully',
+            data: healthProfile
+        });
+    } catch (error) {
+        console.error('recalculateHealthMetrics error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createHealthProfile,
     getUserHealthProfiles,
     getHealthProfileById,
     updateHealthProfile,
     updateRecommendations,
-    deleteHealthProfile
+    deleteHealthProfile,
+    recalculateHealthMetrics
 };
