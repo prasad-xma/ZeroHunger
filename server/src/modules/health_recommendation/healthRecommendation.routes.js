@@ -6,7 +6,8 @@ const {
     getHealthProfileById,
     updateHealthProfile,
     updateRecommendations,
-    deleteHealthProfile
+    deleteHealthProfile,
+    recalculateHealthMetrics
 } = require('./healthRecommendation.controller');
 
 const router = express.Router();
@@ -28,6 +29,9 @@ router.put('/:profileId', updateHealthProfile);
 
 // Update health recommendations
 router.put('/:profileId/recommendations', updateRecommendations);
+
+// Recalculate health metrics
+router.post('/:profileId/recalculate', recalculateHealthMetrics);
 
 // Soft delete health profile (deactivate)
 router.delete('/:profileId', deleteHealthProfile);
