@@ -20,6 +20,9 @@ const weeklyMealRoutes = require('./modules/weekly_meal_planner/weeklyMeal.route
 // ----- Health recommendation routes -----
 const healthRecommendationRoutes = require('./modules/health_recommendation/healthRecommendation.routes');
 
+// ----- AI Food Allergies routes -----
+const aiFoodAllergiesRoutes = require('./modules/ai_food_allergies/aiFoodAllergy.routes');
+
 const connectDB = require('./config/db');
 const cors = require('cors');
 
@@ -48,6 +51,9 @@ app.use('/api/meal-plan', weeklyMealRoutes);
 
 // ----- Health recommendation routes -----
 app.use('/api/health-recommendation', healthRecommendationRoutes);
+
+// ----- AI Food Allergies routes -----
+app.use('/api/ai-food-allergies', aiFoodAllergiesRoutes);
 
 // port
 const PORT = process.env.PORT || 5000;
