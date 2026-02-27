@@ -142,8 +142,94 @@ function calculateTargetsAndRanges(inputs) {
   return out;
 }
 
+
+function toGrams(quantity, measure) {
+  const m = String(measure).toLowerCase();
+  if (m === "cup") {
+    // Your rule: 1 cup = 200g
+    return quantity * 200;
+  }
+  // g / gram / grams
+  return quantity;
+}
+
+async function ninjasNutritionQuery(query) {
+  const apiKey = process.env.NINJAS_API_KEY;
+  if (!apiKey) {
+    const err = new Error("Missing NINJAS_API_KEY in environment variables.");
+    err.statusCode = 500;
+    throw err;
+  }
+
+  const url = `https://api.api-ninjas.com/v1/nutrition?query=${encodeURIComponent(query)}`;
+
+  const resp = await fetch(url, {
+    method: "GET",
+    headers: {
+      "X-Api-Key": apiKey,
+    },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    const err = new Error(`API Ninjas error: ${resp.status} ${resp.statusText} ${text}`.trim());
+    err.statusCode = 502;
+    throw err;
+  }
+
+  const data = await resp.json();
+  return Array.isArray(data) ? data : [];
+}
+
+async function searchFoodsByQuery(q) {
+  // For "search", we just pass the query and return the array
+  // Example: "chicken breast"
+  return ninjasNutritionQuery(q);
+}
+
+async function calculateFoodNutrition({ food, quantity, measure }) {
+  const grams = toGrams(quantity, measure);
+
+  // Example query: "300g chicken breast"
+  const query = `${Math.round(grams)}g ${food}`;
+  const items = await ninjasNutritionQuery(query);
+
+  // API sometimes returns multiple items (e.g., chicken + sauce), we will SUM them.
+  const totals = items.reduce(
+    (acc, item) => {
+      acc.calories += Number(item?.calories ?? 0);
+      acc.proteinG += Number(item?.protein_g ?? 0);
+      acc.fatG += Number(item?.fat_total_g ?? 0);
+      acc.carbsG += Number(item?.carbohydrates_total_g ?? 0);
+      acc.fiberG += Number(item?.fiber_g ?? 0);
+      return acc;
+    },
+    { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, fiberG: 0 }
+  );
+
+  // Round to 1 decimal for grams, whole number for calories
+  const round1 = (n) => Math.round(n * 10) / 10;
+
+  return {
+    queryUsed: query,
+    netWeightG: round1(grams),
+
+    calories: Math.round(totals.calories),
+    proteinG: round1(totals.proteinG),
+    fatG: round1(totals.fatG),
+    carbsG: round1(totals.carbsG),
+    fiberG: round1(totals.fiberG),
+
+    items, // return raw items for transparency/debug (frontend can ignore if needed)
+  };
+}
+
 module.exports = {
   calculateBMR,
   calculateTDEE,
   calculateTargetsAndRanges,
+
+  // Food search + calculate functions (phase 1)
+  searchFoodsByQuery,
+  calculateFoodNutrition,
 };

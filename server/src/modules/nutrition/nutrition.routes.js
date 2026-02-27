@@ -23,4 +23,9 @@ router.get("/intake/daily", controller.getDailyIntake);
 // Weekly summary
 router.get("/summary/weekly", controller.getWeeklySummary);
 
+// Phase 1 - Food search + calculate
+// Foods (Phase 1)
+router.get("/foods/search", controller.searchFoods);
+router.post("/foods/calculate", controller.calculateFood);
+
 module.exports = router;
