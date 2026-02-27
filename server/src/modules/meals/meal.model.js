@@ -1,4 +1,4 @@
-
+// server/src/modules/meals/meal.model.js
 
 const mongoose = require("mongoose");
 
@@ -24,12 +24,10 @@ const MealSchema = new mongoose.Schema(
       minlength: 10, 
       maxlength: 500 
     },
-    ingredients: [{ 
-      type: String, 
-      required: true, 
-      trim: true, 
-      minlength: 1,
-      maxlength: 100
+    ingredients: [{
+      name: { type: String, required: true, trim: true, minlength: 1, maxlength: 100 },
+      quantity: { type: String, required: true, trim: true, minlength: 1, maxlength: 50 },
+      calories: { type: Number, required: true, min: 0, max: 10000 }
     }],
     instructions: [{ 
       type: String, 
@@ -63,6 +61,12 @@ const MealSchema = new mongoose.Schema(
         min: 0, 
         max: 500 
       },
+    },
+    servingSizeGrams: { 
+      type: Number, 
+      required: true, 
+      min: 1, 
+      max: 5000  // Reasonable max for serving size
     },
   },
   { timestamps: true }
