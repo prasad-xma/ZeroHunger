@@ -1,6 +1,6 @@
 const User = require('../users/user.model');
 const { hashPassword, comparePassword } = require('../../utils/authUtils/passwordUtils');
-const { generateToken, verifyToken } = require('../../utils/authUtils/tokenUtils');
+const { generateToken, verifyJwtToken } = require('../../utils/authUtils/tokenUtils');
 
 
 // user registration
@@ -81,7 +81,7 @@ const logout = async (req, res) => {
         const token = req.headers.authorization.split(" ")[1];
         
         // verify token
-        const decoded = await verifyToken(token);
+        const decoded = verifyJwtToken(token);
         
         res.clearCookie("token", { httpOnly: true });
         
