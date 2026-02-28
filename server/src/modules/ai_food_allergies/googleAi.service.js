@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLEAI_API_KEY);
 
 const generateAllergyRecommendations = async (allergies) => {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
         
         const prompt = `As a nutrition and food safety expert, provide comprehensive recommendations for someone with the following food allergies: ${allergies.join(', ')}.
 
@@ -53,14 +53,15 @@ Focus on practical, actionable advice that can help someone manage these allergi
         return {
             ai_response: aiResponse,
             metadata: {
-                model_used: 'gemini-pro',
+                model_used: 'gemini-2.5-flash',
                 response_time_ms: responseTime,
                 generated_at: new Date()
             }
         };
         
     } catch (error) {
-        console.error('Google AI API error:', error);
+        console.error('Google AI API error details:', error.message);
+        console.error('Full error:', error);
         throw new Error('Failed to generate allergy recommendations');
     }
 };
