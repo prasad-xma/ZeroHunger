@@ -1,18 +1,20 @@
 const express = require('express');
 const router = express.Router();
-
 const controller = require('./weeklyMeal.controller');
 
 // Create weekly plan
-router.post('/', controller.createWeeklyPlan);
+router.post('/', controller.createWeeklyMeal);
 
-// Get plans by userId
-router.get('/:userId', controller.getUserWeeklyPlan);
+// Get plan
+router.get('/:id', controller.getWeeklyMeal);
 
-// Update plan
-router.put('/:id', controller.updateWeeklyPlan);
+// Add food
+router.put('/:id/add-food', controller.addFood);
 
-// Delete plan
-router.delete('/:id', controller.deleteWeeklyPlan);
+// Mark completed
+router.put('/:id/complete', controller.completeMeal);
+
+// Weekly summary
+router.get('/:id/summary', controller.getSummary);
 
 module.exports = router;

@@ -1,78 +1,67 @@
-const WeeklyMeal = require('./weeklyMeal.model');
+const service = require('./weeklyMeal.service');
 
-// Create a new weekly plan
-exports.createWeeklyPlan = async (req, res) => {
+// Create weekly plan
+exports.createWeeklyMeal = async (req, res) => {
     try {
-        const { userId, weekStartDate, meals } = req.body;
-
-        const plan = new WeeklyMeal({
-            userId,
-            weekStartDate,
-            meals
-        });
-
-        await plan.save();
-
-        res.status(201).json({
-            message: "Weekly plan created successfully",
-            plan
-        });
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        const result = await service.createWeeklyMeal(req.body);
+        res.status(201).json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 };
 
 
-// Get weekly plan by user
-exports.getUserWeeklyPlan = async (req, res) => {
-    try {
-        const { userId } = req.params;
-
-        const plan = await WeeklyMeal.find({ userId });
-
-        res.status(200).json(plan);
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+// Get plan
+exports.getWeeklyMeal = async (req, res) => {
+    const plan = await service.getWeeklyMealById(req.params.id);
+    res.json(plan);
 };
 
 
-// Update a weekly plan
-exports.updateWeeklyPlan = async (req, res) => {
+// Add food
+exports.addFood = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { day, mealType, name, grams } = req.body;
 
-        const updatedPlan = await WeeklyMeal.findByIdAndUpdate(
-            id,
-            req.body,
-            { new: true }
+        const result = await service.addFoodToMeal(
+            req.params.id,
+            day,
+            mealType,
+            { name, grams }
         );
 
-        res.status(200).json({
-            message: "Weekly plan updated",
-            updatedPlan
-        });
-
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 };
 
 
-// Delete a weekly plan
-exports.deleteWeeklyPlan = async (req, res) => {
+// Mark meal completed
+exports.completeMeal = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { day, mealType, isCompleted } = req.body;
 
-        await WeeklyMeal.findByIdAndDelete(id);
+        const result = await service.completeMeal(
+            req.params.id,
+            day,
+            mealType,
+            isCompleted
+        );
 
-        res.status(200).json({
-            message: "Weekly plan deleted"
-        });
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
 
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+
+// Summary
+exports.getSummary = async (req, res) => {
+    try {
+        const summary = await service.getWeeklySummary(req.params.id);
+        res.json(summary);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 };
