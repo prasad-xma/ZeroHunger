@@ -31,6 +31,7 @@ function mapMealFull(doc) {
     ingredients: doc.ingredients,
     instructions: doc.instructions,
     nutrition: doc.nutrition,
+    servingSizeGrams: doc.servingSizeGrams,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };

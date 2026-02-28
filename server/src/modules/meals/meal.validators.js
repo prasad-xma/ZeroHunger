@@ -4,12 +4,25 @@ function isString(s) {
   return typeof s === "string" && s.trim().length > 0;
 }
 
+function isNumber(n) {
+  return typeof n === "number" && Number.isFinite(n);
+}
+
 function isNonNegNumber(n) {
   return typeof n === "number" && Number.isFinite(n) && n >= 0;
 }
 
 function isArrayOfStrings(arr) {
   return Array.isArray(arr) && arr.length > 0 && arr.every(s => isString(s));
+}
+
+function isArrayOfIngredientObjects(arr) {
+  return Array.isArray(arr) && arr.length > 0 && arr.every(item => 
+    typeof item === 'object' && item !== null &&
+    isString(item.name) && item.name.length >= 1 && item.name.length <= 100 &&
+    isString(item.quantity) && item.quantity.length >= 1 && item.quantity.length <= 50 &&
+    isNumber(item.calories) && item.calories >= 0 && item.calories <= 10000
+  );
 }
 
 function validateMealInput(body) {
@@ -21,11 +34,14 @@ function validateMealInput(body) {
   const ingredients = body?.ingredients;
   const instructions = body?.instructions;
   const nutrition = body?.nutrition;
+  const servingSizeGrams = body?.servingSizeGrams;
+
+  if (!isNumber(servingSizeGrams) || servingSizeGrams < 1 || servingSizeGrams > 5000) errors.push("servingSizeGrams must be a number between 1 and 5000.");
 
   if (!isString(name) || name.length < 2 || name.length > 100) errors.push("name must be a string between 2 and 100 characters.");
   if (!isString(image) || image.length < 5) errors.push("image must be a valid string URL or path."); // basic check
   if (!isString(description) || description.length < 10 || description.length > 500) errors.push("description must be a string between 10 and 500 characters.");
-  if (!isArrayOfStrings(ingredients)) errors.push("ingredients must be a non-empty array of strings.");
+  if (!isArrayOfIngredientObjects(ingredients)) errors.push("ingredients must be a non-empty array of objects with name, quantity, and calories.");
   if (!isArrayOfStrings(instructions)) errors.push("instructions must be a non-empty array of strings.");
 
   if (typeof nutrition !== "object" || nutrition === null) {
@@ -45,9 +61,10 @@ function validateMealInput(body) {
       name,
       image,
       description,
-      ingredients: ingredients?.map(s => s.trim()),
+      ingredients,
       instructions: instructions?.map(s => s.trim()),
       nutrition,
+      servingSizeGrams,
     },
   };
 }
@@ -77,8 +94,8 @@ function validateMealUpdateInput(body) {
 
   if (body.ingredients !== undefined) {
     const ingredients = body.ingredients;
-    if (!isArrayOfStrings(ingredients)) errors.push("ingredients must be a non-empty array of strings.");
-    else value.ingredients = ingredients.map(s => s.trim());
+    if (!isArrayOfIngredientObjects(ingredients)) errors.push("ingredients must be a non-empty array of objects with name, quantity, and calories.");
+    else value.ingredients = ingredients.map(item => ({ name: item.name.trim(), quantity: item.quantity.trim(), calories: item.calories }));
   }
 
   if (body.instructions !== undefined) {
@@ -104,6 +121,12 @@ function validateMealUpdateInput(body) {
       if (fat !== undefined) value.nutrition.fat = fat;
       if (Object.keys(value.nutrition).length === 0) delete value.nutrition;
     }
+  }
+
+  if (body.servingSizeGrams !== undefined) {
+    const servingSizeGrams = body.servingSizeGrams;
+    if (!isNumber(servingSizeGrams) || servingSizeGrams < 1 || servingSizeGrams > 5000) errors.push("servingSizeGrams must be a number between 1 and 5000.");
+    else value.servingSizeGrams = servingSizeGrams;
   }
 
   return {

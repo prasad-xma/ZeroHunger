@@ -5,6 +5,10 @@ const ALLOWED_ACTIVITY = ["sedentary", "light", "moderate", "active", "very_acti
 const ALLOWED_GOAL = ["lose", "maintain", "gain"];
 const ALLOWED_GENDER = ["male", "female"];
 
+
+// For simplicity, we allow a few common measure terms for the food calculate endpoint. In a real app, this would likely be more complex and integrated with the food database.
+const ALLOWED_MEASURES = ["g", "gram", "grams", "cup"];
+
 function isNumber(n) {
   return typeof n === "number" && Number.isFinite(n);
 }
@@ -77,8 +81,54 @@ function validateIntakeBody(body) {
   };
 }
 
+// Helper for validating non-empty strings (e.g. food name)
+function isNonEmptyString(s) {
+  return typeof s === "string" && s.trim().length > 0;
+}
+
+// For validating the "q" query param in food search
+function validateFoodSearch(query) {
+  const errors = [];
+  const q = String(query ?? "").trim();
+
+  if (!q || q.length < 2) errors.push("q must be at least 2 characters.");
+
+  return {
+    ok: errors.length === 0,
+    errors,
+    value: { q },
+  };
+}
+
+// For validating the body of the food calculate endpoint
+function validateFoodCalculateBody(body) {
+  const errors = [];
+
+  const food = String(body?.food ?? "").trim();
+  const quantity = body?.quantity;
+  const measure = String(body?.measure ?? "").toLowerCase().trim();
+
+  if (!food || food.length < 2) errors.push("food must be at least 2 characters.");
+  if (typeof quantity !== "number" || !Number.isFinite(quantity) || quantity <= 0)
+    errors.push("quantity must be a number greater than 0.");
+  if (!ALLOWED_MEASURES.includes(measure))
+    errors.push(`measure must be one of: ${ALLOWED_MEASURES.join(", ")}.`);
+
+  return {
+    ok: errors.length === 0,
+    errors,
+    value: { food, quantity, measure },
+  };
+}
+
+
+
 module.exports = {
   validateTargetsInput,
   validateIntakeBody,
   isISODateKey,
+
+  // Food search + calculate validators(phase 1)
+  validateFoodSearch,
+  validateFoodCalculateBody,
 };

@@ -1,8 +1,6 @@
 // server/src/modules/nutrition/nutrition.controller.js
-
-const NutritionTarget = require("./nutrition.target.model");
-const { validateTargetsInput, isISODateKey } = require("./nutrition.validators");
-const { calculateTargetsAndRanges } = require("./nutrition.service");
+const { validateTargetsInput, isISODateKey, validateFoodSearch, validateFoodCalculateBody } = require("./nutrition.validators");
+const { calculateTargetsAndRanges, searchFoodsByQuery, calculateFoodNutrition } = require("./nutrition.service");
 
 function sendError(res, status, message, errors = []) {
   return res.status(status).json({
@@ -209,6 +207,58 @@ async function updateMyTargets(req, res) {
   }
 }
 
+// Phase 1: Food search and calculate endpoints
+/**
+ * GET /api/nutrition/foods/search?q=chicken breast
+ * Protected (JWT)
+ * No DB write
+ */
+async function searchFoods(req, res) {
+  try {
+    const { ok, errors, value } = validateFoodSearch(req.query?.q);
+    if (!ok) return sendError(res, 400, "Validation failed", errors);
+
+    const items = await searchFoodsByQuery(value.q);
+
+    return res.status(200).json({
+      success: true,
+      message: "Foods fetched successfully",
+      data: {
+        q: value.q,
+        count: items.length,
+        items,
+      },
+    });
+  } catch (err) {
+    console.error("searchFoods error:", err);
+    return sendError(res, err.statusCode || 500, err.message || "Server error");
+  }
+}
+
+/**
+ * POST /api/nutrition/foods/calculate
+ * Protected (JWT)
+ * No DB write (Phase 1)
+ * Body: { food, quantity, measure }   measure: cup|g
+ */
+async function calculateFood(req, res) {
+  try {
+    const { ok, errors, value } = validateFoodCalculateBody(req.body);
+    if (!ok) return sendError(res, 400, "Validation failed", errors);
+
+    const result = await calculateFoodNutrition(value);
+
+    return res.status(200).json({
+      success: true,
+      message: "Food nutrition calculated successfully",
+      data: result,
+    });
+  } catch (err) {
+    console.error("calculateFood error:", err);
+    return sendError(res, err.statusCode || 500, err.message || "Server error");
+  }
+}
+
 // Phase 4+ placeholders (keep stable until next phases)
 function notImplemented(req, res) {
   return res.status(501).json({
@@ -222,6 +272,10 @@ module.exports = {
   saveTargets,
   getMyTargets,
   updateMyTargets,
+
+  // Phase 1
+  searchFoods,
+  calculateFood,
 
   upsertIntake: notImplemented,
   getDailyIntake: notImplemented,
