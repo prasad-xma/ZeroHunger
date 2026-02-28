@@ -57,12 +57,12 @@ Updates user's allergy profile with new allergies.
 - `500` - Failed to update profile
 
 ### DELETE /
-Deactivates user's allergy profile.
+Deletes user's allergy profile permanently.
 
 **Authentication:** Required
 
 **Responses:**
-- `200` - Profile deactivated successfully
+- `200` - Allergy profile deleted successfully
 - `404` - Allergy profile not found
 - `500` - Server error
 
