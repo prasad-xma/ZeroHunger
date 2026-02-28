@@ -17,6 +17,9 @@ const mealRoutes = require('./modules/meals/meal.routes');
 // ----- Weekly planner routes -----
 const weeklyMealRoutes = require('./modules/weekly_meal_planner/weeklyMeal.routes');
 
+const progressRoutes = require('./modules/weekly_planner_prediction/progress.routes');
+
+
 // ----- Health recommendation routes -----
 const healthRecommendationRoutes = require('./modules/health_recommendation/healthRecommendation.routes');
 
@@ -51,6 +54,8 @@ app.use('/api/meals', mealRoutes);
 
 // ----- Weekly planner routes -----
 app.use('/api/meal-plan', weeklyMealRoutes);
+
+app.use('/api/progress', progressRoutes);
 
 // ----- Health recommendation routes -----
 app.use('/api/health-recommendation', healthRecommendationRoutes);

@@ -1,20 +1,17 @@
 const mongoose = require('mongoose');
 
 const foodSchema = new mongoose.Schema({
-    name: String,
-    grams: Number
+    name: { type: String, required: true },
+    grams: { type: Number, required: true, min: 1 }
 });
 
 const mealSchema = new mongoose.Schema({
     foods: [foodSchema],
-    isCompleted: {
-        type: Boolean,
-        default: false
-    }
+    isCompleted: { type: Boolean, default: false }
 });
 
 const daySchema = new mongoose.Schema({
-    day: String,
+    day: { type: String, required: true },
     meals: {
         breakfast: mealSchema,
         lunch: mealSchema,
@@ -23,17 +20,9 @@ const daySchema = new mongoose.Schema({
 });
 
 const weeklyMealSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    },
-    weekStartDate: {
-        type: Date,
-        required: true
-    },
-    goal: {
-        type: String   // example: Weight Loss / Muscle Gain
-    },
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    weekStartDate: { type: Date, required: true },
+    goal: { type: String, default: "General" },
     days: [daySchema]
 }, { timestamps: true });
 
