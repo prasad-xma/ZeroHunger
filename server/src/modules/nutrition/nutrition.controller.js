@@ -1,6 +1,7 @@
 // server/src/modules/nutrition/nutrition.controller.js
 const { validateTargetsInput, isISODateKey, validateFoodSearch, validateFoodCalculateBody } = require("./nutrition.validators");
 const { calculateTargetsAndRanges, searchFoodsByQuery, calculateFoodNutrition } = require("./nutrition.service");
+const NutritionTarget = require("./nutrition.target.model");
 
 function sendError(res, status, message, errors = []) {
   return res.status(status).json({
@@ -259,6 +260,38 @@ async function calculateFood(req, res) {
   }
 }
 
+/**
+ * DELETE /api/nutrition/targets/me
+ * Protected (JWT)
+ * Deletes ONLY the latest target document for the logged-in user
+ * Keeps history (older docs remain). After delete, previous doc becomes latest.
+ */
+async function deleteMyLatestTargets(req, res) {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return sendError(res, 401, "Unauthorized");
+
+    const latest = await NutritionTarget.findOne({ userId }).sort({ createdAt: -1 });
+
+    if (!latest) {
+      return sendError(res, 404, "No nutrition targets found to delete.");
+    }
+
+    await NutritionTarget.deleteOne({ _id: latest._id });
+
+    return res.status(200).json({
+      success: true,
+      message: "Latest nutrition targets deleted successfully",
+      data: {
+        deletedId: latest._id,
+      },
+    });
+  } catch (err) {
+    console.error("deleteMyLatestTargets error:", err);
+    return sendError(res, 500, "Server error");
+  }
+}
+
 // Phase 4+ placeholders (keep stable until next phases)
 function notImplemented(req, res) {
   return res.status(501).json({
@@ -272,6 +305,7 @@ module.exports = {
   saveTargets,
   getMyTargets,
   updateMyTargets,
+  deleteMyLatestTargets,
 
   // Phase 1
   searchFoods,
