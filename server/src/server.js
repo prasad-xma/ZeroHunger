@@ -26,8 +26,8 @@ const healthRecommendationRoutes = require('./modules/health_recommendation/heal
 // ----- AI Food Allergies routes -----
 const aiFoodAllergiesRoutes = require('./modules/ai_food_allergies/aiFoodAllergy.routes');
 
-// ----- Health Advice routes -----
-const healthAdviceRoutes = require('./modules/health_advice/healthAdvice.routes');
+// ----- Shopping Optimizer routes -----
+const shoppingRoutes = require('./modules/shopping/shopping.routes');
 
 const connectDB = require('./config/db');
 const cors = require('cors');
@@ -63,8 +63,8 @@ app.use('/api/health-recommendation', healthRecommendationRoutes);
 // ----- AI Food Allergies routes -----
 app.use('/api/ai-food-allergies', aiFoodAllergiesRoutes);
 
-// ----- Health Advice routes -----
-app.use('/api/health-advice', healthAdviceRoutes);
+// ----- Shopping Optimizer routes -----
+app.use('/api/shopping', shoppingRoutes);
 
 // port
 const PORT = process.env.PORT || 5000;
