@@ -1,17 +1,24 @@
 const service = require('./weeklyMeal.service');
 
 const validateMealPlan = (req, res, next) => {
-    const { userId, weekStartDate, goal } = req.body;
+    const { weekStartDate, goal } = req.body;
     
-    if (!userId || !weekStartDate) {
+    if (!weekStartDate) {
         return res.status(400).json({ 
-            message: "Missing required fields: userId, weekStartDate" 
+            message: "Missing required fields: weekStartDate" 
         });
     }
     
     if (isNaN(Date.parse(weekStartDate))) {
         return res.status(400).json({ 
             message: "Invalid weekStartDate format" 
+        });
+    }
+    
+    // userId will be added by auth middleware
+    if (!req.userId) {
+        return res.status(401).json({ 
+            message: "Unauthorized - User ID required" 
         });
     }
     
