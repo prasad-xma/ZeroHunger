@@ -5,17 +5,22 @@ const { getAIAdvice } = require('./ai.service');
 
 exports.saveProgress = async (req, res) => {
     try {
-        const { userId, weekStartDate, weight } = req.body;
+        const { weekStartDate, weight } = req.body;
 
-        if (!userId || !weekStartDate || !weight) {
-            return res.status(400).json({ message: "Missing required fields: userId, weekStartDate, weight" });
+        if (!weekStartDate || !weight) {
+            return res.status(400).json({ message: "Missing required fields: weekStartDate, weight" });
         }
 
         if (weight <= 0 || weight > 1000) {
             return res.status(400).json({ message: "Invalid weight value" });
         }
 
-        const mealPlan = await WeeklyMeal.findOne({ userId, weekStartDate });
+        // userId will be added by auth middleware
+        if (!req.userId) {
+            return res.status(401).json({ message: "Unauthorized - User ID required" });
+        }
+
+        const mealPlan = await WeeklyMeal.findOne({ userId: req.userId, weekStartDate });
         let performance = 0;
 
         if (mealPlan) {
@@ -29,7 +34,7 @@ exports.saveProgress = async (req, res) => {
             performance = (completed / totalMeals) * 100;
         }
 
-        const existingProgress = await Progress.findOne({ userId, weekStartDate });
+        const existingProgress = await Progress.findOne({ userId: req.userId, weekStartDate });
         if (existingProgress) {
             existingProgress.weight = weight;
             existingProgress.performance = performance;
@@ -37,7 +42,7 @@ exports.saveProgress = async (req, res) => {
             return res.json(existingProgress);
         }
 
-        const progress = new Progress({ userId, weekStartDate, weight, performance });
+        const progress = new Progress({ userId: req.userId, weekStartDate, weight, performance });
         await progress.save();
         res.status(201).json(progress);
     } catch (err) {
