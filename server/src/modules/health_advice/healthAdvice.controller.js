@@ -36,7 +36,7 @@ const generateHealthAdvice = async (req, res) => {
         const newAdvice = new HealthAdvice({
             userId,
             healthProfileId,
-            advice
+            advice: JSON.parse(JSON.stringify(advice))
         });
 
         await newAdvice.save();
@@ -180,7 +180,7 @@ function generateAdviceContent(profile) {
     };
 
     // Weekly plan
-    const weeklyPlan = generateWeeklyPlan(goal, dietary_preference);
+    const weeklyPlan = []; // Temporarily disabled to isolate the issue
 
     return {
         meal_management: mealManagement,
