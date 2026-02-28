@@ -149,10 +149,8 @@ const deleteAllergyProfile = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        const allergyProfile = await AiFoodAllergy.findOneAndUpdate(
-            { userId, is_active: true },
-            { is_active: false },
-            { new: true }
+        const allergyProfile = await AiFoodAllergy.findOneAndDelete(
+            { userId, is_active: true }
         );
 
         if (!allergyProfile) {
@@ -164,7 +162,7 @@ const deleteAllergyProfile = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: 'Allergy profile deactivated successfully'
+            message: 'Allergy profile deleted successfully'
         });
 
     } catch (error) {
