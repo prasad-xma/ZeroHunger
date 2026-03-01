@@ -5,7 +5,8 @@ const {
     getShoppingLists,
     getShoppingList,
     updateIngredientStatus,
-    generatePDF
+    generatePDF,
+    deleteShoppingList
 } = require('./shopping.controller');
 
 // Middleware to protect routes (add your auth middleware here)
