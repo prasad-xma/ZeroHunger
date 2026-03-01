@@ -15,7 +15,7 @@ const protect = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // ✅ Support both token payload styles: { id } OR { userId }
+    //  Support both token payload styles: { id } OR { userId }
     const userId = decoded.id || decoded.userId;
 
     if (!userId) {
@@ -24,7 +24,7 @@ const protect = async (req, res, next) => {
 
     req.user = await User.findById(userId).select("-password");
 
-    // ✅ If user not found in DB
+    //  If user not found in DB
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
