@@ -1,5 +1,93 @@
 const ShoppingList = require('./shopping.model');
 
+// Helper function to consolidate ingredients
+function consolidateIngredients(recipes) {
+    const ingredientMap = new Map();
+    
+    // Handle undefined/null recipes
+    if (!recipes || !Array.isArray(recipes)) {
+        return [];
+    }
+    
+    recipes.forEach(recipe => {
+        // Handle recipe with no ingredients
+        if (!recipe.ingredients || !Array.isArray(recipe.ingredients)) {
+            return;
+        }
+        
+        recipe.ingredients.forEach(ingredient => {
+            const key = `${ingredient.name.toLowerCase()}_${ingredient.unit}`;
+            
+            if (ingredientMap.has(key)) {
+                const existing = ingredientMap.get(key);
+                existing.quantity += ingredient.quantity;
+            } else {
+                ingredientMap.set(key, {
+                    name: ingredient.name,
+                    quantity: ingredient.quantity,
+                    unit: ingredient.unit,
+                    purchased: false,
+                    consolidated: true
+                });
+            }
+        });
+    });
+    
+    return Array.from(ingredientMap.values());
+}
+
+// Helper function to generate alerts
+function generateAlerts(ingredients, kitchenStock) {
+    const alerts = [];
+    const stockMap = new Map();
+    
+    // Create stock map for easy lookup (handle undefined/null)
+    if (kitchenStock && Array.isArray(kitchenStock)) {
+        kitchenStock.forEach(item => {
+            stockMap.set(item.name.toLowerCase(), item);
+        });
+    }
+    
+    ingredients.forEach(ingredient => {
+        const stock = stockMap.get(ingredient.name.toLowerCase());
+        
+        if (stock) {
+            // Check for over-purchase
+            if (stock.quantity > ingredient.quantity) {
+                alerts.push({
+                    type: 'over_purchase',
+                    message: `You already have ${stock.quantity} ${stock.unit} ${stock.name} at home, weekly plan needs ${ingredient.quantity} ${ingredient.unit}`,
+                    ingredient: ingredient.name,
+                    severity: 'warning'
+                });
+            }
+            
+            // Check for expiry alerts
+            if (stock.expiryDate) {
+                const daysToExpiry = Math.ceil((stock.expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                if (daysToExpiry <= 2 && daysToExpiry > 0) {
+                    alerts.push({
+                        type: 'expiry',
+                        message: `Your ${stock.name} expires in ${daysToExpiry} days but you plan to use it in a recipe`,
+                        ingredient: ingredient.name,
+                        severity: 'error'
+                    });
+                }
+            }
+        } else {
+            // Check for low stock (no stock at home)
+            alerts.push({
+                type: 'low_stock',
+                message: `You need ${ingredient.quantity} ${ingredient.unit} ${ingredient.name} for your recipes`,
+                ingredient: ingredient.name,
+                severity: 'info'
+            });
+        }
+    });
+    
+    return alerts;
+}
+
 // Create new shopping list
 const createShoppingList = async (req, res) => {
     try {
@@ -26,7 +114,15 @@ const createShoppingList = async (req, res) => {
         });
     } catch (err) {
         console.error('Create shopping list error:', err.message);
-        res.status(500).json({ message: 'Failed to create shopping list' });
+        console.error('Full error:', err);
+        console.error('Request body:', req.body);
+        console.error('User from req:', req.user);
+        console.error('JWT_SECRET exists:', !!process.env.JWT_SECRET);
+        res.status(500).json({ 
+            message: 'Failed to create shopping list',
+            error: err.message,
+            details: err.stack
+        });
     }
 };
 
@@ -131,86 +227,39 @@ const generatePDF = async (req, res) => {
     }
 };
 
-// Helper function to consolidate ingredients
-function consolidateIngredients(recipes) {
-    const ingredientMap = new Map();
-    
-    recipes.forEach(recipe => {
-        recipe.ingredients.forEach(ingredient => {
-            const key = `${ingredient.name.toLowerCase()}_${ingredient.unit}`;
-            
-            if (ingredientMap.has(key)) {
-                const existing = ingredientMap.get(key);
-                existing.quantity += ingredient.quantity;
-            } else {
-                ingredientMap.set(key, {
-                    name: ingredient.name,
-                    quantity: ingredient.quantity,
-                    unit: ingredient.unit,
-                    purchased: false,
-                    consolidated: true
-                });
-            }
-        });
-    });
-    
-    return Array.from(ingredientMap.values());
-}
-
-// Helper function to generate alerts
-function generateAlerts(ingredients, kitchenStock) {
-    const alerts = [];
-    const stockMap = new Map();
-    
-    // Create stock map for easy lookup
-    kitchenStock.forEach(item => {
-        stockMap.set(item.name.toLowerCase(), item);
-    });
-    
-    ingredients.forEach(ingredient => {
-        const stock = stockMap.get(ingredient.name.toLowerCase());
+// Delete shopping list
+const deleteShoppingList = async (req, res) => {
+    try {
+        const shoppingList = await ShoppingList.findOneAndUpdate(
+            { 
+                _id: req.params.id,
+                user: req.user.id
+            },
+            { 
+                isActive: false 
+            },
+            { new: true }
+        );
         
-        if (stock) {
-            // Check for over-purchase
-            if (stock.quantity > ingredient.quantity) {
-                alerts.push({
-                    type: 'over_purchase',
-                    message: `You already have ${stock.quantity} ${stock.unit} ${stock.name} at home, weekly plan needs ${ingredient.quantity} ${ingredient.unit}`,
-                    ingredient: ingredient.name,
-                    severity: 'warning'
-                });
-            }
-            
-            // Check for expiry alerts
-            if (stock.expiryDate) {
-                const daysToExpiry = Math.ceil((stock.expiryDate - new Date()) / (1000 * 60 * 60 * 24));
-                if (daysToExpiry <= 2 && daysToExpiry > 0) {
-                    alerts.push({
-                        type: 'expiry',
-                        message: `Your ${stock.name} expires in ${daysToExpiry} days but you plan to use it in a recipe`,
-                        ingredient: ingredient.name,
-                        severity: 'error'
-                    });
-                }
-            }
-        } else {
-            // Check for low stock (no stock at home)
-            alerts.push({
-                type: 'low_stock',
-                message: `You need ${ingredient.quantity} ${ingredient.unit} ${ingredient.name} for your recipes`,
-                ingredient: ingredient.name,
-                severity: 'info'
-            });
+        if (!shoppingList) {
+            return res.status(404).json({ message: 'Shopping list not found' });
         }
-    });
-    
-    return alerts;
-}
+        
+        res.json({
+            message: 'Shopping list deleted successfully',
+            shoppingList
+        });
+    } catch (err) {
+        console.error('Delete shopping list error:', err.message);
+        res.status(500).json({ message: 'Failed to delete shopping list' });
+    }
+};
 
 module.exports = {
     createShoppingList,
     getShoppingLists,
     getShoppingList,
     updateIngredientStatus,
-    generatePDF
+    generatePDF,
+    deleteShoppingList
 };

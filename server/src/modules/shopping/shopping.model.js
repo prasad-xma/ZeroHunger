@@ -78,9 +78,4 @@ const shoppingListSchema = new mongoose.Schema({
     }
 });
 
-shoppingListSchema.pre('save', function(next) {
-    this.updatedAt = Date.now();
-    next();
-});
-
 module.exports = mongoose.model('ShoppingList', shoppingListSchema);
