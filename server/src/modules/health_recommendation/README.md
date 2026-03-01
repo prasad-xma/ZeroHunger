@@ -137,7 +137,7 @@ Recalculates health metrics for existing profile.
 - `500` - Server error
 
 ### DELETE /:profileId
-Deactivates a health profile (soft delete).
+Deletes a health profile permanently.
 
 **Parameters:**
 - `profileId` (path) - Health profile ID
@@ -145,7 +145,7 @@ Deactivates a health profile (soft delete).
 **Authentication:** Required
 
 **Responses:**
-- `200` - Health profile deactivated successfully
+- `200` - Health profile deleted successfully
 - `404` - Health profile not found
 - `500` - Server error
 

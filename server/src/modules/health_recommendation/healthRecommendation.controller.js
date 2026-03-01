@@ -140,19 +140,14 @@ const updateRecommendations = async (req, res) => {
     }
 };
 
-// Soft delete health profile (change status to deactivated)
+// Delete health profile (hard delete)
 const deleteHealthProfile = async (req, res) => {
     try {
         const userId = req.user.id;
         const { profileId } = req.params;
 
-        const healthProfile = await HealthRecommendation.findOneAndUpdate(
-            { _id: profileId, userId, is_active: true },
-            { 
-                status: 'deactivated',
-                is_active: false
-            },
-            { new: true }
+        const healthProfile = await HealthRecommendation.findOneAndDelete(
+            { _id: profileId, userId, is_active: true }
         );
 
         if (!healthProfile) {
@@ -164,7 +159,7 @@ const deleteHealthProfile = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: 'Health profile deactivated successfully'
+            message: 'Health profile deleted successfully'
         });
     } catch (error) {
         console.error('deleteHealthProfile error:', error);
