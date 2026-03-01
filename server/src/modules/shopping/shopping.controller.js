@@ -131,6 +131,34 @@ const generatePDF = async (req, res) => {
     }
 };
 
+// Delete shopping list
+const deleteShoppingList = async (req, res) => {
+    try {
+        const shoppingList = await ShoppingList.findOneAndUpdate(
+            { 
+                _id: req.params.id,
+                user: req.user.id
+            },
+            { 
+                isActive: false 
+            },
+            { new: true }
+        );
+        
+        if (!shoppingList) {
+            return res.status(404).json({ message: 'Shopping list not found' });
+        }
+        
+        res.json({
+            message: 'Shopping list deleted successfully',
+            shoppingList
+        });
+    } catch (err) {
+        console.error('Delete shopping list error:', err.message);
+        res.status(500).json({ message: 'Failed to delete shopping list' });
+    }
+};
+
 // Helper function to consolidate ingredients
 function consolidateIngredients(recipes) {
     const ingredientMap = new Map();
@@ -212,5 +240,6 @@ module.exports = {
     getShoppingLists,
     getShoppingList,
     updateIngredientStatus,
-    generatePDF
+    generatePDF,
+    deleteShoppingList
 };

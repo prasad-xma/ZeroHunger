@@ -26,4 +26,7 @@ router.patch('/:id/ingredient', protect, updateIngredientStatus);
 // Generate PDF download
 router.get('/:id/pdf', protect, generatePDF);
 
+// Delete shopping list
+router.delete('/:id', protect, deleteShoppingList);
+
 module.exports = router;
