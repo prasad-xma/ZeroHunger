@@ -15,7 +15,7 @@ router.post("/targets/calculate", controller.calculateTargets);
 router.post("/targets", controller.saveTargets);
 router.get("/targets/me", controller.getMyTargets);
 router.put("/targets/me", controller.updateMyTargets);
-
+router.delete("/targets/me", controller.deleteMyLatestTargets);
 // Intake
 router.post("/intake", controller.upsertIntake);
 router.get("/intake/daily", controller.getDailyIntake);

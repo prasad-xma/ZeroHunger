@@ -1,3 +1,4 @@
+// Generates default weekdays and empty meals
 const generateWeekDays = () => {
     const days = [
         "Monday",
