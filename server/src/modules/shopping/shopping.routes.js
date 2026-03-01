@@ -5,6 +5,7 @@ const {
     getShoppingLists,
     getShoppingList,
     updateIngredientStatus,
+    updateShoppingList,
     generatePDF,
     deleteShoppingList
 } = require('./shopping.controller');
@@ -20,6 +21,9 @@ router.get('/', protect, getShoppingLists);
 
 // Get single shopping list
 router.get('/:id', protect, getShoppingList);
+
+// Update shopping list content
+router.patch('/:id', protect, updateShoppingList);
 
 // Update ingredient purchased status
 router.patch('/:id/ingredient', protect, updateIngredientStatus);
