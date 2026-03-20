@@ -5,7 +5,9 @@ const {
     getShoppingLists,
     getShoppingList,
     updateIngredientStatus,
-    generatePDF
+    updateShoppingList,
+    generatePDF,
+    deleteShoppingList
 } = require('./shopping.controller');
 
 // Middleware to protect routes (add your auth middleware here)
@@ -20,10 +22,16 @@ router.get('/', protect, getShoppingLists);
 // Get single shopping list
 router.get('/:id', protect, getShoppingList);
 
+// Update shopping list content
+router.patch('/:id', protect, updateShoppingList);
+
 // Update ingredient purchased status
 router.patch('/:id/ingredient', protect, updateIngredientStatus);
 
 // Generate PDF download
 router.get('/:id/pdf', protect, generatePDF);
+
+// Delete shopping list
+router.delete('/:id', protect, deleteShoppingList);
 
 module.exports = router;
