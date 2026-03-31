@@ -1,40 +1,39 @@
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 
-import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
-
-const LoginPage = () => {
+const LoginPage = ({ onSwitchToRegister }) => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError('');
+    setError("");
 
     const result = await login(formData.email, formData.password);
-    
+
     if (result.success) {
       // Navigation will be handled by the auth context or router
     } else {
       setError(result.error);
     }
-    
+
     setIsLoading(false);
   };
 
@@ -43,7 +42,7 @@ const LoginPage = () => {
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
-      
+
       <div className="relative w-full max-w-md">
         {/* Main card */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -52,8 +51,12 @@ const LoginPage = () => {
             <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
               <User className="w-10 h-10 text-orange-500" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Welcome Back!</h1>
-            <p className="text-orange-100">Sign in to your ZeroHunger account</p>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              Welcome Back!
+            </h1>
+            <p className="text-orange-100">
+              Sign in to your ZeroHunger account
+            </p>
           </div>
 
           {/* Form section */}
@@ -90,7 +93,7 @@ const LoginPage = () => {
                     <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
@@ -127,14 +130,30 @@ const LoginPage = () => {
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Signing in...
                   </span>
                 ) : (
-                  'Sign In'
+                  "Sign In"
                 )}
               </button>
             </form>
@@ -142,12 +161,19 @@ const LoginPage = () => {
             {/* Footer links */}
             <div className="mt-6 text-center">
               <p className="text-gray-600 text-sm">
-                Don't have an account?{' '}
-                <a href="#" className="text-orange-500 hover:text-orange-600 font-medium">
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={onSwitchToRegister}
+                  className="text-orange-500 hover:text-orange-600 font-medium"
+                >
                   Sign up
-                </a>
+                </button>
               </p>
-              <a href="#" className="text-orange-500 hover:text-orange-600 text-sm font-medium block mt-2">
+              <a
+                href="#"
+                className="text-orange-500 hover:text-orange-600 text-sm font-medium block mt-2"
+              >
                 Forgot your password?
               </a>
             </div>
