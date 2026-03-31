@@ -1,11 +1,15 @@
 
-function App() {
+import { AuthProvider } from './contexts/AuthContext';
+import LoginPage from './features/auth/Login.jsx';
 
+function App() {
   return (
-    <>
-      <h1 className="p-3 text-white bg-amber-950 flex items-center justify-center">Client</h1>
-    </>
-  )
+    <AuthProvider>
+      <div className="min-h-screen">
+        <LoginPage />
+      </div>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
