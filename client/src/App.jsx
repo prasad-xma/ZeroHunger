@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginPage from './features/auth/Login.jsx';
 import RegisterPage from './features/auth/Register.jsx';
@@ -23,28 +24,36 @@ function AppContent() {
     );
   }
 
-  // If authenticated, show landing page
-  if (isAuthenticated) {
-    return <Landing />;
-  }
-
-  // If not authenticated, show login/register pages
   return (
-    <div className="min-h-screen">
-      {currentPage === 'login' ? (
-        <LoginPage onSwitchToRegister={() => setCurrentPage('register')} />
-      ) : (
-        <RegisterPage onSwitchToLogin={() => setCurrentPage('login')} />
+    <Routes>
+      {/* Auth routes - only accessible when not authenticated */}
+      {!isAuthenticated && (
+        <>
+          <Route path="/login" element={<LoginPage onSwitchToRegister={() => setCurrentPage('register')} />} />
+          <Route path="/register" element={<RegisterPage onSwitchToLogin={() => setCurrentPage('login')} />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </>
       )}
-    </div>
+      
+      {/* Protected routes - only accessible when authenticated */}
+      {isAuthenticated && (
+        <>
+          <Route path="/" element={<Landing />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
+    </Routes>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
   );
 }
 
