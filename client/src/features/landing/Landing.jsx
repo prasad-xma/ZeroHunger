@@ -129,6 +129,21 @@ const Landing = () => {
           </p>
         </div>
 
+        {/* Call to Action */}
+        <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl shadow-xl p-8 text-center mb-16">
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Health Journey?</h2>
+          <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
+            Create your first health profile and get personalized recommendations tailored to your unique needs and goals.
+          </p>
+          <button
+            onClick={() => window.location.href = '/health-dashboard/create-profile'}
+            className="bg-white text-orange-500 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
+          >
+            Get Started Now
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+
         {/* Quick Actions */}
         <div className="mb-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Quick Actions</h2>
@@ -207,21 +222,7 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Call to Action */}
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl shadow-xl p-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Health Journey?</h2>
-          <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
-            Create your first health profile and get personalized recommendations tailored to your unique needs and goals.
-          </p>
-          <button
-            onClick={() => window.location.href = '/health-dashboard/create-profile'}
-            className="bg-white text-orange-500 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
-          >
-            Get Started Now
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
-      </main>
+        </main>
 
       {/* Footer */}
       <footer className="relative bg-white border-t border-gray-200 mt-16">
