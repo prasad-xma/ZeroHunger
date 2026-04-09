@@ -14,8 +14,16 @@ const MealSchema = new mongoose.Schema(
     image: { 
       type: String, 
       required: true, 
-      trim: true, 
-      match: /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i  // Basic URL validation for images
+      trim: true,
+      validate: {
+        validator: function(v) {
+          // Accept both external URLs and local asset paths
+          const externalUrlRegex = /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)$/i;
+          const localAssetRegex = /^\/assets\/meals\/.+\.(jpg|jpeg|png|gif|webp)$/i;
+          return externalUrlRegex.test(v) || localAssetRegex.test(v);
+        },
+        message: 'Image must be a valid URL (https://...) or local asset path (/assets/meals/filename.jpg)'
+      }
     },
     description: { 
       type: String, 
