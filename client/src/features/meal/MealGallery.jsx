@@ -37,6 +37,7 @@ const MealGallery = ({ onNavigate }) => {
   useEffect(() => {
     fetchMeals();
   }, []);
+  //
 
   const fetchMeals = async () => {
     try {

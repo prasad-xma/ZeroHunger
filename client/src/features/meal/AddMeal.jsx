@@ -57,6 +57,7 @@ const AddMeal = ({ onNavigate }) => {
     },
     servingSizeGrams: ''
   });
+  //
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

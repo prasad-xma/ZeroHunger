@@ -19,6 +19,7 @@ import {
   Utensils,
   Timer
 } from 'lucide-react';
+//
 
 const MealDetail = ({ mealId, onNavigate }) => {
   const [meal, setMeal] = useState(null);

@@ -16,6 +16,7 @@ const EditMeal = ({ mealId, onNavigate }) => {
     },
     servingSizeGrams: ''
   });
+  //
 
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);

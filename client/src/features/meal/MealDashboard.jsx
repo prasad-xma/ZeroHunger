@@ -96,6 +96,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
       day: 'numeric' 
     });
   };
+  //
 
   const getGreeting = () => {
     const hour = currentTime.getHours();
