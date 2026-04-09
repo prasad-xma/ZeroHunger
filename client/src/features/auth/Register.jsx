@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, Utensils, Apple, Salad, ChefHat } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, Utensils, ClipboardList, Target, BarChart2, Leaf, Rocket, AlertTriangle, CheckCircle } from 'lucide-react';
 import { register as registerService } from '../../services/authService';
 
 const FloatingIcon = ({ icon: Icon, style }) => (
@@ -481,12 +481,14 @@ const RegisterPage = ({ onSwitchToLogin }) => {
           <div className="left-panel">
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="brand-badge">
-                <span>🍊</span>
+                <Utensils size={14} />
                 <span>ZeroHunger</span>
               </div>
 
               <div className="hero-emoji-ring" style={{ marginTop: '1.5rem' }}>
-                <div className="emoji-ring">🥗</div>
+                <div className="emoji-ring">
+                  <Leaf size={48} color="white" strokeWidth={1.5} />
+                </div>
               </div>
 
               <h1 style={{ fontFamily: "'Fredoka One', cursive", fontSize: 28, margin: '0 0 10px', lineHeight: 1.2 }}>
@@ -505,22 +507,22 @@ const RegisterPage = ({ onSwitchToLogin }) => {
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="feature-grid">
                 <div className="feature-card">
-                  <div className="feature-icon">🥦</div>
+                  <div className="feature-icon"><Leaf size={18} color="white" /></div>
                   <h3>Track Nutrition</h3>
                   <p>Monitor healthy food choices and meal planning daily.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon">📋</div>
+                  <div className="feature-icon"><ClipboardList size={18} color="white" /></div>
                   <h3>Stay Organized</h3>
                   <p>All user health and meal data in one system.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon">🎯</div>
+                  <div className="feature-icon"><Target size={18} color="white" /></div>
                   <h3>Set Goals</h3>
                   <p>Define and achieve personal nutrition targets.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon">📊</div>
+                  <div className="feature-icon"><BarChart2 size={18} color="white" /></div>
                   <h3>Smart Reports</h3>
                   <p>Visual insights into your nutrition journey.</p>
                 </div>
@@ -535,7 +537,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
               Back to Login
             </button>
 
-            <h2 className="page-title">Create Account 👋</h2>
+            <h2 className="page-title">Create Account</h2>
             <p className="page-subtitle">Fill in your details to get started</p>
 
             <div className="step-indicator">
@@ -625,14 +627,14 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
               {error && (
                 <div className="alert-error">
-                  <span>⚠️</span>
+                  <AlertTriangle size={15} style={{ flexShrink: 0 }} />
                   <span>{error}</span>
                 </div>
               )}
 
               {success && (
                 <div className="alert-success">
-                  <span>✅</span>
+                  <CheckCircle size={15} style={{ flexShrink: 0 }} />
                   <span>{success}</span>
                 </div>
               )}
@@ -641,7 +643,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                 {isLoading ? (
                   <><span className="spinner" /> Creating Account...</>
                 ) : (
-                  <><span>🚀</span> Create Account</>
+                  <><Rocket size={16} /> Create Account</>
                 )}
               </button>
             </form>
