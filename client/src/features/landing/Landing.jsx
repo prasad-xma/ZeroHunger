@@ -140,7 +140,7 @@ const Landing = () => {
               {/* Hero Section */}
               <div className="text-center mb-16">
                 <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                  Welcome to Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Health Journey</span>
+                  Welcome to Your <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-500 to-amber-500">Health Journey</span>
                 </h1>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                   Take control of your health with personalized recommendations, AI-powered insights, and comprehensive tracking tools.
@@ -148,7 +148,7 @@ const Landing = () => {
               </div>
 
               {/* Call to Action */}
-              <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl shadow-xl p-8 text-center mb-16">
+              <div className="bg-linear-to-r from-orange-500 to-amber-500 rounded-3xl shadow-xl p-8 text-center mb-16">
                 <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Health Journey?</h2>
                 <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
                   Create your first health profile and get personalized recommendations tailored to your unique needs and goals.
@@ -198,9 +198,9 @@ const Landing = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {features.map((feature, index) => (
                     <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden group">
-                      <div className={`h-2 bg-gradient-to-r ${feature.color}`}></div>
+                      <div className={`h-2 bg-linear-to-r ${feature.color}`}></div>
                       <div className="p-6">
-                        <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform`}>
+                        <div className={`w-16 h-16 bg-linear-to-r ${feature.color} rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform`}>
                           {feature.icon}
                         </div>
                         <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
