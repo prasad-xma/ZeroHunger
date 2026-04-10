@@ -2,18 +2,19 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserHealthProfiles, getAllHealthAdvice } from '../../services/healthService';
 import { getUserAllergyProfile } from '../../services/aiFoodAllergyService';
-import { 
-  Activity, 
-  Heart, 
-  TrendingUp, 
-  Plus, 
+import {
+  Activity,
+  Heart,
+  TrendingUp,
+  Plus,
   Calendar,
   User,
   Target,
   Droplets,
   Moon,
   AlertTriangle,
-  Shield
+  Shield,
+  ArrowLeft
 } from 'lucide-react';
 import HealthMetricsChart from './components/HealthMetricsChart';
 import BMIGauge from './components/BMIGauge';
@@ -100,8 +101,8 @@ const Dashboard = () => {
     const startWeight = formResult.formData.personal.goal === 'lose'
       ? currentWeight + 4
       : formResult.formData.personal.goal === 'gain'
-      ? currentWeight - 3
-      : currentWeight;
+        ? currentWeight - 3
+        : currentWeight;
 
     return {
       labels: ['Start', 'Current', 'Target'],
@@ -166,11 +167,18 @@ const Dashboard = () => {
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
-      
+
       <div className="relative max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
-          <div className="bg-linear-to-r from-orange-500 to-amber-500 p-8 text-center">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6 relative">
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-6 left-6 text-white/90 hover:text-white transition-colors flex items-center gap-2 font-medium z-10"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
+          <div className="bg-linear-to-r from-orange-500 to-amber-500 p-8 text-center pt-12">
             <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
               <Heart className="w-10 h-10 text-orange-500" />
             </div>
@@ -291,19 +299,55 @@ const Dashboard = () => {
                   View All
                 </button>
               </div>
-              
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {profiles.slice(0, 3).map((profile) => (
-                    <div
-                      key={profile._id}
-                      onClick={() => navigate(`/health-dashboard/profile/${profile._id}`)}
-                      className="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                    >
-                    <h3 className="font-semibold text-gray-900 mb-2">{profile.profile_name}</h3>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <p>Age: {profile.user_profile.age} years</p>
-                      <p>Goal: {profile.user_profile.goal}</p>
-                      <p>Status: <span className="capitalize text-orange-600">{profile.status}</span></p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {profiles.slice(0, 3).map((profile) => (
+                  <div
+                    key={profile._id}
+                    onClick={() => navigate(`/health-dashboard/profile/${profile._id}`)}
+                    className="group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-xl hover:border-orange-200 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col justify-between"
+                  >
+
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-orange-50 to-amber-100 rounded-full -translate-y-16 translate-x-16 opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+
+                    <div className="relative z-10">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="p-2.5 bg-orange-50 text-orange-500 rounded-xl group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors line-clamp-1">{profile.profile_name}</h3>
+                      </div>
+
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center text-sm text-gray-600 bg-gray-50/50 p-2.5 rounded-xl border border-gray-50">
+                          <span className="w-20 text-gray-500 font-medium">Age</span>
+                          <span className="font-semibold text-gray-900">{profile.user_profile.age} years</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600 bg-gray-50/50 p-2.5 rounded-xl border border-gray-50">
+                          <span className="w-20 text-gray-500 font-medium">Goal</span>
+                          <span className="font-semibold text-gray-900 capitalize">{profile.user_profile.goal}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="relative z-10 flex items-center justify-between pt-4 border-t border-gray-100">
+                      <span className={`px-3 py-1.5 text-xs font-bold rounded-full ${profile.status === 'Generated' || profile.status === 'Active'
+                          ? 'bg-green-50 text-green-600 border border-green-100'
+                          : 'bg-orange-50 text-orange-600 border border-orange-100'
+                        } capitalize`}>
+                        {profile.status}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/health-dashboard/profile/${profile._id}`);
+                        }}
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-orange-500 hover:text-orange-600 transition-colors"
+                      >
+                        View Details
+                        <ArrowLeft className="w-4 h-4 rotate-180 transform" />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -317,7 +361,7 @@ const Dashboard = () => {
                     <TrendingUp className="w-6 h-6 text-orange-500" />
                     Current Metrics
                   </h2>
-                  
+
                   <div className="space-y-4">
                     {/* BMI Gauge */}
                     {latestProfile.recommendations?.bmi && (
@@ -360,7 +404,7 @@ const Dashboard = () => {
                       <Activity className="w-6 h-6 text-orange-500" />
                       Macronutrients
                     </h2>
-                    <HealthMetricsChart 
+                    <HealthMetricsChart
                       data={latestProfile.recommendations.macronutrients}
                       type="macro"
                     />
@@ -369,66 +413,223 @@ const Dashboard = () => {
               </div>
             )}
 
-            {/* Latest Health Advice */}
             {latestAdvice && (
-              <div className="bg-white rounded-3xl shadow-xl p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <Calendar className="w-6 h-6 text-orange-500" />
-                    Latest Health Advice
-                  </h2>
-                  <span className="text-sm text-gray-500">
-                    Generated {new Date(latestAdvice.generated_at).toLocaleDateString()}
-                  </span>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between bg-white rounded-3xl shadow-xl p-6 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-full -translate-y-16 translate-x-16 opacity-50 blur-2xl"></div>
+                  <div className="relative z-10">
+                    <h2 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+                      <Target className="w-6 h-6 text-orange-500" />
+                      Personalized Health Plan
+                    </h2>
+                    <p className="text-sm text-gray-500 mt-1">Generated {new Date(latestAdvice.generated_at).toLocaleDateString()}</p>
+                  </div>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-green-50 rounded-xl p-4">
-                    <h3 className="font-medium text-green-800 mb-2">Meal Tips</h3>
-                    <ul className="text-sm text-green-700 space-y-1">
-                      {latestAdvice.advice?.meal_management?.timing?.slice(0, 2).map((tip, index) => (
-                        <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-green-600 rounded-full mt-2 shrink-0"></span>
-                          {tip}
-                        </li>
+
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                  <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="p-2.5 bg-red-50 text-red-500 rounded-2xl">
+                        <TrendingUp className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">Daily Energy</h3>
+                        <p className="text-sm text-gray-500">Calories and macro targets</p>
+                      </div>
+                    </div>
+                    <div className="rounded-3xl bg-red-50 p-6 text-center mb-6">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-600 mb-2">Daily calories</p>
+                      <p className="text-4xl font-extrabold text-gray-900">{latestAdvice.advice?.calorie_management?.daily_target || 0}</p>
+                      <p className="text-sm text-gray-500 mt-2">kcal per day</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {['protein','carbs','fats'].map((key) => (
+                        <div key={key} className="flex items-center justify-between text-sm">
+                          <span className="font-semibold text-gray-700 capitalize">{key}</span>
+                          <span className="text-gray-900 font-bold">{latestAdvice.advice?.nutrition_levels?.[key]?.target || 0}g</span>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
+
+                    <div className="mt-6 rounded-3xl bg-white p-4 border border-gray-100">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-3">Nutrition sources</h4>
+                      <div className="grid grid-cols-1 gap-3">
+                        {['protein','carbs','fats'].map((key) => (
+                          <div key={key}>
+                            <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-2">{key}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {latestAdvice.advice?.nutrition_levels?.[key]?.sources?.slice(0, 4).map((item) => (
+                                <span key={item} className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">{item}</span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-6 rounded-3xl bg-white p-4 border border-gray-100">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-4">Meal distribution</h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+                        {Object.entries(latestAdvice.advice?.calorie_management?.meal_distribution || {}).map(([meal, value]) => (
+                          <div key={meal} className="rounded-2xl bg-gray-100 p-3">
+                            <p className="font-semibold capitalize">{meal}</p>
+                            <p>{value} kcal</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-6 rounded-3xl bg-white p-4 border border-gray-100">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-4">Calorie tips</h4>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        {latestAdvice.advice?.calorie_management?.tips?.map((tip, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <span className="mt-1 inline-block w-2 h-2 rounded-full bg-orange-400"></span>
+                            <span>{tip}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
-                  
-                  <div className="bg-blue-50 rounded-xl p-4">
-                    <h3 className="font-medium text-blue-800 mb-2">Hydration</h3>
-                    <ul className="text-sm text-blue-700 space-y-1">
-                      {latestAdvice.advice?.lifestyle_tips?.hydration?.slice(0, 2).map((tip, index) => (
-                        <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-blue-600 rounded-full mt-2 shrink-0"></span>
-                          {tip}
-                        </li>
-                      ))}
-                    </ul>
+
+                  <div className="xl:col-span-2 grid grid-cols-1 gap-6">
+                    <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="p-2.5 bg-green-50 text-green-500 rounded-2xl">
+                          <Calendar className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900">Meal Management</h3>
+                          <p className="text-sm text-gray-500">Timing, portion control, prep</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="rounded-3xl bg-gray-50 p-5">
+                          <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-3">Recommended</p>
+                          <p className="text-lg font-semibold text-gray-900">{latestAdvice.advice?.meal_management?.frequency}</p>
+                          <div className="mt-4 space-y-2 text-sm text-gray-600">
+                            {latestAdvice.advice?.meal_management?.timing?.map((time, idx) => (
+                              <p key={idx} className="flex items-start gap-2">
+                                <span className="mt-1 inline-block w-2 h-2 rounded-full bg-orange-400"></span>
+                                {time}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="rounded-3xl bg-gray-50 p-5">
+                          <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-3">Portion control</p>
+                          <p className="text-sm text-gray-700">{latestAdvice.advice?.meal_management?.portion_control}</p>
+                          <div className="mt-4 space-y-2 text-sm text-gray-700">
+                            {latestAdvice.advice?.meal_management?.meal_preparation?.map((tip, idx) => (
+                              <p key={idx} className="flex items-start gap-2">
+                                <span className="mt-1 inline-block w-2 h-2 rounded-full bg-green-400"></span>
+                                {tip}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="p-2.5 bg-blue-50 text-blue-500 rounded-2xl">
+                          <Shield className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900">Lifestyle Tips</h3>
+                          <p className="text-sm text-gray-500">Hydration, movement, rest and stress</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { title:'Hydration', key:'hydration', color:'bg-blue-100 text-blue-700' },
+                          { title:'Exercise', key:'exercise', color:'bg-emerald-100 text-emerald-700' },
+                          { title:'Sleep', key:'sleep', color:'bg-purple-100 text-purple-700' },
+                          { title:'Stress', key:'stress_management', color:'bg-pink-100 text-pink-700' }
+                        ].map((section) => (
+                          <div key={section.key} className="rounded-3xl bg-gray-50 p-4 h-full">
+                            <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${section.color} inline-flex rounded-full px-3 py-1 mb-4`}>{section.title}</p>
+                            <ul className="space-y-2 text-sm text-gray-700">
+                              {latestAdvice.advice?.lifestyle_tips?.[section.key]?.slice(0, 3).map((tip, idx) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <span className="mt-1 inline-block w-2 h-2 rounded-full bg-gray-400"></span>
+                                  {tip}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div className="bg-purple-50 rounded-xl p-4">
-                    <h3 className="font-medium text-purple-800 mb-2">Exercise</h3>
-                    <ul className="text-sm text-purple-700 space-y-1">
-                      {latestAdvice.advice?.lifestyle_tips?.exercise?.slice(0, 2).map((tip, index) => (
-                        <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-purple-600 rounded-full mt-2 shrink-0"></span>
-                          {tip}
-                        </li>
-                      ))}
-                    </ul>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="p-2.5 bg-amber-50 text-amber-500 rounded-2xl">
+                        <Utensils className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">Meal Suggestions</h3>
+                        <p className="text-sm text-gray-500">Easy meals to match your daily targets</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {['breakfast','lunch','dinner','snacks'].map((mealTime) => {
+                        const meal = latestAdvice.advice?.meal_suggestions?.[mealTime]?.[0];
+                        if (!meal) return null;
+                        return (
+                          <div key={mealTime} className="rounded-3xl border border-gray-100 p-5 bg-gray-50">
+                            <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-2">{mealTime}</p>
+                            <p className="font-bold text-gray-900 mb-2">{meal.name}</p>
+                            <p className="text-sm text-gray-500 mb-3">Prep {meal.prep_time} · {meal.calories} kcal</p>
+                            <div className="flex flex-wrap gap-2">
+                              {meal.ingredients?.slice(0, 4).map((ingredient) => (
+                                <span key={ingredient} className="inline-flex items-center px-3 py-1 rounded-full bg-white text-gray-700 text-xs border border-gray-200">{ingredient}</span>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  
-                  <div className="bg-indigo-50 rounded-xl p-4">
-                    <h3 className="font-medium text-indigo-800 mb-2">Sleep</h3>
-                    <ul className="text-sm text-indigo-700 space-y-1">
-                      {latestAdvice.advice?.lifestyle_tips?.sleep?.slice(0, 2).map((tip, index) => (
-                        <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-indigo-600 rounded-full mt-2 shrink-0"></span>
-                          {tip}
-                        </li>
-                      ))}
-                    </ul>
+
+                  <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-100">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="p-2.5 bg-slate-50 text-slate-500 rounded-2xl">
+                        <Heart className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">Nutrition Overview</h3>
+                        <p className="text-sm text-gray-500">Vitamins and minerals to keep in focus</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-700 mb-2">Vitamins</p>
+                        <div className="flex flex-wrap gap-2">
+                          {latestAdvice.advice?.nutrition_levels?.vitamins?.map((item) => (
+                            <span key={item} className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">{item}</span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-700 mb-2">Minerals</p>
+                        <div className="flex flex-wrap gap-2">
+                          {latestAdvice.advice?.nutrition_levels?.minerals?.map((item) => (
+                            <span key={item} className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">{item}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -436,33 +637,40 @@ const Dashboard = () => {
 
             {/* Allergy Profile Card */}
             {allergyProfile && allergyProfile.allergies && allergyProfile.allergies.length > 0 && (
-              <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-3xl shadow-xl p-6 border-2 border-red-200">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                    <AlertTriangle className="w-6 h-6 text-red-500" />
-                    Your Food Allergies
-                  </h2>
+              <div className="group relative bg-white border border-red-100 rounded-3xl p-6 hover:shadow-xl hover:border-red-200 transition-all duration-300 overflow-hidden">
+                {/* Decorative Background Blob */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-linear-to-br from-red-50 to-orange-50 rounded-full -translate-y-24 translate-x-24 opacity-60 group-hover:scale-110 transition-transform duration-700 pointer-events-none"></div>
+
+                <div className="relative z-10 flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-red-50 text-red-500 rounded-2xl group-hover:bg-red-500 group-hover:text-white transition-colors duration-300 shadow-xs">
+                      <AlertTriangle className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 group-hover:text-red-600 transition-colors">Your Food Allergies</h2>
+                      <p className="text-sm font-medium text-gray-500 mt-1">Active dietary restrictions</p>
+                    </div>
+                  </div>
+
                   <button
                     onClick={() => navigate('/ai-food-allergies/results')}
-                    className="text-sm text-red-600 hover:text-red-700 font-medium"
+                    className="inline-flex items-center text-sm font-semibold text-red-600 bg-red-50 hover:bg-red-100 px-5 py-2.5 rounded-xl transition-colors shadow-xs hover:shadow-sm self-start"
                   >
-                    View Details →
+                    Manage Profile
+                    <ArrowLeft className="w-4 h-4 ml-2 rotate-180 transform group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
+
+                <div className="relative z-10 flex flex-wrap gap-3">
                   {allergyProfile.allergies.map((allergy) => (
-                    <span
+                    <div
                       key={allergy}
-                      className="px-3 py-1 bg-red-200 text-red-800 rounded-full text-sm font-medium"
+                      className="px-4 py-2.5 bg-white border-2 border-red-50 text-red-700 rounded-2xl text-sm font-bold shadow-xs hover:border-red-200 hover:shadow-md transition-all cursor-default flex items-center gap-2.5"
                     >
+                      <Shield className="w-4 h-4 text-red-400" />
                       {allergy}
-                    </span>
+                    </div>
                   ))}
-                </div>
-                
-                <div className="bg-white/50 rounded-xl p-4 text-sm text-gray-700">
-                  <p><strong>💡 Pro Tip:</strong> Check your personalized allergy recommendations for safe food alternatives, dining guides, and health management tips.</p>
                 </div>
               </div>
             )}
