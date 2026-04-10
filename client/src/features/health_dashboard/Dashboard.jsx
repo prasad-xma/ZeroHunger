@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUserHealthProfiles, getAllHealthAdvice } from '../../services/healthService';
+import { getUserAllergyProfile } from '../../services/aiFoodAllergyService';
 import { 
   Activity, 
   Heart, 
@@ -10,7 +11,9 @@ import {
   User,
   Target,
   Droplets,
-  Moon
+  Moon,
+  AlertTriangle,
+  Shield
 } from 'lucide-react';
 import HealthMetricsChart from './components/HealthMetricsChart';
 import BMIGauge from './components/BMIGauge';
@@ -18,6 +21,7 @@ import BMIGauge from './components/BMIGauge';
 const Dashboard = () => {
   const [profiles, setProfiles] = useState([]);
   const [advices, setAdvices] = useState([]);
+  const [allergyProfile, setAllergyProfile] = useState(null);
   const [formResult, setFormResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -42,9 +46,10 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const [profilesResponse, advicesResponse] = await Promise.all([
+      const [profilesResponse, advicesResponse, allergyResponse] = await Promise.all([
         getUserHealthProfiles(),
-        getAllHealthAdvice()
+        getAllHealthAdvice(),
+        getUserAllergyProfile().catch(() => null) // Allergy profile might not exist
       ]);
 
       if (profilesResponse.data.success) {
@@ -53,6 +58,10 @@ const Dashboard = () => {
 
       if (advicesResponse.data.success) {
         setAdvices(advicesResponse.data.data);
+      }
+
+      if (allergyResponse?.data.success) {
+        setAllergyProfile(allergyResponse.data.data);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch dashboard data');
@@ -421,6 +430,39 @@ const Dashboard = () => {
                       ))}
                     </ul>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Allergy Profile Card */}
+            {allergyProfile && allergyProfile.allergies && allergyProfile.allergies.length > 0 && (
+              <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-3xl shadow-xl p-6 border-2 border-red-200">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                    <AlertTriangle className="w-6 h-6 text-red-500" />
+                    Your Food Allergies
+                  </h2>
+                  <button
+                    onClick={() => navigate('/ai-food-allergies/results')}
+                    className="text-sm text-red-600 hover:text-red-700 font-medium"
+                  >
+                    View Details →
+                  </button>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {allergyProfile.allergies.map((allergy) => (
+                    <span
+                      key={allergy}
+                      className="px-3 py-1 bg-red-200 text-red-800 rounded-full text-sm font-medium"
+                    >
+                      {allergy}
+                    </span>
+                  ))}
+                </div>
+                
+                <div className="bg-white/50 rounded-xl p-4 text-sm text-gray-700">
+                  <p><strong>💡 Pro Tip:</strong> Check your personalized allergy recommendations for safe food alternatives, dining guides, and health management tips.</p>
                 </div>
               </div>
             )}

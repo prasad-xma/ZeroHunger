@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { generateAllergyRecommendations } from '../../services/aiFoodAllergyService';
 import { 
   Heart, 
   Activity, 
@@ -10,7 +11,8 @@ import {
   Plus,
   X,
   Check,
-  User
+  User,
+  AlertTriangle
 } from 'lucide-react';
 
 const HealthQuestionnaire = () => {
@@ -204,6 +206,17 @@ const HealthQuestionnaire = () => {
 
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // If user has allergies, submit them to the allergy API
+      if (formData.allergies.length > 0) {
+        try {
+          await generateAllergyRecommendations(formData.allergies);
+        } catch (allergyErr) {
+          console.warn('Failed to generate allergy recommendations:', allergyErr);
+          // Don't fail the submission if allergy API fails
+        }
+      }
+      
       const payload = {
         submittedAt: new Date().toISOString(),
         formData,

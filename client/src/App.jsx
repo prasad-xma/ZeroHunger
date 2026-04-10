@@ -6,6 +6,8 @@ import RegisterPage from './features/auth/Register.jsx';
 import Landing from './features/landing/Landing.jsx';
 import Dashboard from './features/health_dashboard/Dashboard.jsx';
 import HealthQuestionnaire from './features/questionnaire/ComprehensiveQuestionnaire.jsx';
+import QuestionnairePage from './features/ai_food_allergies/Questionnaire.jsx';
+import ResultsPage from './features/ai_food_allergies/Results.jsx';
 
 function AppContent() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -44,6 +46,8 @@ function AppContent() {
           <Route path="/landing" element={<Landing />} />
           <Route path="/health-dashboard" element={<Dashboard />} />
           <Route path="/questionnaire/comprehensive" element={<HealthQuestionnaire />} />
+          <Route path="/ai-food-allergies/questionnaire" element={<QuestionnairePage />} />
+          <Route path="/ai-food-allergies/results" element={<ResultsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
       )}
