@@ -20,7 +20,6 @@ const daySchema = new mongoose.Schema({
 });
 
 const weeklyMealSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, required: true },
     weekStartDate: { type: Date, required: true },
     goal: { type: String, default: "General" },
     days: [daySchema]
