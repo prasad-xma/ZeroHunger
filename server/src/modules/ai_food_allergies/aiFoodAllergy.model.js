@@ -18,7 +18,13 @@ const aiFoodAllergySchema = new mongoose.Schema({
         safe_alternatives: [String],
         cross_contamination_notes: [String],
         reading_labels_tips: [String],
-        emergency_precautions: [String]
+        emergency_precautions: [String],
+        personalized_advice: {
+            health_management: [String],
+            nutrition_tips: [String],
+            lifestyle_recommendations: [String],
+            dining_guidance: [String]
+        }
     },
     response_metadata: {
         model_used: String,

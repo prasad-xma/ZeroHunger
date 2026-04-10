@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 
@@ -11,6 +12,7 @@ const LoginPage = ({ onSwitchToRegister }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleChange = (e) => {
@@ -29,7 +31,7 @@ const LoginPage = ({ onSwitchToRegister }) => {
     const result = await login(formData.email, formData.password);
 
     if (result.success) {
-      // Navigation will be handled by the auth context or router
+      navigate('/landing');
     } else {
       setError(result.error);
     }
@@ -38,7 +40,7 @@ const LoginPage = ({ onSwitchToRegister }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
@@ -47,7 +49,7 @@ const LoginPage = ({ onSwitchToRegister }) => {
         {/* Main card */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Header section with gradient background */}
-          <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-8 text-center">
+          <div className="bg-linear-to-r from-orange-500 to-amber-500 p-8 text-center">
             <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
               <User className="w-10 h-10 text-orange-500" />
             </div>
@@ -126,7 +128,7 @@ const LoginPage = ({ onSwitchToRegister }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-orange-600 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-linear-to-r from-orange-500 to-amber-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-orange-600 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
