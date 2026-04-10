@@ -203,10 +203,12 @@ const HealthQuestionnaire = () => {
     setError('');
 
     try {
-      // Simulate API call - in real implementation, this would call your backend
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Navigate to dashboard after successful submission
+      const payload = {
+        submittedAt: new Date().toISOString(),
+        formData,
+      };
+      localStorage.setItem('healthQuestionnaireResult', JSON.stringify(payload));
       navigate('/health-dashboard');
     } catch (err) {
       setError('Failed to submit questionnaire. Please try again.');

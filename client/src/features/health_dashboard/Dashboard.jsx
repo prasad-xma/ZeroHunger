@@ -18,13 +18,26 @@ import BMIGauge from './components/BMIGauge';
 const Dashboard = () => {
   const [profiles, setProfiles] = useState([]);
   const [advices, setAdvices] = useState([]);
+  const [formResult, setFormResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchDashboardData();
+    loadFormResult();
   }, []);
+
+  const loadFormResult = () => {
+    try {
+      const saved = localStorage.getItem('healthQuestionnaireResult');
+      if (saved) {
+        setFormResult(JSON.parse(saved));
+      }
+    } catch (err) {
+      console.error('Failed to parse saved questionnaire', err);
+    }
+  };
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -63,9 +76,48 @@ const Dashboard = () => {
     return advices.length > 0 ? advices[0] : null;
   };
 
+  const buildMacroData = () => {
+    if (!formResult?.formData) return { protein: 90, carbs: 180, fat: 60 };
+    const goal = formResult.formData.personal.goal;
+    if (goal === 'lose') return { protein: 120, carbs: 140, fat: 55 };
+    if (goal === 'gain') return { protein: 140, carbs: 240, fat: 80 };
+    return { protein: 100, carbs: 190, fat: 65 };
+  };
+
+  const buildProgressData = () => {
+    if (!formResult?.formData) return null;
+    const currentWeight = Number(formResult.formData.personal.weight_kg) || 70;
+    const targetWeight = Number(formResult.formData.personal.target_weight_kg) || currentWeight;
+    const startWeight = formResult.formData.personal.goal === 'lose'
+      ? currentWeight + 4
+      : formResult.formData.personal.goal === 'gain'
+      ? currentWeight - 3
+      : currentWeight;
+
+    return {
+      labels: ['Start', 'Current', 'Target'],
+      weight: [startWeight, currentWeight, targetWeight],
+      targetWeight: [targetWeight, targetWeight, targetWeight],
+    };
+  };
+
+  const buildSummaryItems = () => {
+    if (!formResult?.formData) return [];
+    const data = formResult.formData.personal;
+    return [
+      { label: 'Diet', value: data.dietary_preference || 'Not set' },
+      { label: 'Activity Level', value: data.activity_level || 'Not set' },
+      { label: 'Goal', value: data.goal || 'Not set' },
+      { label: 'Sleep', value: `${data.sleep_hours || '-'} hrs` },
+      { label: 'Water', value: `${data.water_intake || '-'} L` },
+      { label: 'Meals', value: `${data.meal_frequency || '-'} / day` },
+      { label: 'Cooking', value: data.cooking_time || 'Not set' },
+    ];
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
         <div className="text-center">
           <svg className="animate-spin h-12 w-12 text-orange-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -79,7 +131,7 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
           <div className="text-center">
             <Heart className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -101,7 +153,7 @@ const Dashboard = () => {
   const latestAdvice = getLatestAdvice();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 p-4">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
@@ -109,7 +161,7 @@ const Dashboard = () => {
       <div className="relative max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-8 text-center">
+          <div className="bg-linear-to-r from-orange-500 to-amber-500 p-8 text-center">
             <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
               <Heart className="w-10 h-10 text-orange-500" />
             </div>
@@ -122,12 +174,81 @@ const Dashboard = () => {
         <div className="mb-6 text-center">
           <button
             onClick={() => navigate('/health-dashboard/create-profile')}
-            className="bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-orange-600 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all inline-flex items-center gap-2"
+            className="bg-linear-to-r from-orange-500 to-amber-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-orange-600 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all inline-flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
             Create New Health Profile
           </button>
         </div>
+
+        {formResult && (
+          <div className="bg-white rounded-3xl shadow-xl p-6 mb-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Recent Submission</h2>
+                <p className="text-sm text-gray-500">Latest questionnaire data from your form submission.</p>
+              </div>
+              <span className="text-sm text-gray-500">Submitted {new Date(formResult.submittedAt).toLocaleDateString()}</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-orange-50 rounded-2xl p-4">
+                <h3 className="text-sm font-semibold text-orange-700 mb-3">Form summary</h3>
+                <div className="space-y-2 text-sm text-gray-700">
+                  {buildSummaryItems().map(item => (
+                    <div key={item.label} className="flex justify-between border-b border-orange-100 pb-2">
+                      <span>{item.label}</span>
+                      <span className="font-semibold text-gray-900">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-orange-50 rounded-2xl p-4">
+                <h3 className="text-sm font-semibold text-orange-700 mb-3">Details</h3>
+                <div className="space-y-2 text-sm text-gray-700">
+                  <div className="flex justify-between">
+                    <span>Allergies</span>
+                    <span className="font-semibold text-gray-900">{formResult.formData.allergies.length || 'None'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Medical conditions</span>
+                    <span className="font-semibold text-gray-900">{formResult.formData.personal.medical_conditions.length || 'None'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Target areas</span>
+                    <span className="font-semibold text-gray-900">{formResult.formData.personal.target_areas.length || 'None'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Cuisines</span>
+                    <span className="font-semibold text-gray-900">{formResult.formData.personal.cuisine_preferences.length || 'None'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="bg-white rounded-3xl shadow-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Weekly Weight Progress</h3>
+                    <p className="text-sm text-gray-500">Simple progress estimate from your submitted goals.</p>
+                  </div>
+                </div>
+                <HealthMetricsChart data={buildProgressData()} type="progress" />
+              </div>
+
+              <div className="bg-white rounded-3xl shadow-xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Recommended Macros</h3>
+                    <p className="text-sm text-gray-500">Based on your goal and dietary preference.</p>
+                  </div>
+                </div>
+                <HealthMetricsChart data={buildMacroData()} type="macro" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {profiles.length === 0 ? (
           /* Empty State */
@@ -162,13 +283,13 @@ const Dashboard = () => {
                 </button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {profiles.slice(0, 3).map((profile) => (
-                  <div
-                    key={profile._id}
-                    onClick={() => navigate(`/health-dashboard/profile/${profile._id}`)}
-                    className="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow cursor-pointer"
-                  >
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {profiles.slice(0, 3).map((profile) => (
+                    <div
+                      key={profile._id}
+                      onClick={() => navigate(`/health-dashboard/profile/${profile._id}`)}
+                      className="border border-gray-200 rounded-xl p-4 hover:shadow-lg transition-shadow cursor-pointer"
+                    >
                     <h3 className="font-semibold text-gray-900 mb-2">{profile.profile_name}</h3>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p>Age: {profile.user_profile.age} years</p>
@@ -179,8 +300,6 @@ const Dashboard = () => {
                 ))}
               </div>
             </div>
-
-            {/* Latest Profile Metrics */}
             {latestProfile && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* BMI and Basic Metrics */}
@@ -260,7 +379,7 @@ const Dashboard = () => {
                     <ul className="text-sm text-green-700 space-y-1">
                       {latestAdvice.advice?.meal_management?.timing?.slice(0, 2).map((tip, index) => (
                         <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-green-600 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-green-600 rounded-full mt-2 shrink-0"></span>
                           {tip}
                         </li>
                       ))}
@@ -272,7 +391,7 @@ const Dashboard = () => {
                     <ul className="text-sm text-blue-700 space-y-1">
                       {latestAdvice.advice?.lifestyle_tips?.hydration?.slice(0, 2).map((tip, index) => (
                         <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-blue-600 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-blue-600 rounded-full mt-2 shrink-0"></span>
                           {tip}
                         </li>
                       ))}
@@ -284,7 +403,7 @@ const Dashboard = () => {
                     <ul className="text-sm text-purple-700 space-y-1">
                       {latestAdvice.advice?.lifestyle_tips?.exercise?.slice(0, 2).map((tip, index) => (
                         <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-purple-600 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-purple-600 rounded-full mt-2 shrink-0"></span>
                           {tip}
                         </li>
                       ))}
@@ -296,7 +415,7 @@ const Dashboard = () => {
                     <ul className="text-sm text-indigo-700 space-y-1">
                       {latestAdvice.advice?.lifestyle_tips?.sleep?.slice(0, 2).map((tip, index) => (
                         <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-indigo-600 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-indigo-600 rounded-full mt-2 shrink-0"></span>
                           {tip}
                         </li>
                       ))}

@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginPage from './features/auth/Login.jsx';
 import RegisterPage from './features/auth/Register.jsx';
 import Landing from './features/landing/Landing.jsx';
+import Dashboard from './features/health_dashboard/Dashboard.jsx';
 import HealthQuestionnaire from './features/questionnaire/ComprehensiveQuestionnaire.jsx';
 
 function AppContent() {
@@ -41,6 +42,7 @@ function AppContent() {
         <>
           <Route path="/" element={<Landing />} />
           <Route path="/landing" element={<Landing />} />
+          <Route path="/health-dashboard" element={<Dashboard />} />
           <Route path="/questionnaire/comprehensive" element={<HealthQuestionnaire />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
