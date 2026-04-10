@@ -39,7 +39,7 @@ function validateMealInput(body) {
   if (!isNumber(servingSizeGrams) || servingSizeGrams < 1 || servingSizeGrams > 5000) errors.push("servingSizeGrams must be a number between 1 and 5000.");
 
   if (!isString(name) || name.length < 2 || name.length > 100) errors.push("name must be a string between 2 and 100 characters.");
-  if (!isString(image) || image.length < 5) errors.push("image must be a valid string URL or path."); // basic check
+  if (!isString(image) || image.length < 5) errors.push("image must be a valid string URL or path (min 5 characters)."); // basic check
   if (!isString(description) || description.length < 10 || description.length > 500) errors.push("description must be a string between 10 and 500 characters.");
   if (!isArrayOfIngredientObjects(ingredients)) errors.push("ingredients must be a non-empty array of objects with name, quantity, and calories.");
   if (!isArrayOfStrings(instructions)) errors.push("instructions must be a non-empty array of strings.");
@@ -82,7 +82,7 @@ function validateMealUpdateInput(body) {
 
   if (body.image !== undefined) {
     const image = body.image?.trim();
-    if (!isString(image) || image.length < 5) errors.push("image must be a valid string URL or path.");
+    if (!isString(image) || (image.length < 5 && !image.startsWith('/'))) errors.push("image must be a valid string URL or path (min 5 characters)."); 
     else value.image = image;
   }
 
