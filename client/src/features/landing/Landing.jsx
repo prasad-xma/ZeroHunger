@@ -17,7 +17,9 @@ import {
   ArrowRight,
   LogOut,
   User,
-  Settings
+  Settings,
+  Calendar,
+  BarChart3
 } from 'lucide-react';
 
 const Landing = () => {
@@ -31,6 +33,7 @@ const Landing = () => {
     setCurrentPage(page);
     setCurrentParams(params);
   };
+  // const navigate = useNavigate();
 
   const handleLogout = async () => {
     setIsLoading(true);
@@ -62,10 +65,36 @@ const Landing = () => {
       title: "Personalized Nutrition",
       description: "Receive tailored meal plans and nutrition advice based on your health goals.",
       color: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: <Calendar className="w-8 h-8" />,
+      title: "Weekly Meal Planning",
+      description: "Plan your meals for entire week with smart recommendations and shopping lists.",
+      color: "from-blue-500 to-indigo-500"
+    },
+    {
+      icon: <BarChart3 className="w-8 h-8" />,
+      title: "Progress Tracking & AI Predictions",
+      description: "Track your weight, nutrition, and get AI-powered predictions for your health goals.",
+      color: "from-purple-500 to-pink-500"
     }
   ];
 
   const quickActions = [
+    {
+      title: "Weekly Meal Planner",
+      description: "Plan your meals for the entire week",
+      icon: <Calendar className="w-6 h-6" />,
+      href: "/meal-planner",
+      color: "bg-blue-500 hover:bg-blue-600"
+    },
+    {
+      title: "Progress Tracker",
+      description: "Track your weight and get AI predictions",
+      icon: <BarChart3 className="w-6 h-6" />,
+      href: "/progress",
+      color: "bg-purple-500 hover:bg-purple-600"
+    },
     {
       title: "Create Health Profile",
       description: "Start your health journey with a personalized profile",
@@ -325,6 +354,7 @@ const Landing = () => {
           </p>
           <button
             onClick={() => navigate('/questionnaire/comprehensive')}
+            // onClick={() => navigate('/health-dashboard/create-profile')}
             className="bg-white text-orange-500 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
           >
             Get Started Now
@@ -340,7 +370,7 @@ const Landing = () => {
               <div
                 key={index}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer group"
-                onClick={() => window.location.href = action.href}
+                onClick={() => navigate(action.href)}
               >
                 <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform`}>
                   {action.icon}

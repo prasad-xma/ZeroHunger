@@ -23,7 +23,7 @@ Examples of good advice:
 - "Include vegetables in at least 2 meals daily for better nutrition"`;
 
         if (!process.env.HF_API_KEY) {
-            return getFallbackAdvice(performance);
+            return getFallbackAdvice(performance, goal);
         }
 
         const response = await axios.post(
@@ -53,34 +53,77 @@ Examples of good advice:
             }
         }
 
-        return getFallbackAdvice(performance);
+        return getFallbackAdvice(performance, goal);
 
     } catch (err) {
         console.error('AI service error:', err.message);
-        return getFallbackAdvice(performance);
+        return getFallbackAdvice(performance, goal);
     }
 };
 
-function getFallbackAdvice(performance) {
+function getFallbackAdvice(performance, goal) {
     const performanceNum = parseFloat(performance) || 0;
     
-    if (performanceNum >= 80) {
-        return [
-            "Maintain your excellent meal planning consistency",
-            "Consider adding variety to prevent meal fatigue",
-            "Track micronutrients for optimal nutrition"
-        ];
-    } else if (performanceNum >= 50) {
-        return [
-            "Prepare meals in advance to improve adherence",
-            "Focus on completing breakfast meals consistently",
-            "Set reminders for meal times to stay on track"
-        ];
+    if (goal === 'weight_loss') {
+        if (performanceNum >= 80) {
+            return [
+                "Maintain your excellent meal planning consistency for weight loss",
+                "Focus on calorie deficit while preserving nutrition",
+                "Include high-protein meals to preserve muscle mass"
+            ];
+        } else if (performanceNum >= 50) {
+            return [
+                "Prepare low-calorie meals in advance to improve adherence",
+                "Focus on portion control and meal timing",
+                "Track calories to ensure consistent deficit"
+            ];
+        } else {
+            return [
+                "Start with simple, low-calorie meal planning",
+                "Focus on reducing high-calorie processed foods",
+                "Use a calorie tracking app to stay accountable"
+            ];
+        }
+    } else if (goal === 'muscle_gain') {
+        if (performanceNum >= 80) {
+            return [
+                "Maintain your excellent meal planning consistency for muscle gain",
+                "Focus on high-protein meals and calorie surplus",
+                "Include complex carbs for workout energy"
+            ];
+        } else if (performanceNum >= 50) {
+            return [
+                "Prepare high-protein meals in advance to improve adherence",
+                "Focus on protein timing around workouts",
+                "Track protein intake to ensure muscle building"
+            ];
+        } else {
+            return [
+                "Start with simple, high-protein meal planning",
+                "Focus on increasing protein intake gradually",
+                "Use a nutrition tracking app to monitor macros"
+            ];
+        }
     } else {
-        return [
-            "Start with planning just one meal per day",
-            "Keep simple, easy-to-prepare meal options",
-            "Use a meal tracking app to stay accountable"
-        ];
+        // Default advice for other goals
+        if (performanceNum >= 80) {
+            return [
+                "Maintain your excellent meal planning consistency",
+                "Consider adding variety to prevent meal fatigue",
+                "Track micronutrients for optimal nutrition"
+            ];
+        } else if (performanceNum >= 50) {
+            return [
+                "Prepare meals in advance to improve adherence",
+                "Focus on completing breakfast meals consistently",
+                "Set reminders for meal times to stay on track"
+            ];
+        } else {
+            return [
+                "Start with planning just one meal per day",
+                "Keep simple, easy-to-prepare meal options",
+                "Use a meal tracking app to stay accountable"
+            ];
+        }
     }
 }
