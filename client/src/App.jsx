@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginPage from './features/auth/Login.jsx';
 import RegisterPage from './features/auth/Register.jsx';
 import Landing from './features/landing/Landing.jsx';
+import HealthQuestionnaire from './features/questionnaire/ComprehensiveQuestionnaire.jsx';
 
 function AppContent() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -11,7 +13,7 @@ function AppContent() {
   // Show loading while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center">
         <div className="text-center">
           <svg className="animate-spin h-12 w-12 text-orange-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -23,28 +25,37 @@ function AppContent() {
     );
   }
 
-  // If authenticated, show landing page
-  if (isAuthenticated) {
-    return <Landing />;
-  }
-
-  // If not authenticated, show login/register pages
   return (
-    <div className="min-h-screen">
-      {currentPage === 'login' ? (
-        <LoginPage onSwitchToRegister={() => setCurrentPage('register')} />
-      ) : (
-        <RegisterPage onSwitchToLogin={() => setCurrentPage('login')} />
+    <Routes>
+      {/* Auth routes - only accessible when not authenticated */}
+      {!isAuthenticated && (
+        <>
+          <Route path="/login" element={<LoginPage onSwitchToRegister={() => setCurrentPage('register')} />} />
+          <Route path="/register" element={<RegisterPage onSwitchToLogin={() => setCurrentPage('login')} />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </>
       )}
-    </div>
+      
+      {/* Protected routes - only accessible when authenticated */}
+      {isAuthenticated && (
+        <>
+          <Route path="/" element={<Landing />} />
+          <Route path="/landing" element={<Landing />} />
+          <Route path="/questionnaire/comprehensive" element={<HealthQuestionnaire />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
+    </Routes>
   );
 }
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
   );
 }
 

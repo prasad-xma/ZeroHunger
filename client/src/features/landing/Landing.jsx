@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Heart, 
@@ -15,6 +16,7 @@ import {
 
 const Landing = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
@@ -55,7 +57,7 @@ const Landing = () => {
       title: "Create Health Profile",
       description: "Start your health journey with a personalized profile",
       icon: <Target className="w-6 h-6" />,
-      href: "/health-dashboard/create-profile",
+      href: "/questionnaire/comprehensive",
       color: "bg-orange-500 hover:bg-orange-600"
     },
     {
@@ -75,7 +77,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
@@ -86,7 +88,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-linear-to-r from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
                 <Heart className="w-6 h-6 text-white" />
               </div>
               <h1 className="text-xl font-bold text-gray-900">ZeroHunger</h1>
@@ -122,7 +124,7 @@ const Landing = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Health Journey</span>
+            Welcome to Your <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-500 to-amber-500">Health Journey</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Take control of your health with personalized recommendations, AI-powered insights, and comprehensive tracking tools.
@@ -130,13 +132,13 @@ const Landing = () => {
         </div>
 
         {/* Call to Action */}
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 rounded-3xl shadow-xl p-8 text-center mb-16">
+        <div className="bg-linear-to-r from-orange-500 to-amber-500 rounded-3xl shadow-xl p-8 text-center mb-16">
           <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Health Journey?</h2>
           <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
             Create your first health profile and get personalized recommendations tailored to your unique needs and goals.
           </p>
           <button
-            onClick={() => window.location.href = '/health-dashboard/create-profile'}
+            onClick={() => navigate('/questionnaire/comprehensive')}
             className="bg-white text-orange-500 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
           >
             Get Started Now
@@ -174,9 +176,9 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden group">
-                <div className={`h-2 bg-gradient-to-r ${feature.color}`}></div>
+                <div className={`h-2 bg-linear-to-r ${feature.color}`}></div>
                 <div className="p-6">
-                  <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform`}>
+                  <div className={`w-16 h-16 bg-linear-to-r ${feature.color} rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform`}>
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
