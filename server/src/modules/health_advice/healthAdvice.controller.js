@@ -26,6 +26,7 @@ const generateHealthAdvice = async (req, res) => {
         });
 
         if (existingAdvice) {
+            await syncProfileRecommendations(healthProfile, existingAdvice.advice);
             return res.status(200).json(existingAdvice);
         }
 
@@ -40,6 +41,7 @@ const generateHealthAdvice = async (req, res) => {
         });
 
         await newAdvice.save();
+        await syncProfileRecommendations(healthProfile, advice);
 
         res.status(201).json(newAdvice);
     } catch (error) {
@@ -122,6 +124,7 @@ const regenerateHealthAdvice = async (req, res) => {
         });
 
         await newAdvice.save();
+        await syncProfileRecommendations(healthProfile, advice);
 
         res.status(201).json(newAdvice);
     } catch (error) {
@@ -434,6 +437,44 @@ function generateWeeklyPlan(goal, dietaryPreference) {
             'Listen to your hunger cues'
         ]
     }));
+}
+
+async function syncProfileRecommendations(profile, advice) {
+    const meal_suggestions = extractMealSuggestions(advice.meal_suggestions);
+    const exercise_recommendations = Array.isArray(advice.lifestyle_tips?.exercise)
+        ? advice.lifestyle_tips.exercise
+        : [];
+    const lifestyle_tips = [
+        ...(Array.isArray(advice.lifestyle_tips?.hydration) ? advice.lifestyle_tips.hydration : []),
+        ...(Array.isArray(advice.lifestyle_tips?.sleep) ? advice.lifestyle_tips.sleep : []),
+        ...(Array.isArray(advice.lifestyle_tips?.stress_management) ? advice.lifestyle_tips.stress_management : [])
+    ];
+
+    await HealthRecommendation.findOneAndUpdate(
+        { _id: profile._id, userId: profile.userId, is_active: true },
+        {
+            $set: {
+                'recommendations.meal_suggestions': meal_suggestions,
+                'recommendations.exercise_recommendations': exercise_recommendations,
+                'recommendations.lifestyle_tips': lifestyle_tips
+            }
+        },
+        { new: true }
+    );
+}
+
+function extractMealSuggestions(mealSuggestions = {}) {
+    if (!mealSuggestions || typeof mealSuggestions !== 'object') return [];
+
+    return Object.values(mealSuggestions).flatMap(list =>
+        Array.isArray(list)
+            ? list.map(item => {
+                if (!item) return '';
+                if (typeof item === 'string') return item;
+                return item.name || item.title || JSON.stringify(item);
+            })
+            : []
+    ).filter(Boolean);
 }
 
 module.exports = {
