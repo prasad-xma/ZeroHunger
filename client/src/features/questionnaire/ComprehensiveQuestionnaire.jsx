@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateAllergyRecommendations } from '../../services/aiFoodAllergyService';
-import { 
-  Heart, 
-  Activity, 
-  Shield, 
-  Utensils, 
+import { createHealthProfile, generateHealthAdvice } from '../../services/healthService';
+import {
+  Heart,
+  Activity,
+  Shield,
+  Utensils,
   ChevronRight,
   ChevronLeft,
   Plus,
@@ -21,7 +22,7 @@ const HealthQuestionnaire = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const [formData, setFormData] = useState({
     // Personal Information
@@ -66,7 +67,7 @@ const HealthQuestionnaire = () => {
   const [cuisineInput, setCuisineInput] = useState('');
 
   const commonAllergies = [
-    'Peanuts', 'Tree nuts', 'Shellfish', 'Fish', 'Milk', 'Eggs', 
+    'Peanuts', 'Tree nuts', 'Shellfish', 'Fish', 'Milk', 'Eggs',
     'Wheat', 'Soy', 'Sesame', 'Gluten', 'Lactose', 'Corn'
   ];
 
@@ -80,7 +81,7 @@ const HealthQuestionnaire = () => {
   ];
 
   const commonCuisines = [
-    'Italian', 'Asian', 'Mexican', 'Indian', 'Mediterranean', 
+    'Italian', 'Asian', 'Mexican', 'Indian', 'Mediterranean',
     'American', 'Chinese', 'Japanese', 'Thai', 'French'
   ];
 
@@ -163,9 +164,9 @@ const HealthQuestionnaire = () => {
       [section]: isTopLevelArray
         ? [...prev[arrayField], trimmedValue]
         : {
-            ...prev[section],
-            [arrayField]: [...prev[section][arrayField], trimmedValue]
-          }
+          ...prev[section],
+          [arrayField]: [...prev[section][arrayField], trimmedValue]
+        }
     }));
 
     return true;
@@ -181,9 +182,9 @@ const HealthQuestionnaire = () => {
       [section]: isTopLevelArray
         ? prev[arrayField].filter(item => item !== actualValue)
         : {
-            ...prev[section],
-            [arrayField]: prev[section][arrayField].filter(item => item !== actualValue)
-          }
+          ...prev[section],
+          [arrayField]: prev[section][arrayField].filter(item => item !== actualValue)
+        }
     }));
   };
 
@@ -205,8 +206,6 @@ const HealthQuestionnaire = () => {
     setError('');
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
       // If user has allergies, submit them to the allergy API
       if (formData.allergies.length > 0) {
         try {
@@ -216,7 +215,35 @@ const HealthQuestionnaire = () => {
           // Don't fail the submission if allergy API fails
         }
       }
-      
+
+      // Create new health recommendation profile
+      let createdProfileId = null;
+      try {
+        const profileData = {
+          profile_name: 'Main Health Profile',
+          user_profile: {
+            ...formData.personal,
+            allergies: formData.allergies
+          }
+        };
+        const profileRes = await createHealthProfile(profileData);
+        if (profileRes.data && profileRes.data.success && profileRes.data.data) {
+          createdProfileId = profileRes.data.data._id;
+        }
+      } catch (profileErr) {
+        console.warn('Failed to create health profile:', profileErr);
+        throw new Error('Failed to create health profile');
+      }
+
+      // Generate health advice based on the new profile
+      if (createdProfileId) {
+        try {
+          await generateHealthAdvice(createdProfileId);
+        } catch (adviceErr) {
+          console.warn('Failed to generate health advice:', adviceErr);
+        }
+      }
+
       const payload = {
         submittedAt: new Date().toISOString(),
         formData,
@@ -224,9 +251,16 @@ const HealthQuestionnaire = () => {
       localStorage.setItem('healthQuestionnaireResult', JSON.stringify(payload));
       navigate('/health-dashboard');
     } catch (err) {
-      setError('Failed to submit questionnaire. Please try again.');
+      setError(err.message || 'Failed to submit questionnaire. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleFormKeyDown = (e) => {
+    const targetTag = e.target.tagName.toLowerCase();
+    if (e.key === 'Enter' && (targetTag === 'input' || targetTag === 'select')) {
+      e.preventDefault();
     }
   };
 
@@ -239,7 +273,7 @@ const HealthQuestionnaire = () => {
               <User className="w-6 h-6 text-orange-500" />
               Personal Information
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Age</label>
@@ -359,7 +393,7 @@ const HealthQuestionnaire = () => {
               <Shield className="w-6 h-6 text-orange-500" />
               Health & Allergies
             </h3>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Food Allergies (Click to add common allergies)</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
@@ -369,17 +403,16 @@ const HealthQuestionnaire = () => {
                     type="button"
                     onClick={() => addToArray('allergies', allergy)}
                     disabled={formData.allergies.includes(allergy)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      formData.allergies.includes(allergy)
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${formData.allergies.includes(allergy)
                         ? 'bg-orange-500 text-white cursor-not-allowed'
                         : 'bg-gray-100 text-gray-700 hover:bg-orange-100 hover:text-orange-700'
-                    }`}
+                      }`}
                   >
                     {allergy}
                   </button>
                 ))}
               </div>
-              
+
               <div className="flex gap-2 mb-4">
                 <input
                   type="text"
@@ -408,7 +441,7 @@ const HealthQuestionnaire = () => {
                   Add
                 </button>
               </div>
-              
+
               {formData.allergies.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.allergies.map((allergy) => (
@@ -439,17 +472,16 @@ const HealthQuestionnaire = () => {
                     type="button"
                     onClick={() => addToArray('personal', 'medical_conditions', condition)}
                     disabled={formData.personal.medical_conditions.includes(condition)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      formData.personal.medical_conditions.includes(condition)
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${formData.personal.medical_conditions.includes(condition)
                         ? 'bg-orange-500 text-white cursor-not-allowed'
                         : 'bg-gray-100 text-gray-700 hover:bg-orange-100 hover:text-orange-700'
-                    }`}
+                      }`}
                   >
                     {condition}
                   </button>
                 ))}
               </div>
-              
+
               <div className="flex gap-2 mb-4">
                 <input
                   type="text"
@@ -478,7 +510,7 @@ const HealthQuestionnaire = () => {
                   Add
                 </button>
               </div>
-              
+
               {formData.personal.medical_conditions.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.personal.medical_conditions.map((condition) => (
@@ -509,7 +541,7 @@ const HealthQuestionnaire = () => {
               <Activity className="w-6 h-6 text-orange-500" />
               Lifestyle & Exercise
             </h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Exercise Type</label>
@@ -616,7 +648,7 @@ const HealthQuestionnaire = () => {
               <Utensils className="w-6 h-6 text-orange-500" />
               Preferences & Goals
             </h3>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">Target Areas (Click to add)</label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
@@ -626,17 +658,16 @@ const HealthQuestionnaire = () => {
                     type="button"
                     onClick={() => addToArray('personal', 'target_areas', area)}
                     disabled={formData.personal.target_areas.includes(area)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      formData.personal.target_areas.includes(area)
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${formData.personal.target_areas.includes(area)
                         ? 'bg-orange-500 text-white cursor-not-allowed'
                         : 'bg-gray-100 text-gray-700 hover:bg-orange-100 hover:text-orange-700'
-                    }`}
+                      }`}
                   >
                     {area}
                   </button>
                 ))}
               </div>
-              
+
               <div className="flex gap-2 mb-4">
                 <input
                   type="text"
@@ -665,7 +696,7 @@ const HealthQuestionnaire = () => {
                   Add
                 </button>
               </div>
-              
+
               {formData.personal.target_areas.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.personal.target_areas.map((area) => (
@@ -696,17 +727,16 @@ const HealthQuestionnaire = () => {
                     type="button"
                     onClick={() => addToArray('personal', 'cuisine_preferences', cuisine)}
                     disabled={formData.personal.cuisine_preferences.includes(cuisine)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      formData.personal.cuisine_preferences.includes(cuisine)
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${formData.personal.cuisine_preferences.includes(cuisine)
                         ? 'bg-orange-500 text-white cursor-not-allowed'
                         : 'bg-gray-100 text-gray-700 hover:bg-orange-100 hover:text-orange-700'
-                    }`}
+                      }`}
                   >
                     {cuisine}
                   </button>
                 ))}
               </div>
-              
+
               <div className="flex gap-2 mb-4">
                 <input
                   type="text"
@@ -735,7 +765,7 @@ const HealthQuestionnaire = () => {
                   Add
                 </button>
               </div>
-              
+
               {formData.personal.cuisine_preferences.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {formData.personal.cuisine_preferences.map((cuisine) => (
@@ -756,21 +786,119 @@ const HealthQuestionnaire = () => {
                 </div>
               )}
             </div>
+          </div>
+        );
 
-            <div className="bg-orange-50 rounded-xl p-6">
-              <h4 className="font-semibold text-orange-800 mb-3">Summary</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="font-medium text-gray-700">Personal Info:</p>
-                  <p className="text-gray-600">Age: {formData.personal.age || 'Not set'}</p>
-                  <p className="text-gray-600">Goal: {formData.personal.goal || 'Not set'}</p>
-                  <p className="text-gray-600">Activity: {formData.personal.activity_level || 'Not set'}</p>
+      case 5:
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+              <Check className="w-6 h-6 text-orange-500" />
+              Review Summary
+            </h3>
+
+            <div className="space-y-4">
+              {/* Personal Information Summary */}
+              <div className="bg-blue-50 rounded-xl p-4">
+                <h4 className="font-semibold text-blue-900 mb-3">Personal Information</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-blue-700 font-medium">Age</p>
+                    <p className="text-blue-900">{formData.personal.age || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-blue-700 font-medium">Gender</p>
+                    <p className="text-blue-900">{formData.personal.gender || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-blue-700 font-medium">Height</p>
+                    <p className="text-blue-900">{formData.personal.height_cm ? `${formData.personal.height_cm} cm` : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-blue-700 font-medium">Current Weight</p>
+                    <p className="text-blue-900">{formData.personal.weight_kg ? `${formData.personal.weight_kg} kg` : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-blue-700 font-medium">Target Weight</p>
+                    <p className="text-blue-900">{formData.personal.target_weight_kg ? `${formData.personal.target_weight_kg} kg` : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-blue-700 font-medium">Goal</p>
+                    <p className="text-blue-900 capitalize">{formData.personal.goal || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-blue-700 font-medium">Activity Level</p>
+                    <p className="text-blue-900">{formData.personal.activity_level || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-blue-700 font-medium">Dietary Preference</p>
+                    <p className="text-blue-900">{formData.personal.dietary_preference || 'Not provided'}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-700">Health Info:</p>
-                  <p className="text-gray-600">Allergies: {formData.allergies.length > 0 ? formData.allergies.join(', ') : 'None'}</p>
-                  <p className="text-gray-600">Medical Conditions: {formData.personal.medical_conditions.length > 0 ? formData.personal.medical_conditions.join(', ') : 'None'}</p>
-                  <p className="text-gray-600">Target Areas: {formData.personal.target_areas.length > 0 ? formData.personal.target_areas.join(', ') : 'None'}</p>
+              </div>
+
+              {/* Health Information Summary */}
+              <div className="bg-red-50 rounded-xl p-4">
+                <h4 className="font-semibold text-red-900 mb-3">Health Information</h4>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <p className="text-red-700 font-medium">Food Allergies</p>
+                    <p className="text-red-900">{formData.allergies.length > 0 ? formData.allergies.join(', ') : 'None'}</p>
+                  </div>
+                  <div>
+                    <p className="text-red-700 font-medium">Medical Conditions</p>
+                    <p className="text-red-900">{formData.personal.medical_conditions.length > 0 ? formData.personal.medical_conditions.join(', ') : 'None'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lifestyle Summary */}
+              <div className="bg-purple-50 rounded-xl p-4">
+                <h4 className="font-semibold text-purple-900 mb-3">Lifestyle & Exercise</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-purple-700 font-medium">Exercise Type</p>
+                    <p className="text-purple-900">{formData.personal.exercise.type || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-purple-700 font-medium">Frequency</p>
+                    <p className="text-purple-900">{formData.personal.exercise.frequency ? `${formData.personal.exercise.frequency} days/week` : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-purple-700 font-medium">Duration</p>
+                    <p className="text-purple-900">{formData.personal.exercise.duration_min ? `${formData.personal.exercise.duration_min} min` : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-purple-700 font-medium">Sleep Hours</p>
+                    <p className="text-purple-900">{formData.personal.sleep_hours ? `${formData.personal.sleep_hours} hrs` : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-purple-700 font-medium">Water Intake</p>
+                    <p className="text-purple-900">{formData.personal.water_intake ? `${formData.personal.water_intake} L` : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-purple-700 font-medium">Meal Frequency</p>
+                    <p className="text-purple-900">{formData.personal.meal_frequency ? `${formData.personal.meal_frequency} meals/day` : 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-purple-700 font-medium">Cooking Time</p>
+                    <p className="text-purple-900">{formData.personal.cooking_time || 'Not provided'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Preferences Summary */}
+              <div className="bg-green-50 rounded-xl p-4">
+                <h4 className="font-semibold text-green-900 mb-3">Preferences</h4>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <p className="text-green-700 font-medium">Target Areas</p>
+                    <p className="text-green-900">{formData.personal.target_areas.length > 0 ? formData.personal.target_areas.join(', ') : 'None'}</p>
+                  </div>
+                  <div>
+                    <p className="text-green-700 font-medium">Cuisine Preferences</p>
+                    <p className="text-green-900">{formData.personal.cuisine_preferences.length > 0 ? formData.personal.cuisine_preferences.join(', ') : 'None'}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -787,7 +915,7 @@ const HealthQuestionnaire = () => {
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
-      
+
       <div className="relative w-full max-w-4xl">
         {/* Main card */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
@@ -806,11 +934,10 @@ const HealthQuestionnaire = () => {
               {[...Array(totalSteps)].map((_, index) => (
                 <div
                   key={index}
-                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                    index + 1 <= currentStep
+                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${index + 1 <= currentStep
                       ? 'bg-orange-500 text-white'
                       : 'bg-gray-200 text-gray-500'
-                  }`}
+                    }`}
                 >
                   {index + 1}
                 </div>
@@ -825,7 +952,7 @@ const HealthQuestionnaire = () => {
           </div>
 
           {/* Form section */}
-          <form onSubmit={handleSubmit} className="p-8">
+          <form onSubmit={handleSubmit} onKeyDown={handleFormKeyDown} className="p-8">
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
                 <p className="text-red-600 text-sm">{error}</p>
