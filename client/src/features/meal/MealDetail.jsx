@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { mealService } from '../../services/mealService';
 import { addMealToShopping } from '../../services/shoppingService';
 import { 
@@ -22,7 +23,9 @@ import {
 } from 'lucide-react';
 //
 
-const MealDetail = ({ mealId, onNavigate }) => {
+const MealDetail = ({ onNavigate }) => {
+  const { mealId } = useParams();
+  const navigate = useNavigate();
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -54,7 +57,7 @@ const MealDetail = ({ mealId, onNavigate }) => {
 
     try {
       await mealService.deleteMeal(mealId);
-      onNavigate('meals');
+      navigate('/meals');
     } catch (err) {
       setError('Failed to delete meal');
       console.error('Error deleting meal:', err);
@@ -114,7 +117,7 @@ const MealDetail = ({ mealId, onNavigate }) => {
           </div>
           <p className="text-red-600 mb-6">{error}</p>
           <button
-            onClick={() => onNavigate('meals')}
+            onClick={() => navigate('/meals')}
             className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all flex items-center"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -135,7 +138,7 @@ const MealDetail = ({ mealId, onNavigate }) => {
           <h3 className="text-2xl font-bold text-gray-800 mb-3">Meal Not Found</h3>
           <p className="text-gray-600 mb-8">The meal you're looking for doesn't exist or has been removed.</p>
           <button
-            onClick={() => onNavigate('meals')}
+            onClick={() => navigate('/meals')}
             className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all flex items-center mx-auto"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -155,7 +158,7 @@ const MealDetail = ({ mealId, onNavigate }) => {
       <div className="relative z-10 max-w-7xl mx-auto p-6">
         {/* Enhanced Back Button */}
         <button
-          onClick={() => onNavigate('meals')}
+          onClick={() => navigate('/meals')}
           className="group flex items-center space-x-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-orange-100 mb-8"
         >
           <ArrowLeft className="w-5 h-5 text-gray-600 group-hover:text-orange-600 transition-colors" />
@@ -208,7 +211,7 @@ const MealDetail = ({ mealId, onNavigate }) => {
           {/* Enhanced Action Buttons */}
           <div className="flex gap-4 p-8 border-b border-gray-100">
             <button
-              onClick={() => onNavigate('edit-meal', { mealId: meal._id })}
+              onClick={() => navigate(`/edit-meal/${meal._id}`)}
               className="flex-1 px-6 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-2xl hover:from-orange-600 hover:to-amber-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center group"
             >
               <Edit3 className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
