@@ -7,7 +7,9 @@ const {
     updateIngredientStatus,
     updateShoppingList,
     generatePDF,
-    deleteShoppingList
+    deleteShoppingList,
+    updateIngredient,
+    deleteIngredient
 } = require('./shopping.controller');
 
 // Middleware to protect routes (add your auth middleware here)
@@ -15,6 +17,12 @@ const { protect } = require('../../middlewares/auth.middleware');
 
 // Create new shopping list
 router.post('/', protect, createShoppingList);
+
+// Update single ingredient
+router.patch('/ingredient/:ingredientId', protect, updateIngredient);
+
+// Delete single ingredient
+router.delete('/ingredient/:ingredientId', protect, deleteIngredient);
 
 // Get all shopping lists for user
 router.get('/', protect, getShoppingLists);
