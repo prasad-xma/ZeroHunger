@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Search, Filter, DollarSign, Heart, AlertTriangle, ArrowLeft } from 'lucide-react';
 import ShoppingList from './ShoppingList';
-import PriceComparison from './PriceComparison';
 import ProductCard from './components/ProductCard';
 import { updateIngredient, deleteIngredient } from '../../services/shoppingService';
 import { normalizeIngredientName, normalizeIngredientWithQuantity } from './utils/ingredientNormalizer';
@@ -324,17 +323,6 @@ const ShoppingOptimizer = () => {
           >
             Products
           </button>
-          {/* Price Comparison tab button temporarily disabled */}
-          {/* <button
-            onClick={() => setActiveTab('comparison')}
-            className={`flex-1 py-2 px-4 rounded-md transition-colors ${
-              activeTab === 'comparison' 
-                ? 'bg-white text-orange-600 font-medium shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Price Comparison
-          </button> */}
         </div>
       </div>
 
@@ -510,15 +498,6 @@ const ShoppingOptimizer = () => {
             )}
           </div>
         )}
-
-        {/* Price Comparison feature temporarily disabled */}
-        {/* {activeTab === 'comparison' && (
-          <PriceComparison 
-            shoppingList={shoppingList} 
-            selectedStore={selectedStore}
-            onStoreSelect={handleStoreSelect}
-          />
-        )} */}
       </div>
     </div>
   );

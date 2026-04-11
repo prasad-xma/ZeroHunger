@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ShoppingCart, Plus, AlertTriangle, DollarSign, Heart, Check, Edit, Trash2, X } from 'lucide-react';
-import AllergyBadge from './AllergyBadge';
 
 const ProductCard = ({ product, onAddToList, isInList, onUpdate, onDelete }) => {
   const [price, setPrice] = useState('');
