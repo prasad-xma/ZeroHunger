@@ -41,6 +41,7 @@ function AppContent() {
           <Route path="/landing" element={<Landing />} />
           <Route path="/health-dashboard" element={<Dashboard />} />
           <Route path="/health-dashboard/profiles" element={<HealthProfiles />} />
+          <Route path="/health-dashboard/create-profile" element={<Navigate to="/questionnaire/comprehensive" replace />} />
           <Route path="/health-dashboard/profile/:profileId" element={<ProfileDetails />} />
           <Route path="/questionnaire/comprehensive" element={<HealthQuestionnaire />} />
           <Route path="/ai-food-allergies/questionnaire" element={<QuestionnairePage />} />
@@ -60,11 +61,9 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
