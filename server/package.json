@@ -8,6 +8,8 @@
     "test:watch": "jest --watch",
     "coverage": "jest --coverage",
     "test:nutrition": "jest server/src/modules/nutrition/__tests__ --runInBand",
+    "perf:intake": "artillery run performance/nutrition-intake.yml",
+    "perf:food": "artillery run performance/nutrition-food-calculate.yml",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
@@ -34,6 +36,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.3.2",
+    "artillery": "^2.0.30",
     "babel-jest": "^30.3.0",
     "jest": "^30.3.0",
     "supertest": "^7.2.2"
