@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 import AddMeal from "./AddMeal";
 import { vi } from "vitest";
 import { mealService } from "../../services/mealService";
-
+//
 // Mock react-router-dom
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async () => {
