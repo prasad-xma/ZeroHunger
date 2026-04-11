@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { progressService } from '../../services/progressService';
-import { TrendingUp, Plus, Trash2, BarChart3, Target } from 'lucide-react';
+import { TrendingUp, Plus, Trash2, BarChart3, Target, ArrowLeft } from 'lucide-react';
 
 const ProgressTracker = () => {
   const [progress, setProgress] = useState([]);
@@ -11,6 +12,7 @@ const ProgressTracker = () => {
     weekStartDate: '',
     weight: ''
   });
+  const navigate = useNavigate();
 
   // Fetch progress data
   const fetchProgress = async () => {
@@ -110,9 +112,18 @@ const ProgressTracker = () => {
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-8">
             <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Progress Tracker</h1>
-                <p className="text-orange-100">Track your fitness journey and get AI predictions</p>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="text-white/90 hover:text-white transition-colors flex items-center gap-2 font-medium z-10"
+                  title="Back"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">Progress Tracker</h1>
+                  <p className="text-orange-100">Track your fitness journey and get AI predictions</p>
+                </div>
               </div>
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
                 <TrendingUp className="w-8 h-8 text-orange-500" />
