@@ -52,7 +52,7 @@ describe("AI Food Allergy Controller", () => {
 
       await generateAiAllergyResponse(req, res);
 
-      expect(generateAllergyRecommendations).toHaveBeenCalledWith(["peanuts"]);
+      expect(generateAllergyRecommendations).toHaveBeenCalledWith(["peanuts"], req.user);
       expect(res.status).toHaveBeenCalledWith(200);
     });
   });
