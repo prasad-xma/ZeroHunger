@@ -4,12 +4,17 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginPage from './features/auth/Login.jsx';
 import RegisterPage from './features/auth/Register.jsx';
 import MealDashboard from './features/meal/MealDashboard.jsx';
+import AddMeal from './features/meal/AddMeal.jsx';
+import MealGuidelines from './features/meal/MealGuidelines.jsx';
 import Dashboard from './features/health_dashboard/Dashboard.jsx';
 import HealthProfiles from './features/health_dashboard/HealthProfiles.jsx';
 import ProfileDetails from './features/health_dashboard/ProfileDetails.jsx';
 import HealthQuestionnaire from './features/questionnaire/ComprehensiveQuestionnaire.jsx';
 import QuestionnairePage from './features/ai_food_allergies/Questionnaire.jsx';
 import ResultsPage from './features/ai_food_allergies/Results.jsx';
+import MealGallery from './features/meal/MealGallery.jsx';
+import MealDetail from './features/meal/MealDetail.jsx';
+import EditMeal from './features/meal/EditMeal.jsx';
 
 import WeeklyMealPlanner from './features/weekly_meal_planner/WeeklyMealPlanner.jsx';
 import MealPlanDetail from './features/weekly_meal_planner/MealPlanDetail.jsx';
@@ -48,6 +53,11 @@ function AppContent() {
           <Route path="/questionnaire/comprehensive" element={<HealthQuestionnaire />} />
           <Route path="/ai-food-allergies/questionnaire" element={<QuestionnairePage />} />
           <Route path="/ai-food-allergies/results" element={<ResultsPage />} />
+          <Route path="/meals" element={<MealDashboard activePage="meal-gallery"><MealGallery /></MealDashboard>} />
+          <Route path="/meal/:mealId" element={<MealDashboard activePage="meal-gallery"><MealDetail /></MealDashboard>} />
+          <Route path="/edit-meal/:mealId" element={<MealDashboard activePage="meal-gallery"><EditMeal /></MealDashboard>} />
+          <Route path="/add-meal" element={<MealDashboard activePage="add-meal"><AddMeal /></MealDashboard>} />
+          <Route path="/meal-guidelines" element={<MealDashboard activePage="meal-guidelines"><MealGuidelines /></MealDashboard>} />
 
           <Route path="/meal-planner" element={<WeeklyMealPlanner />} />
           <Route path="/meal-planner/:planId" element={<MealPlanDetail />} />
