@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { weeklyMealService } from '../../services/weeklyMealService';
 import { mealService } from '../../services/mealService';
-import { Calendar, Plus, Edit, Trash2, CheckCircle, Circle, X, TrendingUp, Clock } from 'lucide-react';
+import { Calendar, Plus, Edit, Trash2, CheckCircle, Circle, X, TrendingUp, Clock, ArrowLeft } from 'lucide-react';
 import WeeklySummary from './WeeklySummary';
 
 const MealPlanDetail = () => {
@@ -180,13 +180,22 @@ const MealPlanDetail = () => {
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-8">
             <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Meal Plan Details</h1>
-                <p className="text-orange-100">Week of {new Date(plan.weekStartDate).toLocaleDateString()}</p>
-                <div className="mt-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white">
-                    {plan.goal}
-                  </span>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="text-white/90 hover:text-white transition-colors flex items-center gap-2 font-medium z-10"
+                  title="Back"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">Meal Plan Details</h1>
+                  <p className="text-orange-100">Week of {new Date(plan.weekStartDate).toLocaleDateString()}</p>
+                  <div className="mt-2">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-orange-500">
+                      {plan.goal}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
