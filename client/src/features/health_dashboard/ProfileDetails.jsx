@@ -8,6 +8,7 @@ import {
   deleteHealthProfile,
   recalculateHealthMetrics
 } from '../../services/healthService';
+import { getUserAllergyProfile } from '../../services/aiFoodAllergyService';
 import { 
   Heart, 
   Activity, 
@@ -23,7 +24,11 @@ import {
   Trash2,
   RefreshCw,
   Plus,
-  Clock
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  Shield
 } from 'lucide-react';
 import HealthMetricsChart from './components/HealthMetricsChart';
 import BMIGauge from './components/BMIGauge';
@@ -33,6 +38,7 @@ const ProfileDetails = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [advice, setAdvice] = useState(null);
+  const [allergyProfile, setAllergyProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isGeneratingAdvice, setIsGeneratingAdvice] = useState(false);
@@ -46,9 +52,10 @@ const ProfileDetails = () => {
   const fetchProfileData = async () => {
     setLoading(true);
     try {
-      const [profileResponse, adviceResponse] = await Promise.all([
+      const [profileResponse, adviceResponse, allergyResponse] = await Promise.all([
         getHealthProfileById(profileId),
-        getHealthAdvice(profileId).catch(() => null) // Advice might not exist yet
+        getHealthAdvice(profileId).catch(() => null), // Advice might not exist yet
+        getUserAllergyProfile().catch(() => null) // Allergy profile might not exist
       ]);
 
       if (profileResponse.data.success) {
@@ -57,6 +64,10 @@ const ProfileDetails = () => {
 
       if (adviceResponse?.data.success) {
         setAdvice(adviceResponse.data.data);
+      }
+
+      if (allergyResponse?.data.success) {
+        setAllergyProfile(allergyResponse.data.data);
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch profile data');
@@ -359,6 +370,32 @@ const ProfileDetails = () => {
                 </div>
               </div>
             </div>
+
+            {/* Allergies Section */}
+            {allergyProfile && allergyProfile.allergies && allergyProfile.allergies.length > 0 && (
+              <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-3xl shadow-xl p-6 border-2 border-red-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <AlertTriangle className="w-6 h-6 text-red-500" />
+                  Food Allergies
+                </h2>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {allergyProfile.allergies.map((allergy) => (
+                    <span
+                      key={allergy}
+                      className="px-3 py-1 bg-red-200 text-red-800 rounded-full text-sm font-medium"
+                    >
+                      {allergy}
+                    </span>
+                  ))}
+                </div>
+                <button
+                  onClick={() => window.location.href = '/ai-food-allergies/results'}
+                  className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                >
+                  View Allergy Recommendations
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Metrics and Recommendations */}
