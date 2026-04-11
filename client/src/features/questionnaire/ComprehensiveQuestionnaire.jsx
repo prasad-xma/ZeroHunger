@@ -200,11 +200,52 @@ const HealthQuestionnaire = () => {
     }
   };
 
+  const validateForm = () => {
+    const requiredFields = [
+      { field: 'age', label: 'Age', section: 'personal' },
+      { field: 'gender', label: 'Gender', section: 'personal' },
+      { field: 'height_cm', label: 'Height', section: 'personal' },
+      { field: 'weight_kg', label: 'Current Weight', section: 'personal' },
+      { field: 'target_weight_kg', label: 'Target Weight', section: 'personal' },
+      { field: 'activity_level', label: 'Activity Level', section: 'personal' },
+      { field: 'goal', label: 'Goal', section: 'personal' },
+      { field: 'dietary_preference', label: 'Dietary Preference', section: 'personal' },
+      { field: 'sleep_hours', label: 'Sleep Hours', section: 'personal' },
+      { field: 'water_intake', label: 'Water Intake', section: 'personal' },
+      { field: 'meal_frequency', label: 'Meal Frequency', section: 'personal' },
+      { field: 'cooking_time', label: 'Cooking Time', section: 'personal' }
+    ];
+
+    const missingFields = [];
+
+    requiredFields.forEach(({ field, label, section }) => {
+      const value = formData[section][field];
+      if (value === '' || value === undefined || value === null) {
+        missingFields.push(label);
+      }
+    });
+
+    // Check nested exercise fields
+    if (!formData.personal.exercise.type) missingFields.push('Exercise Type');
+    if (formData.personal.exercise.frequency === '') missingFields.push('Exercise Frequency');
+    if (formData.personal.exercise.duration_min === '') missingFields.push('Exercise Duration');
+
+    return missingFields;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
+    const missingFields = validateForm();
+    if (missingFields.length > 0) {
+      setError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    setIsLoading(true);
     try {
       // If user has allergies, submit them to the allergy API
       if (formData.allergies.length > 0) {
@@ -232,7 +273,7 @@ const HealthQuestionnaire = () => {
         }
       } catch (profileErr) {
         console.warn('Failed to create health profile:', profileErr);
-        throw new Error('Failed to create health profile');
+        throw new Error('Failed to create health profile. Please check that all fields are correctly filled.');
       }
 
       // Generate health advice based on the new profile

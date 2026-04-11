@@ -22,7 +22,7 @@ const generateAiAllergyResponse = async (req, res) => {
         });
 
         // Generate AI recommendations
-        const aiResult = await generateAllergyRecommendations(allergies);
+        const aiResult = await generateAllergyRecommendations(allergies, req.user);
 
         let allergyProfile;
         if (existingProfile) {
@@ -110,7 +110,7 @@ const updateAllergyProfile = async (req, res) => {
         }
 
         // Generate new AI recommendations
-        const aiResult = await generateAllergyRecommendations(allergies);
+        const aiResult = await generateAllergyRecommendations(allergies, req.user);
 
         const allergyProfile = await AiFoodAllergy.findOneAndUpdate(
             { userId, is_active: true },

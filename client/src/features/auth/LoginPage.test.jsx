@@ -1,13 +1,18 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import LoginPage from "./Login";
 import { vi } from "vitest";
 
 // Mock navigate
 const mockNavigate = vi.fn();
-vi.mock("react-router-dom", () => ({
-  useNavigate: () => mockNavigate,
-}));
+vi.mock("react-router-dom", async () => {
+  const actual = await vi.importActual("react-router-dom");
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  };
+});
 
 // Mock login
 const mockLogin = vi.fn();
@@ -24,7 +29,11 @@ describe("LoginPage", () => {
 
   // test case 1
   test("renders login form", () => {
-    render(<LoginPage onSwitchToRegister={() => { }} />);
+    render(
+      <MemoryRouter>
+        <LoginPage onSwitchToRegister={() => { }} />
+      </MemoryRouter>
+    );
 
     expect(screen.getByText("Welcome Back!")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Enter your email")).toBeInTheDocument();
@@ -32,7 +41,11 @@ describe("LoginPage", () => {
   });
 
   test("updates input fields", () => {
-    render(<LoginPage onSwitchToRegister={() => { }} />);
+    render(
+      <MemoryRouter>
+        <LoginPage onSwitchToRegister={() => { }} />
+      </MemoryRouter>
+    );
 
     const email = screen.getByPlaceholderText("Enter your email");
     const password = screen.getByPlaceholderText("Enter your password");
@@ -45,7 +58,11 @@ describe("LoginPage", () => {
   });
 
   test("toggles password visibility", () => {
-    render(<LoginPage onSwitchToRegister={() => { }} />);
+    render(
+      <MemoryRouter>
+        <LoginPage onSwitchToRegister={() => { }} />
+      </MemoryRouter>
+    );
 
     const password = screen.getByPlaceholderText("Enter your password");
 
@@ -62,7 +79,11 @@ describe("LoginPage", () => {
   test("successful login redirects", async () => {
     mockLogin.mockResolvedValue({ success: true });
 
-    render(<LoginPage onSwitchToRegister={() => { }} />);
+    render(
+      <MemoryRouter>
+        <LoginPage onSwitchToRegister={() => { }} />
+      </MemoryRouter>
+    );
 
     fireEvent.change(screen.getByPlaceholderText("Enter your email"), {
       target: { value: "test@mail.com" },
@@ -86,7 +107,11 @@ describe("LoginPage", () => {
       error: "Invalid credentials",
     });
 
-    render(<LoginPage onSwitchToRegister={() => { }} />);
+    render(
+      <MemoryRouter>
+        <LoginPage onSwitchToRegister={() => { }} />
+      </MemoryRouter>
+    );
 
     fireEvent.change(screen.getByPlaceholderText("Enter your email"), {
       target: { value: "wrong@mail.com" },

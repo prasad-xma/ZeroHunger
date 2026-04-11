@@ -77,20 +77,19 @@ const login = async (req, res) => {
 // user logout 
 const logout = async (req, res) => {
     try {
-        // extract token from headers
+        if (!req.headers.authorization || !req.headers.authorization.startsWith("Bearer ")) {
+            return res.status(401).json({ message: "No token provided" });
+        }
+
         const token = req.headers.authorization.split(" ")[1];
-        
-        // verify token
-        const decoded = verifyJwtToken(token);
+        verifyJwtToken(token);
         
         res.clearCookie("token", { httpOnly: true });
-        
         return res.status(200).json({ message: "User logged out successfully" });
         
     } catch (err) {
         console.error(`Logout fail... ${err.message}`);
         return res.status(500).json({message: "User logout failed..."});
-
     }
 };
 

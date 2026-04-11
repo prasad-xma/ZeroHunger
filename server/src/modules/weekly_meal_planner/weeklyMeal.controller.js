@@ -59,7 +59,7 @@ exports.getWeeklyMeal = async (req, res) => {
 // Add food to meal
 exports.addFood = async (req, res) => {
     try {
-        const { day, mealType, name, grams } = req.body;
+        const { day, mealType, name, grams, image, calories } = req.body;
         const plan = await WeeklyMeal.findById(req.params.id);
         
         if (!plan) {
@@ -75,7 +75,12 @@ exports.addFood = async (req, res) => {
             return res.status(400).json({ message: "Invalid meal type" });
         }
 
-        dayData.meals[mealType].foods.push({ name, grams: Number(grams) });
+        dayData.meals[mealType].foods.push({ 
+            name, 
+            grams: Number(grams),
+            image: image || '',
+            calories: calories || 0
+        });
         const result = await plan.save();
         res.json(result);
     } catch (err) {
@@ -202,12 +207,15 @@ exports.deleteWeeklyMeal = async (req, res) => {
 // Delete all plans
 exports.deleteAllPlans = async (req, res) => {
     try {
-        const result = await WeeklyMeal.deleteMany();
+        console.log('Delete all plans request received');
+        const result = await WeeklyMeal.deleteMany({});
+        console.log('Delete result:', result);
         res.json({ 
             message: "All plans deleted successfully", 
             deletedCount: result.deletedCount 
         });
     } catch (err) {
+        console.log('Error in deleteAllPlans:', err.message);
         res.status(400).json({ message: err.message });
     }
 };

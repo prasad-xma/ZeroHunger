@@ -21,7 +21,7 @@ router.put('/:id/remove-food', controller.removeFood);
 router.put('/:id/complete', controller.completeMeal);
 
 // DELETE
+router.delete('/all', controller.deleteAllPlans); 
 router.delete('/:id', controller.deleteWeeklyMeal);
-router.delete('/all', controller.deleteAllPlans);
 
 module.exports = router;
