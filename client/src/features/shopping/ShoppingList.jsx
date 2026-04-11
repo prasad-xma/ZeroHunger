@@ -120,6 +120,7 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                   {/* Checkbox */}
                   <button
                     onClick={() => onToggleChecked(item.product.id)}
+                    data-testid={`checkbox-${item.product.id}`}
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                       item.checked
                         ? 'bg-orange-500 border-orange-500'
@@ -142,15 +143,19 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => updateQuantity(item.product.id, -1)}
+                      data-testid={`minus-${item.product.id}`}
                       className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
                       disabled={item.quantity <= 1}
+                      title="Decrease quantity"
                     >
                       <Minus className="w-4 h-4 text-gray-600" />
                     </button>
                     <span className="w-8 text-center font-medium">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.product.id, 1)}
+                      data-testid={`plus-${item.product.id}`}
                       className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                      title="Increase quantity"
                     >
                       <Plus className="w-4 h-4 text-gray-600" />
                     </button>
@@ -168,12 +173,14 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                     <div className="flex items-center gap-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); onRemoveItem(item.product.id); setConfirmDeleteId(null); }}
+                        data-testid={`confirm-remove-${item.product.id}`}
                         className="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
                       >
                         Yes, remove
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
+                        data-testid={`cancel-delete-${item.product.id}`}
                         className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition-colors"
                       >
                         Cancel
@@ -182,6 +189,8 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                   ) : (
                     <button
                       onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(item.product.id); }}
+                      data-testid={`delete-${item.product.id}`}
+                      title="Delete ingredient"
                       className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors relative z-10"
                     >
                       <Trash2 className="w-4 h-4 text-red-500" />

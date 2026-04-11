@@ -1,0 +1,55 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 30
+      arrivalRate: 3
+      name: "Warm up"
+    - duration: 60
+      arrivalRate: 8
+      name: "Normal load"
+    - duration: 30
+      arrivalRate: 15
+      name: "High load"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWQ3ZTA0NDM4OGIzNGQyMzIxMjA4YTciLCJyb2xlIjoidXNlciIsImlhdCI6MTc3NTkxMzQwNywiZXhwIjoxNzc1OTk5ODA3fQ.70kTxSf55HDIRStbLpmy8N6OLQ5K3wuocn_nuSso8Ec"
+
+scenarios:
+  - name: "Shopping List CRUD Flow"
+    flow:
+      - post:
+          url: "/api/shopping"
+          json:
+            name: "Performance Test List {{ $randomString(8) }}"
+            ingredients:
+              - name: "Tomato"
+                quantity: 2
+                unit: "kg"
+              - name: "Onion"
+                quantity: 1
+                unit: "pcs"
+          capture:
+            - json: "$.shoppingList._id"
+              as: "listId"
+            - json: "$.shoppingList.ingredients[0]._id"
+              as: "ingredientId"
+      - get:
+          url: "/api/shopping/{{ listId }}"
+      - patch:
+          url: "/api/shopping/ingredient/{{ ingredientId }}"
+          json:
+            name: "Cherry Tomato"
+            quantity: 3
+            unit: "kg"
+      - patch:
+          url: "/api/shopping/{{ listId }}/ingredient"
+          json:
+            ingredientId: "{{ ingredientId }}"
+            purchased: true
+      - get:
+          url: "/api/shopping/{{ listId }}/pdf"
+      - delete:
+          url: "/api/shopping/ingredient/{{ ingredientId }}"
+      - delete:
+          url: "/api/shopping/{{ listId }}"
