@@ -1,0 +1,34 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      name: Warm up
+    - duration: 30
+      arrivalRate: 2
+      rampTo: 10
+      name: Ramp up
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Registration and Login Flow"
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            firstName: "Performance"
+            lastName: "Tester"
+            email: "test-{{ $randomString(8) }}@example.com"
+            password: "password123"
+            confirmPassword: "password123"
+            phoneNumber: "1234567890"
+          capture:
+            - json: "$.user.email"
+              as: "userEmail"
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ userEmail }}"
+            password: "password123"

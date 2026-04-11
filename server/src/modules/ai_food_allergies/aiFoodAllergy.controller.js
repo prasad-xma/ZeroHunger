@@ -119,7 +119,7 @@ const updateAllergyProfile = async (req, res) => {
                 ai_response: aiResult.ai_response,
                 response_metadata: aiResult.metadata
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!allergyProfile) {
