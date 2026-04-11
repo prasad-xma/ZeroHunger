@@ -1,6 +1,8 @@
 import { useState } from 'react';
+
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, MapPin, Calendar, ClipboardList, Target, BarChart3, Utensils } from 'lucide-react';
+// import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, MapPin, Calendar, ClipboardList, Target, BarChart3, Utensils } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, Utensils, ClipboardList, Target, BarChart2, Leaf, Rocket, AlertTriangle, CheckCircle } from 'lucide-react';
 import { register as registerService } from '../../services/authService';
 
 const FloatingIcon = ({ icon: Icon, style }) => (
@@ -509,6 +511,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="brand-badge">
                 <Utensils size={14} className="text-orange-200" />
+
                 <span>ZeroHunger</span>
               </div>
 
@@ -534,22 +537,22 @@ const RegisterPage = ({ onSwitchToLogin }) => {
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="feature-grid">
                 <div className="feature-card">
-                  <div className="feature-icon"><Utensils size={18} /></div>
+                  <div className="feature-icon"><Leaf size={18} color="white" /></div>
                   <h3>Track Nutrition</h3>
                   <p>Monitor healthy food choices and meal planning daily.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon"><ClipboardList size={18} /></div>
+                  <div className="feature-icon"><ClipboardList size={18} color="white" /></div>
                   <h3>Stay Organized</h3>
                   <p>All user health and meal data in one system.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon"><Target size={18} /></div>
+                  <div className="feature-icon"><Target size={18} color="white" /></div>
                   <h3>Set Goals</h3>
                   <p>Define and achieve personal nutrition targets.</p>
                 </div>
                 <div className="feature-card">
-                  <div className="feature-icon"><BarChart3 size={18} /></div>
+                  <div className="feature-icon"><BarChart2 size={18} color="white" /></div>
                   <h3>Smart Reports</h3>
                   <p>Visual insights into your nutrition journey.</p>
                 </div>
@@ -739,14 +742,14 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
               {error && (
                 <div className="alert-error">
-                  <span>⚠️</span>
+                  <AlertTriangle size={15} style={{ flexShrink: 0 }} />
                   <span>{error}</span>
                 </div>
               )}
 
               {success && (
                 <div className="alert-success">
-                  <span>✅</span>
+                  <CheckCircle size={15} style={{ flexShrink: 0 }} />
                   <span>{success}</span>
                 </div>
               )}
@@ -755,7 +758,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                 {isLoading ? (
                   <><span className="spinner" /> Creating Account...</>
                 ) : (
-                  <>Create Account</>
+                  <><Rocket size={16} /> Create Account</>
                 )}
               </button>
             </form>
