@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { mealService } from '../../services/mealService';
 import { 
   Search, 
@@ -25,6 +26,7 @@ import {
 } from 'lucide-react';
 
 const MealGallery = ({ onNavigate }) => {
+  const navigate = useNavigate();
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -358,7 +360,7 @@ const MealGallery = ({ onNavigate }) => {
             <div className="flex justify-center space-x-4">
               {meals.length === 0 && (
                 <button 
-                  onClick={() => onNavigate('add-meal')}
+                  onClick={() => navigate('/add-meal')}
                   className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all shadow-lg flex items-center"
                 >
                   <Plus size={20} className="mr-2" />
@@ -464,14 +466,14 @@ const MealGallery = ({ onNavigate }) => {
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <button
-                      onClick={() => onNavigate('meal-detail', { mealId: meal._id })}
+                      onClick={() => navigate(`/meal/${meal._id}`)}
                       className="flex-1 px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all shadow-md flex items-center justify-center"
                     >
                       <Eye size={16} className="mr-1" />
                       View
                     </button>
                     <button
-                      onClick={() => onNavigate('edit-meal', { mealId: meal._id })}
+                      onClick={() => navigate(`/edit-meal/${meal._id}`)}
                       className="flex-1 px-3 py-2 bg-amber-100 text-amber-700 text-sm rounded-xl hover:bg-amber-200 transition-all flex items-center justify-center"
                     >
                       <Edit size={16} className="mr-1" />
