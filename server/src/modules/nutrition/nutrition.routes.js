@@ -16,15 +16,16 @@ router.post("/targets", controller.saveTargets);
 router.get("/targets/me", controller.getMyTargets);
 router.put("/targets/me", controller.updateMyTargets);
 router.delete("/targets/me", controller.deleteMyLatestTargets);
+
 // Intake
 router.post("/intake", controller.upsertIntake);
 router.get("/intake/daily", controller.getDailyIntake);
 
-// Weekly summary
+// Summary
 router.get("/summary/weekly", controller.getWeeklySummary);
+router.get("/summary/today", controller.getTodayNutritionSummary);
 
-// Phase 1 - Food search + calculate
-// Foods (Phase 1)
+// Foods
 router.get("/foods/search", controller.searchFoods);
 router.post("/foods/calculate", controller.calculateFood);
 
