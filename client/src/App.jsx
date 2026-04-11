@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { NavigationProvider, useNavigation } from './contexts/NavigationContext';
 import LoginPage from './features/auth/Login.jsx';
 import RegisterPage from './features/auth/Register.jsx';
 import Landing from './features/landing/Landing.jsx';
+import ShoppingOptimizer from './features/shopping/ShoppingOptimizer.jsx';
 
 function AppContent() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [currentPage, setCurrentPage] = useState('register');
+  const { currentPage } = useNavigation();
+  const [authPage, setAuthPage] = useState('register');
 
   // Show loading while checking authentication
   if (loading) {
@@ -23,27 +26,38 @@ function AppContent() {
     );
   }
 
-  // If authenticated, show landing page
+  // If authenticated, show appropriate page based on navigation
   if (isAuthenticated) {
+    if (currentPage === 'shopping-optimizer') {
+      return <ShoppingOptimizer />;
+    }
     return <Landing />;
   }
 
   // If not authenticated, show login/register pages
   return (
     <div className="min-h-screen">
-      {currentPage === 'login' ? (
-        <LoginPage onSwitchToRegister={() => setCurrentPage('register')} />
+      {authPage === 'login' ? (
+        <LoginPage onSwitchToRegister={() => setAuthPage('register')} />
       ) : (
-        <RegisterPage onSwitchToLogin={() => setCurrentPage('login')} />
+        <RegisterPage onSwitchToLogin={() => setAuthPage('login')} />
       )}
     </div>
+  );
+}
+
+function AppContentWrapper() {
+  return (
+    <NavigationProvider>
+      <AppContent />
+    </NavigationProvider>
   );
 }
 
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <AppContentWrapper />
     </AuthProvider>
   );
 }

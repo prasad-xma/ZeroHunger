@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigation } from '../../contexts/NavigationContext';
 import { 
   Heart, 
   Activity, 
@@ -10,17 +11,28 @@ import {
   ArrowRight,
   LogOut,
   User,
-  Settings
+  Settings,
+  ShoppingCart
 } from 'lucide-react';
 
 const Landing = () => {
   const { user, logout } = useAuth();
+  const { navigateTo } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
     setIsLoading(true);
     await logout();
     setIsLoading(false);
+  };
+
+  const handleQuickActionClick = (href) => {
+    if (href === '/shopping-optimizer') {
+      navigateTo('shopping-optimizer');
+    } else {
+      // For other routes, keep the current behavior
+      window.location.href = href;
+    }
   };
 
   const features = [
@@ -43,6 +55,12 @@ const Landing = () => {
       color: "from-green-500 to-emerald-500"
     },
     {
+      icon: <ShoppingCart className="w-8 h-8" />,
+      title: "Shopping Optimizer",
+      description: "Create smart shopping lists with price comparison and health-aware recommendations.",
+      color: "from-purple-500 to-indigo-500"
+    },
+    {
       icon: <Utensils className="w-8 h-8" />,
       title: "Personalized Nutrition",
       description: "Receive tailored meal plans and nutrition advice based on your health goals.",
@@ -57,6 +75,13 @@ const Landing = () => {
       icon: <Target className="w-6 h-6" />,
       href: "/health-dashboard/create-profile",
       color: "bg-orange-500 hover:bg-orange-600"
+    },
+    {
+      title: "Smart Shopping List",
+      description: "Generate optimized shopping lists based on your health goals",
+      icon: <ShoppingCart className="w-6 h-6" />,
+      href: "/shopping-optimizer",
+      color: "bg-purple-500 hover:bg-purple-600"
     },
     {
       title: "Food Allergy Assessment",
@@ -132,12 +157,12 @@ const Landing = () => {
         {/* Quick Actions */}
         <div className="mb-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {quickActions.map((action, index) => (
               <div
                 key={index}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer group"
-                onClick={() => window.location.href = action.href}
+                onClick={() => handleQuickActionClick(action.href)}
               >
                 <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform`}>
                   {action.icon}
