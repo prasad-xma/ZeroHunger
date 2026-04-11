@@ -1,0 +1,142 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      name: Warm up
+    - duration: 30
+      arrivalRate: 2
+      rampTo: 10
+      name: Ramp up
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Meal CRUD Operations Flow"
+    flow:
+      - post:
+          url: "/api/meals"
+          json:
+            name: "Performance Test Meal {{ $randomString(6) }}"
+            image: "/assets/meals/test-{{ $randomString(4) }}.jpg"
+            description: "A delicious test meal created for performance testing with all required fields and proper structure."
+            ingredients:
+              - name: "Test Ingredient 1"
+                quantity: "100g"
+                calories: 150
+              - name: "Test Ingredient 2"
+                quantity: "50g"
+                calories: 75
+            instructions:
+              - "Prepare ingredients"
+              - "Cook the meal"
+              - "Serve hot"
+            nutrition:
+              calories: 300
+              protein: 25
+              carbs: 30
+              fat: 15
+            servingSizeGrams: 250
+          capture:
+            - json: "$.data._id"
+              as: "mealId"
+      - get:
+          url: "/api/meals"
+      - get:
+          url: "/api/meals/{{ mealId }}"
+      - put:
+          url: "/api/meals/{{ mealId }}"
+          json:
+            name: "Updated Performance Test Meal"
+            description: "Updated description for performance testing meal"
+            nutrition:
+              calories: 320
+              protein: 28
+              carbs: 32
+              fat: 16
+      - get:
+          url: "/api/meals/search?q=Performance"
+      - delete:
+          url: "/api/meals/{{ mealId }}"
+
+  - name: "Meals Gallery Load Test"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/meals"
+
+  - name: "Meal Search Performance Test"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/meals/search?q=chicken"
+      - get:
+          url: "/api/meals/search?q=salad"
+      - get:
+          url: "/api/meals/search?q=pasta"
+
+  - name: "Concurrent Meal Creation Test"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/meals"
+          json:
+            name: "Concurrent Test Meal {{ $randomString(8) }}"
+            image: "/assets/meals/concurrent-{{ $randomString(6) }}.jpg"
+            description: "A test meal created during concurrent load testing to verify system performance under stress."
+            ingredients:
+              - name: "Beef"
+                quantity: "200g"
+                calories: 250
+              - name: "Rice"
+                quantity: "100g"
+                calories: 130
+            instructions:
+              - "Cook beef thoroughly"
+              - "Prepare rice"
+              - "Combine and serve"
+            nutrition:
+              calories: 450
+              protein: 35
+              carbs: 40
+              fat: 20
+            servingSizeGrams: 350
+
+  - name: "Mixed Operations Stress Test"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/meals"
+      - get:
+          url: "/api/meals"
+      - get:
+          url: "/api/meals"
+      - get:
+          url: "/api/meals"
+      - post:
+          url: "/api/meals"
+          json:
+            name: "Stress Test Meal {{ $randomString(10) }}"
+            image: "/assets/meals/stress-{{ $randomString(8) }}.jpg"
+            description: "High-intensity stress test meal with complete nutritional information and detailed cooking instructions."
+            ingredients:
+              - name: "Chicken Breast"
+                quantity: "250g"
+                calories: 280
+              - name: "Mixed Vegetables"
+                quantity: "150g"
+                calories: 80
+            instructions:
+              - "Marinate chicken for 30 minutes"
+              - "Grill until golden brown"
+              - "Sauté vegetables"
+              - "Combine and serve"
+            nutrition:
+              calories: 520
+              protein: 42
+              carbs: 35
+              fat: 22
+            servingSizeGrams: 400
+      - get:
+          url: "/api/meals/search?q=stress"
