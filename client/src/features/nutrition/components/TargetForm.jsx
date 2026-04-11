@@ -41,7 +41,6 @@ export default function TargetForm({ existingTargets, onSaved }) {
       setLoading(true);
       setMessage("");
       setError("");
-
       const payload = {
         age: Number(form.age),
         gender: form.gender,
@@ -50,11 +49,9 @@ export default function TargetForm({ existingTargets, onSaved }) {
         activityLevel: form.activityLevel,
         goal: form.goal,
       };
-
       const response = existingTargets
         ? await updateMyTargets(payload)
         : await saveTargets(payload);
-
       setMessage(response?.message || "Targets saved successfully");
       if (onSaved) onSaved();
     } catch (err) {
@@ -64,263 +61,200 @@ export default function TargetForm({ existingTargets, onSaved }) {
     }
   }
 
+  const goalColors = { lose: "#EF4444", maintain: "#F97316", gain: "#16A34A" };
+
   return (
-    <div style={styles.card}>
-      <div style={styles.cardHeader}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={styles.iconBox}>
-            <svg viewBox="0 0 24 24" fill="white" style={{ width: 16, height: 16 }}>
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+    <div style={S.card}>
+      <div style={S.header}>
+        <div style={S.headerLeft}>
+          <div style={S.iconBox}>
+            <svg viewBox="0 0 24 24" fill="white" width="16" height="16">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M20 21a8 8 0 10-16 0" />
             </svg>
           </div>
           <div>
-            <h2 style={styles.cardTitle}>Nutrition Targets</h2>
-            <p style={styles.cardSub}>Enter your details to calculate daily macros.</p>
+            <h2 style={S.title}>Nutrition Targets</h2>
+            <p style={S.sub}>Set your daily macro goals.</p>
           </div>
         </div>
+        <span style={S.proTag}>Setup</span>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div style={styles.formGrid2}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Age</label>
-            <input
-              type="number"
-              name="age"
-              value={form.age}
-              onChange={handleChange}
-              style={styles.input}
-              placeholder="25"
-              required
-              onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-              onBlur={(e) => (e.target.style.borderColor = "#E7E5E4")}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Gender</label>
-            <select
-              name="gender"
-              value={form.gender}
-              onChange={handleChange}
-              style={styles.select}
-            >
+        <div style={S.grid2}>
+          <Field label="Age">
+            <input type="number" name="age" value={form.age} onChange={handleChange}
+              style={S.input} placeholder="25" required />
+          </Field>
+          <Field label="Gender">
+            <select name="gender" value={form.gender} onChange={handleChange} style={S.input}>
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
-          </div>
+          </Field>
         </div>
-
-        <div style={styles.formGrid2}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Height (cm)</label>
-            <input
-              type="number"
-              name="heightCm"
-              value={form.heightCm}
-              onChange={handleChange}
-              style={styles.input}
-              placeholder="170"
-              required
-              onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-              onBlur={(e) => (e.target.style.borderColor = "#E7E5E4")}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Weight (kg)</label>
-            <input
-              type="number"
-              name="weightKg"
-              value={form.weightKg}
-              onChange={handleChange}
-              style={styles.input}
-              placeholder="70"
-              required
-              onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-              onBlur={(e) => (e.target.style.borderColor = "#E7E5E4")}
-            />
-          </div>
+        <div style={S.grid2}>
+          <Field label="Height (cm)">
+            <input type="number" name="heightCm" value={form.heightCm} onChange={handleChange}
+              style={S.input} placeholder="170" required />
+          </Field>
+          <Field label="Weight (kg)">
+            <input type="number" name="weightKg" value={form.weightKg} onChange={handleChange}
+              style={S.input} placeholder="70" required />
+          </Field>
         </div>
-
-        <div style={styles.formGrid2}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Activity Level</label>
-            <select
-              name="activityLevel"
-              value={form.activityLevel}
-              onChange={handleChange}
-              style={styles.select}
-            >
+        <div style={S.grid2}>
+          <Field label="Activity Level">
+            <select name="activityLevel" value={form.activityLevel} onChange={handleChange} style={S.input}>
               <option value="sedentary">Sedentary</option>
               <option value="light">Light</option>
               <option value="moderate">Moderate</option>
               <option value="active">Active</option>
               <option value="very_active">Very Active</option>
             </select>
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Goal</label>
-            <select
-              name="goal"
-              value={form.goal}
-              onChange={handleChange}
-              style={styles.select}
-            >
-              <option value="lose">Lose Weight</option>
-              <option value="maintain">Maintain</option>
-              <option value="gain">Gain Weight</option>
+          </Field>
+          <Field label="Goal">
+            <select name="goal" value={form.goal} onChange={handleChange}
+              style={{ ...S.input, color: goalColors[form.goal] || "#1C1917", fontWeight: 700 }}>
+              <option value="lose">🔻 Lose Weight</option>
+              <option value="maintain">⚖️ Maintain</option>
+              <option value="gain">📈 Gain Weight</option>
             </select>
-          </div>
+          </Field>
         </div>
 
-        <button type="submit" disabled={loading} style={{ ...styles.btn, opacity: loading ? 0.7 : 1 }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 16, height: 16 }}>
-            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v14a2 2 0 01-2 2z" />
-            <polyline points="17 21 17 13 7 13 7 21" />
-            <polyline points="7 3 7 8 15 8" />
-          </svg>
+        <button type="submit" disabled={loading} style={{ ...S.btn, opacity: loading ? 0.7 : 1 }}>
           {loading ? "Saving..." : existingTargets ? "Update Targets" : "Save Targets"}
         </button>
       </form>
 
-      {message && (
-        <div style={styles.successMsg}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 15, height: 15, flexShrink: 0 }}>
-            <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
-          {message}
-        </div>
-      )}
-      {error && (
-        <div style={styles.errorMsg}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 15, height: 15, flexShrink: 0 }}>
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          {error}
-        </div>
-      )}
+      {message && <Alert type="success">{message}</Alert>}
+      {error && <Alert type="error">{error}</Alert>}
     </div>
   );
 }
 
-const styles = {
+function Field({ label, children }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+      <label style={S.label}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function Alert({ type, children }) {
+  const isSuccess = type === "success";
+  return (
+    <div style={{
+      marginTop: 12,
+      padding: "10px 14px",
+      borderRadius: 10,
+      fontSize: 13,
+      fontWeight: 600,
+      display: "flex",
+      alignItems: "center",
+      gap: 7,
+      background: isSuccess ? "#F0FDF4" : "#FEF2F2",
+      border: `1px solid ${isSuccess ? "#BBF7D0" : "#FECACA"}`,
+      color: isSuccess ? "#16A34A" : "#DC2626",
+    }}>
+      {children}
+    </div>
+  );
+}
+
+const S = {
   card: {
     background: "white",
-    borderRadius: 20,
-    border: "1px solid #E7E5E4",
-    padding: 24,
+    borderRadius: 18,
+    border: "1px solid #F5E6D0",
+    padding: "20px 20px 18px",
+    boxShadow: "0 2px 8px rgba(249,115,22,0.05)",
   },
-  cardHeader: {
-    marginBottom: 20,
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 18,
+  },
+  headerLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
   },
   iconBox: {
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     background: "#F97316",
-    borderRadius: 9,
+    borderRadius: 10,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    boxShadow: "0 3px 8px rgba(249,115,22,0.3)",
   },
-  cardTitle: {
-    fontFamily: "'Sora', 'Inter', sans-serif",
+  title: {
+    fontFamily: "'Sora', sans-serif",
     fontSize: 15,
     fontWeight: 700,
     color: "#1C1917",
     margin: 0,
   },
-  cardSub: {
-    fontSize: 12,
-    color: "#78716C",
+  sub: {
+    fontSize: 11,
+    color: "#A8A29E",
     marginTop: 2,
   },
-  formGrid2: {
+  proTag: {
+    fontSize: 11,
+    fontWeight: 700,
+    background: "#FFF0E0",
+    color: "#EA580C",
+    borderRadius: 20,
+    padding: "3px 10px",
+  },
+  grid2: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
-    gap: 14,
-    marginBottom: 14,
-  },
-  formGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 5,
+    gap: 12,
+    marginBottom: 12,
   },
   label: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: "#78716C",
+    fontSize: 11,
+    fontWeight: 700,
+    color: "#A8A29E",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
   },
   input: {
     background: "#FAFAF9",
-    border: "1.5px solid #E7E5E4",
+    border: "1.5px solid #F5E6D0",
     borderRadius: 10,
-    padding: "11px 14px",
-    fontSize: 14,
+    padding: "10px 12px",
+    fontSize: 13,
     color: "#1C1917",
     outline: "none",
     fontFamily: "inherit",
+    width: "100%",
+    boxSizing: "border-box",
     transition: "border 0.15s",
-    width: "100%",
-    boxSizing: "border-box",
-  },
-  select: {
-    background: "#FAFAF9",
-    border: "1.5px solid #E7E5E4",
-    borderRadius: 10,
-    padding: "11px 14px",
-    fontSize: 14,
-    color: "#1C1917",
-    outline: "none",
-    fontFamily: "inherit",
-    cursor: "pointer",
-    width: "100%",
-    boxSizing: "border-box",
     appearance: "none",
   },
   btn: {
     width: "100%",
-    background: "#1C1917",
+    background: "linear-gradient(135deg, #F97316, #EA580C)",
     color: "white",
     border: "none",
     borderRadius: 12,
-    padding: "13px 20px",
+    padding: "12px 20px",
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: 700,
     cursor: "pointer",
     fontFamily: "inherit",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
     marginTop: 4,
-  },
-  successMsg: {
-    background: "#F0FDF4",
-    border: "1px solid #BBF7D0",
-    borderRadius: 10,
-    padding: "10px 14px",
-    color: "#16A34A",
-    fontSize: 13,
-    fontWeight: 600,
-    marginTop: 12,
-    display: "flex",
-    alignItems: "center",
-    gap: 7,
-  },
-  errorMsg: {
-    background: "#FEF2F2",
-    border: "1px solid #FECACA",
-    borderRadius: 10,
-    padding: "10px 14px",
-    color: "#DC2626",
-    fontSize: 13,
-    fontWeight: 600,
-    marginTop: 12,
-    display: "flex",
-    alignItems: "center",
-    gap: 7,
+    boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
+    letterSpacing: "0.01em",
   },
 };

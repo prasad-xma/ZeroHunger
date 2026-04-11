@@ -31,7 +31,8 @@ import {
   Brain,
   Zap,
   Leaf,
-  ShoppingCart
+  ShoppingCart,
+  Apple
 } from 'lucide-react';
 
 // Add custom styles for animations
@@ -152,11 +153,18 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
       description: 'Comprehensive meal guidelines'
     },
     { 
+      id: 'nutrition-tracker', 
+      label: 'Nutrition Tracker', 
+      icon: Apple, 
+      description: 'Track your nutrition goals and daily progress'
+    },
+    { 
       id: 'add-meal', 
       label: 'Add Meal', 
       icon: Plus, 
       description: 'Create new meal'
     },
+    
   ];
 
   const handleMenuClick = (itemId) => {
@@ -181,6 +189,9 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
         break;
       case 'shopping-optimizer':
         navigate('/shopping-optimizer');
+        break;
+        case 'nutrition-tracker':
+        navigate('/nutrition');
         break;
       default:
         // Navigate to other meal sub-pages if onNavigate is provided

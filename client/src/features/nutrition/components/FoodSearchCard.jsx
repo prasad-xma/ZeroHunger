@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { addIntake, calculateFood, searchFoods } from "../services/nutritionService";
 
-const initialFoodForm = {
-  food: "",
-  quantity: 100,
-  measure: "g",
-};
+const initialFoodForm = { food: "", quantity: 100, measure: "g" };
 
 export default function FoodSearchCard({ onIntakeAdded }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,15 +20,12 @@ export default function FoodSearchCard({ onIntakeAdded }) {
     e.preventDefault();
     try {
       setLoadingSearch(true);
-      setError("");
-      setMessage("");
+      setError(""); setMessage("");
       const response = await searchFoods(searchQuery);
       setSearchResults(response?.data?.items || []);
     } catch (err) {
       setError(err.message || "Failed to search foods");
-    } finally {
-      setLoadingSearch(false);
-    }
+    } finally { setLoadingSearch(false); }
   }
 
   function handleFoodFormChange(e) {
@@ -44,122 +37,115 @@ export default function FoodSearchCard({ onIntakeAdded }) {
     e.preventDefault();
     try {
       setLoadingCalculate(true);
-      setError("");
-      setMessage("");
-      const payload = {
-        food: foodForm.food,
-        quantity: Number(foodForm.quantity),
-        measure: foodForm.measure,
-      };
-      const response = await calculateFood(payload);
+      setError(""); setMessage("");
+      const response = await calculateFood({
+        food: foodForm.food, quantity: Number(foodForm.quantity), measure: foodForm.measure,
+      });
       setCalculatedFood(response?.data || null);
     } catch (err) {
       setError(err.message || "Failed to calculate food nutrition");
-    } finally {
-      setLoadingCalculate(false);
-    }
+    } finally { setLoadingCalculate(false); }
   }
 
   async function handleAddIntake() {
     if (!calculatedFood) return;
     try {
       setLoadingAdd(true);
-      setError("");
-      setMessage("");
-      const payload = {
+      setError(""); setMessage("");
+      const response = await addIntake({
         calories: calculatedFood.calories,
         proteinG: calculatedFood.proteinG,
         carbsG: calculatedFood.carbsG,
         fatG: calculatedFood.fatG,
         sugarG: calculatedFood.sugarG || 0,
         satFatG: calculatedFood.satFatG || 0,
-      };
-      const response = await addIntake(payload);
+      });
       setMessage(response?.message || "Food added to intake");
       if (onIntakeAdded) onIntakeAdded();
     } catch (err) {
       setError(err.message || "Failed to add intake");
-    } finally {
-      setLoadingAdd(false);
-    }
+    } finally { setLoadingAdd(false); }
   }
 
+  const nutRows = calculatedFood
+    ? [
+        { label: "Calories", value: calculatedFood.calories, unit: "kcal", color: "#F97316", bg: "#FFF0E0" },
+        { label: "Protein", value: calculatedFood.proteinG, unit: "g", color: "#8B5CF6", bg: "#F5F3FF" },
+        { label: "Carbs", value: calculatedFood.carbsG, unit: "g", color: "#3B82F6", bg: "#EFF6FF" },
+        { label: "Fat", value: calculatedFood.fatG, unit: "g", color: "#10B981", bg: "#ECFDF5" },
+        { label: "Sugar", value: calculatedFood.sugarG || 0, unit: "g", color: "#F59E0B", bg: "#FFFBEB" },
+        { label: "Sat Fat", value: calculatedFood.satFatG || 0, unit: "g", color: "#EF4444", bg: "#FEF2F2" },
+      ]
+    : [];
+
   return (
-    <div style={styles.card}>
-      <div style={styles.cardHeader}>
+    <div style={S.card}>
+      {/* Header */}
+      <div style={S.header}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={styles.iconBox}>
-            <svg viewBox="0 0 24 24" fill="white" style={{ width: 16, height: 16 }}>
+          <div style={S.iconBox}>
+            <svg viewBox="0 0 24 24" fill="white" width="16" height="16">
               <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </svg>
           </div>
           <div>
-            <h2 style={styles.cardTitle}>Food Search + Calculate</h2>
-            <p style={styles.cardSub}>Search foods, calculate nutrition, and log intake.</p>
+            <h2 style={S.title}>Food Search + Calculate</h2>
+            <p style={S.sub}>Search, calculate & log your meals.</p>
           </div>
         </div>
+        <span style={S.updatedTag}>Updated</span>
       </div>
 
-      {/* Search */}
-      <form onSubmit={handleSearch} style={styles.searchRow}>
+      {/* Search bar */}
+      <form onSubmit={handleSearch} style={S.searchRow}>
         <div style={{ flex: 1, position: "relative" }}>
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#A8A29E"
-            strokeWidth="2"
-            style={styles.searchIcon}
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="#C4B5A0" strokeWidth="2"
+            style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", width: 15, height: 15, pointerEvents: "none" }}>
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
           </svg>
           <input
             type="text"
             placeholder="Search food like chicken breast..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={styles.searchInput}
+            style={{ ...S.input, paddingLeft: 36 }}
             required
-            onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-            onBlur={(e) => (e.target.style.borderColor = "#E7E5E4")}
           />
         </div>
-        <button type="submit" disabled={loadingSearch} style={styles.searchBtn}>
-          {loadingSearch ? (
-            "Searching..."
-          ) : (
-            <>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 15, height: 15 }}>
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-              Search
-            </>
-          )}
+        <button type="submit" disabled={loadingSearch} style={S.searchBtn}>
+          {loadingSearch ? "..." : "Search"}
         </button>
       </form>
 
-      {/* Search Results */}
+      {/* Search results */}
       {searchResults.length > 0 && (
-        <div style={styles.resultsBox}>
-          <div style={styles.resultsLabel}>Search results</div>
-          {searchResults.slice(0, 5).map((item, index) => (
+        <div style={S.resultBox}>
+          <div style={S.sectionLabel}>Search results</div>
+          {searchResults.slice(0, 5).map((item, i) => (
             <button
-              key={`${item.name || "food"}-${index}`}
+              key={`${item.name}-${i}`}
               type="button"
               onClick={() => setFoodForm((prev) => ({ ...prev, food: item.name || "" }))}
               style={{
-                ...styles.resultItem,
-                ...(foodForm.food === item.name ? styles.resultItemActive : {}),
+                ...S.resultItem,
+                ...(foodForm.food === item.name ? S.resultItemActive : {}),
               }}
             >
-              <span style={styles.resultName}>{item.name || "Unknown food"}</span>
-              <span
-                style={{
-                  ...styles.resultCal,
-                  ...(foodForm.food === item.name ? styles.resultCalActive : {}),
-                }}
-              >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{
+                  ...S.resultNum,
+                  background: foodForm.food === item.name ? "#F97316" : "#FFF0E0",
+                  color: foodForm.food === item.name ? "white" : "#F97316",
+                }}>
+                  {i + 1}
+                </div>
+                <span style={S.resultName}>{item.name || "Unknown food"}</span>
+              </div>
+              <span style={{
+                ...S.resultCal,
+                background: foodForm.food === item.name ? "#F97316" : "#FFF0E0",
+                color: foodForm.food === item.name ? "white" : "#EA580C",
+              }}>
                 {Math.round(Number(item.calories || 0))} kcal
               </span>
             </button>
@@ -167,234 +153,182 @@ export default function FoodSearchCard({ onIntakeAdded }) {
         </div>
       )}
 
-      {/* Calculate Form */}
-      <div style={styles.sectionLabel}>Calculate Nutrition</div>
-      <form onSubmit={handleCalculate}>
-        <div style={styles.calcRow}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Food item</label>
-            <input
-              type="text"
-              name="food"
-              value={foodForm.food}
-              onChange={handleFoodFormChange}
-              style={styles.input}
-              placeholder="e.g. rice"
-              required
-              onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-              onBlur={(e) => (e.target.style.borderColor = "#E7E5E4")}
-            />
+      {/* Calculate form */}
+      <div style={{ marginTop: 18 }}>
+        <div style={S.sectionLabel}>Calculate Nutrition</div>
+        <form onSubmit={handleCalculate}>
+          <div style={S.calcGrid}>
+            <div>
+              <label style={S.fieldLabel}>Food Item</label>
+              <input type="text" name="food" value={foodForm.food} onChange={handleFoodFormChange}
+                style={S.input} placeholder="e.g. rice" required />
+            </div>
+            <div>
+              <label style={S.fieldLabel}>Quantity</label>
+              <input type="number" name="quantity" value={foodForm.quantity} onChange={handleFoodFormChange}
+                style={S.input} min="1" required />
+            </div>
+            <div>
+              <label style={S.fieldLabel}>Measure</label>
+              <select name="measure" value={foodForm.measure} onChange={handleFoodFormChange} style={S.input}>
+                <option value="g">Grams</option>
+                <option value="cup">Cup</option>
+              </select>
+            </div>
           </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Quantity</label>
-            <input
-              type="number"
-              name="quantity"
-              value={foodForm.quantity}
-              onChange={handleFoodFormChange}
-              style={styles.input}
-              min="1"
-              required
-              onFocus={(e) => (e.target.style.borderColor = "#F97316")}
-              onBlur={(e) => (e.target.style.borderColor = "#E7E5E4")}
-            />
-          </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Measure</label>
-            <select
-              name="measure"
-              value={foodForm.measure}
-              onChange={handleFoodFormChange}
-              style={styles.select}
-            >
-              <option value="g">Grams</option>
-              <option value="cup">Cup</option>
-            </select>
-          </div>
-        </div>
+          <button type="submit" disabled={loadingCalculate}
+            style={{ ...S.calcBtn, opacity: loadingCalculate ? 0.7 : 1 }}>
+            {loadingCalculate ? "Calculating..." : "⚡ Calculate Nutrition"}
+          </button>
+        </form>
+      </div>
 
-        <button
-          type="submit"
-          disabled={loadingCalculate}
-          style={{ ...styles.calcBtn, opacity: loadingCalculate ? 0.7 : 1 }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 16, height: 16 }}>
-            <rect x="4" y="2" width="16" height="20" rx="2" />
-            <line x1="8" y1="6" x2="16" y2="6" />
-            <line x1="8" y1="10" x2="16" y2="10" />
-            <line x1="8" y1="14" x2="11" y2="14" />
-          </svg>
-          {loadingCalculate ? "Calculating..." : "Calculate Nutrition"}
-        </button>
-      </form>
-
-      {/* Calculated Result */}
+      {/* Results */}
       {calculatedFood && (
-        <>
-          <div style={styles.divider} />
-          <div style={styles.calcResult}>
-            <div style={styles.calcResultTitle}>
-              <svg viewBox="0 0 24 24" fill="#F97316" style={{ width: 16, height: 16 }}>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-              </svg>
-              Calculated Nutrition — {foodForm.quantity}{foodForm.measure} of {foodForm.food}
+        <div style={S.resultPanel}>
+          <div style={S.resultPanelHeader}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <span style={{ fontSize: 15 }}>✅</span>
+              <span style={{ fontWeight: 700, fontSize: 13, color: "#1C1917" }}>
+                Nutrition for {foodForm.quantity}{foodForm.measure} of {foodForm.food}
+              </span>
             </div>
-
-            <div style={styles.calcGrid}>
-              {[
-                { label: "Calories", value: calculatedFood.calories, unit: "", highlight: true },
-                { label: "Protein", value: calculatedFood.proteinG, unit: "g" },
-                { label: "Carbs", value: calculatedFood.carbsG, unit: "g" },
-                { label: "Fat", value: calculatedFood.fatG, unit: "g" },
-                { label: "Sugar", value: calculatedFood.sugarG || 0, unit: "g" },
-                { label: "Sat Fat", value: calculatedFood.satFatG || 0, unit: "g" },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  style={{
-                    ...styles.calcItem,
-                    ...(item.highlight ? styles.calcItemHighlight : {}),
-                  }}
-                >
-                  <div
-                    style={{
-                      ...styles.calcItemVal,
-                      ...(item.highlight ? { color: "#F97316" } : {}),
-                    }}
-                  >
-                    {item.value}
-                    <span style={styles.calcItemUnit}>{item.unit}</span>
-                  </div>
-                  <div style={styles.calcItemLabel}>{item.label}</div>
-                </div>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleAddIntake}
-              disabled={loadingAdd}
-              style={{ ...styles.addBtn, opacity: loadingAdd ? 0.7 : 1 }}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 16, height: 16 }}>
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              {loadingAdd ? "Adding..." : "Add to Today's Intake"}
-            </button>
+            <span style={S.proTag}>Calculated</span>
           </div>
-        </>
+
+          <div style={S.nutGrid}>
+            {nutRows.map((n) => (
+              <div key={n.label} style={{ ...S.nutItem, background: n.bg, border: `1px solid ${n.color}22` }}>
+                <div style={{ ...S.nutVal, color: n.color }}>{n.value}<span style={S.nutUnit}>{n.unit}</span></div>
+                <div style={S.nutLabel}>{n.label}</div>
+              </div>
+            ))}
+          </div>
+
+          <button type="button" onClick={handleAddIntake} disabled={loadingAdd}
+            style={{ ...S.addBtn, opacity: loadingAdd ? 0.7 : 1 }}>
+            {loadingAdd ? "Adding..." : "+ Add to Today's Intake"}
+          </button>
+        </div>
       )}
 
-      {message && (
-        <div style={styles.successMsg}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 15, height: 15, flexShrink: 0 }}>
-            <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-            <polyline points="22 4 12 14.01 9 11.01" />
-          </svg>
-          {message}
-        </div>
-      )}
-      {error && (
-        <div style={styles.errorMsg}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 15, height: 15, flexShrink: 0 }}>
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          {error}
-        </div>
-      )}
+      {message && <Alert type="success">{message}</Alert>}
+      {error && <Alert type="error">{error}</Alert>}
     </div>
   );
 }
 
-const styles = {
+function Alert({ type, children }) {
+  const ok = type === "success";
+  return (
+    <div style={{
+      marginTop: 12, padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 600,
+      background: ok ? "#F0FDF4" : "#FEF2F2",
+      border: `1px solid ${ok ? "#BBF7D0" : "#FECACA"}`,
+      color: ok ? "#16A34A" : "#DC2626",
+    }}>
+      {children}
+    </div>
+  );
+}
+
+const S = {
   card: {
     background: "white",
-    borderRadius: 20,
-    border: "1px solid #E7E5E4",
-    padding: 24,
+    borderRadius: 18,
+    border: "1px solid #F5E6D0",
+    padding: "20px 20px 18px",
+    boxShadow: "0 2px 8px rgba(249,115,22,0.05)",
   },
-  cardHeader: {
-    marginBottom: 20,
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 18,
   },
   iconBox: {
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     background: "#F97316",
-    borderRadius: 9,
+    borderRadius: 10,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    boxShadow: "0 3px 8px rgba(249,115,22,0.3)",
   },
-  cardTitle: {
-    fontFamily: "'Sora', 'Inter', sans-serif",
+  title: {
+    fontFamily: "'Sora', sans-serif",
     fontSize: 15,
     fontWeight: 700,
     color: "#1C1917",
     margin: 0,
   },
-  cardSub: {
-    fontSize: 12,
-    color: "#78716C",
+  sub: {
+    fontSize: 11,
+    color: "#A8A29E",
     marginTop: 2,
+  },
+  updatedTag: {
+    fontSize: 11,
+    fontWeight: 700,
+    background: "#DCFCE7",
+    color: "#16A34A",
+    borderRadius: 20,
+    padding: "3px 10px",
+  },
+  proTag: {
+    fontSize: 11,
+    fontWeight: 700,
+    background: "#FFF0E0",
+    color: "#EA580C",
+    borderRadius: 20,
+    padding: "3px 10px",
   },
   searchRow: {
     display: "flex",
     gap: 10,
-    marginBottom: 16,
+    marginBottom: 0,
   },
-  searchIcon: {
-    position: "absolute",
-    left: 13,
-    top: "50%",
-    transform: "translateY(-50%)",
-    width: 16,
-    height: 16,
-    pointerEvents: "none",
-  },
-  searchInput: {
+  input: {
     background: "#FAFAF9",
-    border: "1.5px solid #E7E5E4",
+    border: "1.5px solid #F5E6D0",
     borderRadius: 10,
-    padding: "11px 14px 11px 38px",
-    fontSize: 14,
+    padding: "10px 12px",
+    fontSize: 13,
     color: "#1C1917",
     outline: "none",
     fontFamily: "inherit",
-    transition: "border 0.15s",
     width: "100%",
     boxSizing: "border-box",
+    appearance: "none",
   },
   searchBtn: {
     background: "#F97316",
     color: "white",
     border: "none",
     borderRadius: 10,
-    padding: "11px 20px",
-    fontSize: 14,
-    fontWeight: 600,
+    padding: "10px 20px",
+    fontSize: 13,
+    fontWeight: 700,
     cursor: "pointer",
     fontFamily: "inherit",
     whiteSpace: "nowrap",
-    display: "flex",
-    alignItems: "center",
-    gap: 7,
+    boxShadow: "0 3px 10px rgba(249,115,22,0.3)",
   },
-  resultsBox: {
-    background: "#FFF7ED",
+  resultBox: {
+    background: "#FFFBF5",
+    border: "1px solid #F5E6D0",
     borderRadius: 12,
     padding: 12,
-    marginBottom: 16,
+    marginTop: 14,
   },
-  resultsLabel: {
+  sectionLabel: {
     fontSize: 11,
     fontWeight: 700,
-    color: "#A8A29E",
-    letterSpacing: "0.07em",
+    color: "#C4B5A0",
     textTransform: "uppercase",
+    letterSpacing: "0.07em",
     marginBottom: 10,
   },
   resultItem: {
@@ -403,18 +337,29 @@ const styles = {
     justifyContent: "space-between",
     background: "white",
     borderRadius: 9,
-    padding: "10px 13px",
+    padding: "9px 12px",
     marginBottom: 7,
     cursor: "pointer",
     border: "1px solid transparent",
     width: "100%",
     textAlign: "left",
     fontFamily: "inherit",
-    transition: "border 0.15s",
+    transition: "border 0.12s",
   },
   resultItemActive: {
     borderColor: "#F97316",
-    background: "#FFF7ED",
+    background: "#FFF7EE",
+  },
+  resultNum: {
+    width: 22,
+    height: 22,
+    borderRadius: "50%",
+    fontSize: 11,
+    fontWeight: 700,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
   resultName: {
     fontSize: 13,
@@ -422,179 +367,92 @@ const styles = {
     color: "#1C1917",
   },
   resultCal: {
-    fontSize: 12,
-    color: "#78716C",
-    background: "#F5F5F4",
-    padding: "3px 9px",
-    borderRadius: 6,
-    fontWeight: 600,
-  },
-  resultCalActive: {
-    background: "#F97316",
-    color: "white",
-  },
-  sectionLabel: {
     fontSize: 11,
     fontWeight: 700,
-    color: "#A8A29E",
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    marginBottom: 12,
-  },
-  calcRow: {
-    display: "grid",
-    gridTemplateColumns: "2fr 1fr 1fr",
-    gap: 12,
-    marginBottom: 12,
-  },
-  formGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 5,
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: "#78716C",
-  },
-  input: {
-    background: "#FAFAF9",
-    border: "1.5px solid #E7E5E4",
-    borderRadius: 10,
-    padding: "11px 14px",
-    fontSize: 14,
-    color: "#1C1917",
-    outline: "none",
-    fontFamily: "inherit",
-    transition: "border 0.15s",
-    width: "100%",
-    boxSizing: "border-box",
-  },
-  select: {
-    background: "#FAFAF9",
-    border: "1.5px solid #E7E5E4",
-    borderRadius: 10,
-    padding: "11px 14px",
-    fontSize: 14,
-    color: "#1C1917",
-    outline: "none",
-    fontFamily: "inherit",
-    cursor: "pointer",
-    width: "100%",
-    boxSizing: "border-box",
-    appearance: "none",
-  },
-  calcBtn: {
-    width: "100%",
-    background: "transparent",
-    color: "#78716C",
-    border: "1.5px solid #E7E5E4",
-    borderRadius: 12,
-    padding: "13px 20px",
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: "pointer",
-    fontFamily: "inherit",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 4,
-  },
-  divider: {
-    height: 1,
-    background: "#F5F5F4",
-    margin: "18px 0",
-  },
-  calcResult: {
-    background: "#FFF7ED",
-    borderRadius: 14,
-    padding: 16,
-    border: "2px solid #FFEDD5",
-  },
-  calcResultTitle: {
-    fontSize: 13,
-    fontWeight: 700,
-    color: "#1C1917",
-    marginBottom: 12,
-    display: "flex",
-    alignItems: "center",
-    gap: 7,
+    borderRadius: 8,
+    padding: "3px 9px",
   },
   calcGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 8,
+    gridTemplateColumns: "2fr 1fr 1fr",
+    gap: 10,
+    marginBottom: 12,
   },
-  calcItem: {
-    background: "white",
-    borderRadius: 10,
-    padding: 10,
-    textAlign: "center",
-    border: "1px solid #E7E5E4",
-  },
-  calcItemHighlight: {
-    borderColor: "#FED7AA",
-    background: "#FFF7ED",
-  },
-  calcItemVal: {
-    fontFamily: "'Sora', 'Inter', sans-serif",
-    fontSize: 16,
+  fieldLabel: {
+    display: "block",
+    fontSize: 11,
     fontWeight: 700,
-    color: "#1C1917",
+    color: "#A8A29E",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    marginBottom: 5,
   },
-  calcItemUnit: {
-    fontSize: 12,
+  calcBtn: {
+    width: "100%",
+    background: "white",
+    color: "#F97316",
+    border: "1.5px solid #F5E6D0",
+    borderRadius: 10,
+    padding: "11px 20px",
+    fontSize: 13,
+    fontWeight: 700,
+    cursor: "pointer",
+    fontFamily: "inherit",
+  },
+  resultPanel: {
+    background: "#FFFBF5",
+    border: "1.5px solid #F5E6D0",
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 16,
+  },
+  resultPanelHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  nutGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3,1fr)",
+    gap: 8,
+    marginBottom: 14,
+  },
+  nutItem: {
+    borderRadius: 10,
+    padding: "10px 10px 8px",
+    textAlign: "center",
+  },
+  nutVal: {
+    fontFamily: "'Sora', sans-serif",
+    fontSize: 17,
+    fontWeight: 800,
+    lineHeight: 1.1,
+  },
+  nutUnit: {
+    fontSize: 11,
     fontWeight: 400,
-    color: "#78716C",
     marginLeft: 2,
   },
-  calcItemLabel: {
+  nutLabel: {
     fontSize: 10,
     color: "#A8A29E",
-    marginTop: 2,
+    marginTop: 3,
+    fontWeight: 600,
+    textTransform: "uppercase",
+    letterSpacing: "0.04em",
   },
   addBtn: {
     width: "100%",
-    background: "#F97316",
+    background: "linear-gradient(135deg,#F97316,#EA580C)",
     color: "white",
     border: "none",
-    borderRadius: 12,
-    padding: "13px 20px",
-    fontSize: 14,
-    fontWeight: 600,
+    borderRadius: 11,
+    padding: "12px 20px",
+    fontSize: 13,
+    fontWeight: 700,
     cursor: "pointer",
     fontFamily: "inherit",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 14,
-  },
-  successMsg: {
-    background: "#F0FDF4",
-    border: "1px solid #BBF7D0",
-    borderRadius: 10,
-    padding: "10px 14px",
-    color: "#16A34A",
-    fontSize: 13,
-    fontWeight: 600,
-    marginTop: 12,
-    display: "flex",
-    alignItems: "center",
-    gap: 7,
-  },
-  errorMsg: {
-    background: "#FEF2F2",
-    border: "1px solid #FECACA",
-    borderRadius: 10,
-    padding: "10px 14px",
-    color: "#DC2626",
-    fontSize: 13,
-    fontWeight: 600,
-    marginTop: 12,
-    display: "flex",
-    alignItems: "center",
-    gap: 7,
+    boxShadow: "0 4px 14px rgba(249,115,22,0.35)",
   },
 };

@@ -4,253 +4,187 @@ export default function IntakeListCard({ summary }) {
   const intake = summary?.intake || {};
   const targets = summary?.targets || {};
 
-  const macros = [
-    {
-      label: "Calories",
-      value: intake.calories || 0,
-      unit: "kcal",
-      target: targets.tdeeCalories || 0,
-      color: "#F97316",
-      bg: "#FFF7ED",
-      border: "#FFEDD5",
-      highlight: true,
-    },
-    {
-      label: "Protein",
-      value: intake.proteinG || 0,
-      unit: "g",
-      target: targets.proteinG || 0,
-      color: "#8B5CF6",
-      bg: "#F5F3FF",
-      border: "#EDE9FE",
-    },
-    {
-      label: "Carbs",
-      value: intake.carbsG || 0,
-      unit: "g",
-      target: targets.carbsG || 0,
-      color: "#3B82F6",
-      bg: "#EFF6FF",
-      border: "#DBEAFE",
-    },
-    {
-      label: "Fat",
-      value: intake.fatG || 0,
-      unit: "g",
-      target: targets.fatG || 0,
-      color: "#10B981",
-      bg: "#ECFDF5",
-      border: "#D1FAE5",
-    },
-    {
-      label: "Sugar",
-      value: intake.sugarG || 0,
-      unit: "g",
-      color: "#F59E0B",
-      bg: "#FFFBEB",
-      border: "#FEF3C7",
-    },
-    {
-      label: "Sat Fat",
-      value: intake.satFatG || 0,
-      unit: "g",
-      color: "#EF4444",
-      bg: "#FEF2F2",
-      border: "#FECACA",
-    },
+  const items = [
+    { label: "Calories", value: intake.calories || 0, unit: "kcal", target: targets.tdeeCalories, color: "#F97316", bg: "#FFF0E0", emoji: "🔥", successRate: 75 },
+    { label: "Protein", value: intake.proteinG || 0, unit: "g", target: targets.proteinG, color: "#8B5CF6", bg: "#F5F3FF", emoji: "💪", successRate: 85 },
+    { label: "Carbs", value: intake.carbsG || 0, unit: "g", target: targets.carbsG, color: "#3B82F6", bg: "#EFF6FF", emoji: "🍞", successRate: 68 },
+    { label: "Fat", value: intake.fatG || 0, unit: "g", target: targets.fatG, color: "#10B981", bg: "#ECFDF5", emoji: "🥑", successRate: 72 },
+    { label: "Sugar", value: intake.sugarG || 0, unit: "g", color: "#F59E0B", bg: "#FFFBEB", emoji: "🍬", successRate: null },
+    { label: "Sat Fat", value: intake.satFatG || 0, unit: "g", color: "#EF4444", bg: "#FEF2F2", emoji: "⚠️", successRate: null },
   ];
 
   return (
-    <div style={styles.card}>
-      <div style={styles.cardHeader}>
+    <div style={S.card}>
+      <div style={S.header}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={styles.iconBox}>
-            <svg viewBox="0 0 24 24" fill="white" style={{ width: 16, height: 16 }}>
+          <div style={S.iconBox}>
+            <svg viewBox="0 0 24 24" fill="white" width="16" height="16">
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
             </svg>
           </div>
           <div>
-            <h2 style={styles.cardTitle}>Today's Intake</h2>
-            <p style={styles.cardSub}>Current totals saved for today.</p>
+            <h2 style={S.title}>Smart Meal Planning</h2>
+            <p style={S.sub}>Today's intake totals.</p>
           </div>
         </div>
+        <span style={S.proTag}>Pro Tip</span>
       </div>
 
-      <div style={styles.grid}>
-        {macros.map((item) => (
-          <div
-            key={item.label}
-            style={{
-              ...styles.statBox,
-              background: item.bg,
-              border: `1px solid ${item.border}`,
-            }}
-          >
-            <div style={{ ...styles.statLabel, color: item.color + "99" }}>{item.label}</div>
-            <div style={{ ...styles.statVal, color: item.highlight ? item.color : "#1C1917" }}>
-              {item.value}
-              <span style={styles.statUnit}> {item.unit}</span>
-            </div>
-            {item.target ? (
-              <div style={{ ...styles.statTarget, color: item.color + "80" }}>
-                / {item.target} {item.unit}
+      {items.filter((i) => i.target != null).map((item) => {
+        const pct = item.target ? Math.min(Math.round((item.value / item.target) * 100), 100) : 0;
+        return (
+          <div key={item.label} style={S.row}>
+            <div style={S.rowLeft}>
+              <span style={{ fontSize: 16 }}>{item.emoji}</span>
+              <div>
+                <div style={S.rowLabel}>{item.label}</div>
+                <div style={S.rowSub}>
+                  {item.value}{item.unit} of {item.target}{item.unit} goal
+                </div>
               </div>
-            ) : null}
+            </div>
+            <div style={S.rowRight}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 100 }}>
+                <div style={{ ...S.miniTrack }}>
+                  <div style={{
+                    height: "100%",
+                    width: `${pct}%`,
+                    background: item.color,
+                    borderRadius: 99,
+                    transition: "width 0.4s ease",
+                  }} />
+                </div>
+              </div>
+              <span style={{ ...S.pctBadge, color: item.color, background: item.bg }}>
+                {item.successRate != null ? `${item.successRate}% Effective` : `${pct}%`}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Extras */}
+      <div style={S.divider} />
+      <div style={{ display: "flex", gap: 10 }}>
+        {items.filter((i) => !i.target).map((item) => (
+          <div key={item.label} style={{ ...S.extraChip, background: item.bg }}>
+            <span>{item.emoji}</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: item.color }}>{item.value}<span style={{ fontSize: 11, fontWeight: 400 }}>{item.unit}</span></div>
+              <div style={{ fontSize: 10, color: "#A8A29E", fontWeight: 600, textTransform: "uppercase" }}>{item.label}</div>
+            </div>
           </div>
         ))}
       </div>
-
-      {/* Remaining section */}
-      <div style={styles.remainingHeader}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="2" style={{ width: 14, height: 14 }}>
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
-        <span style={styles.remainingTitle}>Remaining Today</span>
-      </div>
-
-      {[
-        {
-          label: "Calories left",
-          val: Math.max(0, (targets.tdeeCalories || 0) - (intake.calories || 0)),
-          unit: "kcal",
-          color: "#F97316",
-        },
-        {
-          label: "Protein left",
-          val: Math.max(0, (targets.proteinG || 0) - (intake.proteinG || 0)),
-          unit: "g",
-          color: "#8B5CF6",
-        },
-        {
-          label: "Carbs left",
-          val: Math.max(0, (targets.carbsG || 0) - (intake.carbsG || 0)),
-          unit: "g",
-          color: "#3B82F6",
-        },
-        {
-          label: "Fat left",
-          val: Math.max(0, (targets.fatG || 0) - (intake.fatG || 0)),
-          unit: "g",
-          color: "#10B981",
-        },
-      ].map((item) => (
-        <div key={item.label} style={styles.remainingRow}>
-          <span style={styles.remainingLabel}>{item.label}</span>
-          <span style={{ ...styles.remainingVal, color: item.color }}>
-            {item.val}
-            <span style={styles.remainingUnit}> {item.unit}</span>
-          </span>
-        </div>
-      ))}
     </div>
   );
 }
 
-const styles = {
+const S = {
   card: {
     background: "white",
-    borderRadius: 20,
-    border: "1px solid #E7E5E4",
-    padding: 24,
+    borderRadius: 18,
+    border: "1px solid #F5E6D0",
+    padding: "20px 20px 16px",
+    boxShadow: "0 2px 8px rgba(249,115,22,0.05)",
   },
-  cardHeader: {
-    marginBottom: 16,
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 18,
   },
   iconBox: {
-    width: 34,
-    height: 34,
+    width: 36,
+    height: 36,
     background: "#F97316",
-    borderRadius: 9,
+    borderRadius: 10,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    boxShadow: "0 3px 8px rgba(249,115,22,0.3)",
   },
-  cardTitle: {
-    fontFamily: "'Sora', 'Inter', sans-serif",
+  title: {
+    fontFamily: "'Sora', sans-serif",
     fontSize: 15,
     fontWeight: 700,
     color: "#1C1917",
     margin: 0,
   },
-  cardSub: {
-    fontSize: 12,
-    color: "#78716C",
-    marginTop: 2,
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: 10,
-    marginBottom: 20,
-  },
-  statBox: {
-    borderRadius: 12,
-    padding: "12px 14px",
-  },
-  statLabel: {
+  sub: {
     fontSize: 11,
-    fontWeight: 700,
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-    marginBottom: 3,
-  },
-  statVal: {
-    fontFamily: "'Sora', 'Inter', sans-serif",
-    fontSize: 20,
-    fontWeight: 700,
-  },
-  statUnit: {
-    fontSize: 12,
-    fontWeight: 400,
-    color: "#78716C",
-    fontFamily: "inherit",
-  },
-  statTarget: {
-    fontSize: 11,
-    marginTop: 2,
-    fontWeight: 500,
-  },
-  remainingHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 10,
-    paddingTop: 4,
-    borderTop: "1px solid #F5F5F4",
-    paddingTop: 14,
-  },
-  remainingTitle: {
-    fontSize: 11,
-    fontWeight: 700,
     color: "#A8A29E",
-    letterSpacing: "0.07em",
-    textTransform: "uppercase",
+    marginTop: 2,
   },
-  remainingRow: {
+  proTag: {
+    fontSize: 11,
+    fontWeight: 700,
+    background: "#FFF0E0",
+    color: "#EA580C",
+    borderRadius: 20,
+    padding: "3px 10px",
+  },
+  row: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "9px 12px",
+    gap: 16,
+    padding: "12px 14px",
     background: "#FAFAF9",
-    borderRadius: 10,
-    marginBottom: 7,
+    borderRadius: 12,
+    marginBottom: 9,
+    border: "1px solid #F5EDE0",
   },
-  remainingLabel: {
+  rowLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    flex: 1,
+    minWidth: 0,
+  },
+  rowLabel: {
     fontSize: 13,
-    fontWeight: 600,
-    color: "#78716C",
-  },
-  remainingVal: {
-    fontFamily: "'Sora', 'Inter', sans-serif",
-    fontSize: 15,
     fontWeight: 700,
+    color: "#1C1917",
   },
-  remainingUnit: {
-    fontSize: 12,
-    fontWeight: 400,
+  rowSub: {
+    fontSize: 11,
     color: "#A8A29E",
-    fontFamily: "inherit",
+    marginTop: 1,
+  },
+  rowRight: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    flexShrink: 0,
+  },
+  miniTrack: {
+    height: 6,
+    background: "#F5EDE0",
+    borderRadius: 99,
+    overflow: "hidden",
+    width: 80,
+  },
+  pctBadge: {
+    fontSize: 11,
+    fontWeight: 700,
+    borderRadius: 8,
+    padding: "3px 9px",
+    whiteSpace: "nowrap",
+  },
+  divider: {
+    height: 1,
+    background: "#F5EDE0",
+    margin: "12px 0",
+  },
+  extraChip: {
+    flex: 1,
+    borderRadius: 12,
+    padding: "10px 12px",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    border: "1px solid #F5EDE0",
   },
 };
