@@ -1,0 +1,61 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 20
+      arrivalRate: 1
+      name: Warm up
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Register, Login, Create Profile and Generate Health Advice"
+    flow:
+      # Step 1: Register a new user
+      - post:
+          url: "/api/auth/register"
+          json:
+            firstName: "Performance"
+            lastName: "Tester"
+            email: "advice-test-{{ $randomString(8) }}@example.com"
+            password: "password123"
+            confirmPassword: "password123"
+            phoneNumber: "1234567890"
+          capture:
+            - json: "$.user.email"
+              as: "userEmail"
+      
+      # Step 2: Login to get token
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ userEmail }}"
+            password: "password123"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      # Step 3: Create Health Profile
+      - post:
+          url: "/api/health-recommendation"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            profile_name: "Advice Test Profile"
+            user_profile:
+              age: 28
+              gender: "male"
+              weight_kg: 80
+              height_cm: 180
+              activity_level: "light"
+              dietary_preference: "other"
+              goal: "gain"
+          capture:
+            - json: "$.data._id"
+              as: "profileId"
+      
+      # Step 4: Generate Health Advice
+      - post:
+          url: "/api/health-advice/generate/{{ profileId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"

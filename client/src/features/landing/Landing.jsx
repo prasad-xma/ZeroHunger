@@ -7,6 +7,7 @@ import MealDetail from '../meal/MealDetail';
 import AddMeal from '../meal/AddMeal';
 import EditMeal from '../meal/EditMeal';
 import MealGuidelines from '../meal/MealGuidelines';
+import ShoppingOptimizer from '../shopping/ShoppingOptimizer';
 import { 
   Heart, 
   Activity, 
@@ -19,7 +20,8 @@ import {
   User,
   Settings,
   Calendar,
-  BarChart3
+  BarChart3,
+  ShoppingCart
 } from 'lucide-react';
 
 const Landing = () => {
@@ -65,6 +67,12 @@ const Landing = () => {
       title: "Personalized Nutrition",
       description: "Receive tailored meal plans and nutrition advice based on your health goals.",
       color: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: <ShoppingCart className="w-8 h-8" />,
+      title: "Shopping Optimizer",
+      description: "Create smart shopping lists with price comparison and health-aware recommendations.",
+      color: "from-purple-500 to-indigo-500"
     },
     {
       icon: <Calendar className="w-8 h-8" />,
@@ -122,6 +130,13 @@ const Landing = () => {
       icon: <Utensils className="w-6 h-6" />,
       href: "meals",
       color: "bg-blue-500 hover:bg-blue-600"
+    },
+    {
+      title: "Shopping Optimizer",
+      description: "Create smart shopping lists with price comparison",
+      icon: <ShoppingCart className="w-6 h-6" />,
+      href: "/shopping-optimizer",
+      color: "bg-purple-500 hover:bg-purple-600"
     }
   ];
 
@@ -161,6 +176,8 @@ const Landing = () => {
             <EditMeal mealId={currentParams.mealId} onNavigate={handleNavigate} />
           </MealDashboard>
         );
+      case 'shopping-optimizer':
+        return <ShoppingOptimizer />;
       default:
         return (
           <>
@@ -183,7 +200,7 @@ const Landing = () => {
                   Create your first health profile and get personalized recommendations tailored to your unique needs and goals.
                 </p>
                 <button
-                  onClick={() => window.location.href = '/health-dashboard/create-profile'}
+                  onClick={() => navigate('/questionnaire/comprehensive')}
                   className="bg-white text-orange-500 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
                 >
                   Get Started Now
@@ -202,8 +219,10 @@ const Landing = () => {
                       onClick={() => {
                         if (action.href === "meals") {
                           handleNavigate('meals');
+                        } else if (action.href === "/shopping-optimizer") {
+                          navigate('/shopping-optimizer');
                         } else {
-                          window.location.href = action.href;
+                          navigate(action.href);
                         }
                       }}
                     >

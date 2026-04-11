@@ -7,6 +7,11 @@ const createHealthProfile = async (req, res) => {
         const userId = req.user.id; // Get user ID from authenticated request
         const { user_profile, profile_name } = req.body;
 
+        // Ensure dietary preference is provided or fallback to default
+        if (!user_profile.dietary_preference) {
+            user_profile.dietary_preference = 'other';
+        }
+
         // Calculate health metrics
         const calculatedMetrics = calculateAllHealthMetrics(user_profile);
 
@@ -115,7 +120,7 @@ const updateRecommendations = async (req, res) => {
                 recommendations,
                 status: 'generated'
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!healthProfile) {
@@ -210,7 +215,7 @@ const updateHealthProfile = async (req, res) => {
                 },
                 status: 'updated'
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         return res.status(200).json({
@@ -264,7 +269,7 @@ const recalculateHealthMetrics = async (req, res) => {
                 },
                 status: 'generated'
             },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         return res.status(200).json({
