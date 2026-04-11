@@ -13,13 +13,11 @@ class WeeklyMealService extends IWeeklyMealService {
     
     async createWeeklyMeal(data) {
         const existing = await WeeklyMeal.findOne({
-            userId: data.userId,
             weekStartDate: data.weekStartDate
         });
         if (existing) throw new Error("Weekly plan already exists for this date");
 
         const weeklyMeal = new WeeklyMeal({
-            userId: data.userId,
             weekStartDate: data.weekStartDate,
             goal: data.goal,
             days: generateWeekDays()
@@ -34,8 +32,8 @@ class WeeklyMealService extends IWeeklyMealService {
         return plan;
     }
 
-    async getPlansByUserId(userId) {
-        return await WeeklyMeal.find({ userId }).sort({ weekStartDate: -1 });
+    async getPlansByUserId() {
+        return await WeeklyMeal.find().sort({ weekStartDate: -1 });
     }
 
     async addFoodToMeal(planId, dayName, mealType, food) {
@@ -69,7 +67,6 @@ class WeeklyMealService extends IWeeklyMealService {
         if (!plan) throw new Error("Plan not found");
 
         let totalMeals = 0, completedMeals = 0;
-
         plan.days.forEach(day => {
             validMeals.forEach(meal => {
                 totalMeals++;
@@ -92,7 +89,6 @@ class WeeklyMealService extends IWeeklyMealService {
 
         const day = plan.days.find(d => d.day === dayName);
         if (!day.meals[mealType].foods[foodIndex]) throw new Error("Food not found");
-
         day.meals[mealType].foods[foodIndex] = food;
 
         return await plan.save();
@@ -108,20 +104,18 @@ class WeeklyMealService extends IWeeklyMealService {
 
         const day = plan.days.find(d => d.day === dayName);
         if (!day.meals[mealType].foods[foodIndex]) throw new Error("Food not found");
-
         day.meals[mealType].foods.splice(foodIndex, 1);
 
         return await plan.save();
     }
 
     async deleteWeeklyMeal(planId) {
-        const plan = await WeeklyMeal.findByIdAndDelete(planId);
-        if (!plan) throw new Error("Plan not found");
-        return plan;
+        const deletedPlan = await WeeklyMeal.findByIdAndDelete(planId);
+        return deletedPlan;
     }
 
-    async deleteAllUserPlans(userId) {
-        const result = await WeeklyMeal.deleteMany({ userId });
+    async deleteAllUserPlans() {
+        const result = await WeeklyMeal.deleteMany();
         return { deletedCount: result.deletedCount };
     }
 

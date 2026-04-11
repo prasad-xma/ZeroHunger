@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Search, Filter, DollarSign, Heart, AlertTriangle, ArrowLeft } from 'lucide-react';
-import { useNavigation } from '../../contexts/NavigationContext';
 import ShoppingList from './ShoppingList';
 import PriceComparison from './PriceComparison';
 import ProductCard from './components/ProductCard';
 import { mockProducts } from './utils/productDatabase';
 
 const ShoppingOptimizer = () => {
-  const { navigateBack } = useNavigation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('list');
   const [shoppingList, setShoppingList] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [budget, setBudget] = useState(150);
+  const [budget, setBudget] = useState(5000);
+  const [selectedStore, setSelectedStore] = useState(null);
   const [userAllergies] = useState(['nuts', 'dairy']); // Mock user allergies
 
   const categories = ['all', 'dairy', 'produce', 'grains', 'protein', 'snacks'];
@@ -26,20 +27,17 @@ const ShoppingOptimizer = () => {
     return matchesSearch && matchesCategory && isAllergyFree;
   });
 
-  const addToShoppingList = (product) => {
-    const existingItem = shoppingList.find(item => item.product.id === product.id);
-    
-    if (existingItem) {
-      setShoppingList(shoppingList.map(item =>
-        item.product.id === product.id 
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ));
-    } else {
+  const addToShoppingList = (product, selectedStore) => {
+    if (!selectedStore) {
+      // Don't add item if no store is selected
+      return;
+    }
+    if (!shoppingList.find(item => item.product.id === product.id)) {
       setShoppingList([...shoppingList, {
         product,
         quantity: 1,
-        checked: false
+        checked: false,
+        selectedStore: selectedStore
       }]);
     }
   };
@@ -64,9 +62,14 @@ const ShoppingOptimizer = () => {
     ));
   };
 
-  const totalCost = shoppingList.reduce((total, item) => 
-    total + (item.product.price * item.quantity), 0
-  );
+  const handleStoreSelect = (storeName) => {
+    setSelectedStore(storeName);
+  };
+
+  const totalCost = shoppingList.reduce((total, item) => {
+    const storePrice = item.selectedStore?.price || 0;
+    return total + (storePrice * item.quantity);
+  }, 0);
 
   const budgetRemaining = budget - totalCost;
   const isOverBudget = budgetRemaining < 0;
@@ -79,7 +82,7 @@ const ShoppingOptimizer = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
-                onClick={navigateBack}
+                onClick={() => navigate(-1)}
                 className="w-12 h-12 bg-orange-500 hover:bg-orange-600 rounded-lg flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -93,13 +96,26 @@ const ShoppingOptimizer = () => {
             <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="text-sm text-gray-600">Budget</p>
-                <p className={`text-lg font-semibold ${isOverBudget ? 'text-red-600' : 'text-green-600'}`}>
-                  ${budgetRemaining.toFixed(2)}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={budget}
+                    onChange={(e) => setBudget(Math.max(0, parseInt(e.target.value) || 0))}
+                    className={`w-24 px-2 py-1 text-right font-semibold border rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                      isOverBudget ? 'text-red-600 border-red-300' : 'text-green-600 border-green-300'
+                    }`}
+                    min="0"
+                    step="100"
+                  />
+                  <span className="text-sm text-gray-500">LKR</span>
+                </div>
+                <p className={`text-xs mt-1 ${isOverBudget ? 'text-red-600' : 'text-green-600'}`}>
+                  Remaining: LKR {Math.round(budgetRemaining)}
                 </p>
               </div>
               <div className="flex items-center text-orange-500 font-medium group-hover:text-orange-600 transition-colors">
                 <p className="text-sm text-gray-600">Total</p>
-                <p className="text-lg font-semibold text-gray-900">${totalCost.toFixed(2)}</p>
+                <p className="text-lg font-semibold text-gray-900">LKR {Math.round(totalCost)}</p>
               </div>
             </div>
           </div>
@@ -152,6 +168,7 @@ const ShoppingOptimizer = () => {
             onUpdateQuantity={updateQuantity}
             budget={budget}
             totalCost={totalCost}
+            onBudgetChange={setBudget}
           />
         )}
 
@@ -219,7 +236,11 @@ const ShoppingOptimizer = () => {
         )}
 
         {activeTab === 'comparison' && (
-          <PriceComparison shoppingList={shoppingList} />
+          <PriceComparison 
+            shoppingList={shoppingList} 
+            selectedStore={selectedStore}
+            onStoreSelect={handleStoreSelect}
+          />
         )}
       </div>
     </div>

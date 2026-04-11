@@ -27,7 +27,21 @@ Please provide a detailed response in the following JSON format:
   ],
   "emergency_precautions": [
     "Emergency precautions and what to do if exposed"
-  ]
+  ],
+  "personalized_advice": {
+    "health_management": [
+      "Specific health management strategies for these allergies"
+    ],
+    "nutrition_tips": [
+      "Key nutrition and dietary management tips"
+    ],
+    "lifestyle_recommendations": [
+      "Practical lifestyle and daily management recommendations"
+    ],
+    "dining_guidance": [
+      "Guidance for dining out, grocery shopping, and meal planning"
+    ]
+  }
 }
 
 Focus on practical, actionable advice that can help someone manage these allergies safely. Be thorough but concise. Ensure the response is valid JSON format.`;

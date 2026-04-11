@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ShoppingCart, Trash2, Check, Plus, Minus, DollarSign, TrendingUp } from 'lucide-react';
 
-const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQuantity, budget, totalCost }) => {
+const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQuantity, budget, totalCost, onBudgetChange }) => {
   const [listName, setListName] = useState('Weekly Groceries');
 
   const updateQuantity = (itemId, change) => {
@@ -15,7 +15,7 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
   const checkedItems = shoppingList.filter(item => item.checked);
   const uncheckedItems = shoppingList.filter(item => !item.checked);
   const checkedTotal = checkedItems.reduce((total, item) => 
-    total + (item.product.price * item.quantity), 0
+    total + (item.selectedStore.price * item.quantity), 0
   );
 
   const budgetRemaining = budget - totalCost;
@@ -40,7 +40,7 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                 ? 'bg-green-100 text-green-800'
                 : 'bg-gray-100 text-gray-800'
           }`}>
-            {isOverBudget ? 'Over Budget' : savings > 0 ? `Saved $${savings.toFixed(2)}` : 'On Budget'}
+            {isOverBudget ? 'Over Budget' : savings > 0 ? `Saved LKR ${Math.round(savings)}` : 'On Budget'}
           </div>
         </div>
 
@@ -51,7 +51,17 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
               <DollarSign className="w-4 h-4" />
               <span className="text-sm">Budget</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900">${budget.toFixed(2)}</p>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={budget}
+                onChange={(e) => onBudgetChange && onBudgetChange(Math.max(0, parseInt(e.target.value) || 0))}
+                className="w-32 px-3 py-2 text-2xl font-bold text-gray-900 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                min="0"
+                step="100"
+              />
+              <span className="text-lg text-gray-500">LKR</span>
+            </div>
           </div>
           
           <div className="bg-orange-50 rounded-lg p-4">
@@ -59,7 +69,7 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
               <ShoppingCart className="w-4 h-4" />
               <span className="text-sm">Total Cost</span>
             </div>
-            <p className="text-2xl font-bold text-orange-900">${totalCost.toFixed(2)}</p>
+            <p className="text-2xl font-bold text-orange-900">LKR {Math.round(totalCost)}</p>
           </div>
           
           <div className={`rounded-lg p-4 ${
@@ -74,7 +84,7 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
             <p className={`text-2xl font-bold ${
               isOverBudget ? 'text-red-900' : 'text-green-900'
             }`}>
-              ${Math.abs(budgetRemaining).toFixed(2)}
+              LKR {Math.abs(Math.round(budgetRemaining))}
               {isOverBudget && ' over'}
             </p>
           </div>
@@ -127,7 +137,10 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                     <div className="flex items-center gap-4 mt-1">
                       <span className="text-sm text-gray-600">{item.product.category}</span>
                       <span className="text-sm font-medium text-orange-600">
-                        ${item.product.price.toFixed(2)} each
+                        LKR {Math.round(item.selectedStore.price)} each
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        at {item.selectedStore.name}
                       </span>
                       <span className="text-sm text-gray-500">
                         Health Score: {item.product.healthScore}/100
@@ -156,7 +169,7 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                   {/* Item Total */}
                   <div className="text-right">
                     <p className="font-semibold text-gray-900">
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      LKR {Math.round(item.selectedStore.price * item.quantity)}
                     </p>
                   </div>
 
@@ -183,13 +196,13 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                 </p>
                 {checkedItems.length > 0 && (
                   <p className="text-sm text-green-600">
-                    Checked items total: ${checkedTotal.toFixed(2)}
+                    Checked items total: LKR {Math.round(checkedTotal)}
                   </p>
                 )}
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-600">Total Cost</p>
-                <p className="text-2xl font-bold text-gray-900">${totalCost.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-gray-900">LKR {Math.round(totalCost)}</p>
               </div>
             </div>
           </div>

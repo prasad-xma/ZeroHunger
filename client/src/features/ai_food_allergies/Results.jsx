@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserAllergyProfile, deleteAllergyProfile } from '../../services/aiFoodAllergyService';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Info, 
-  Shield, 
-  BookOpen, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  Shield,
+  BookOpen,
   Phone,
   ArrowLeft,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Lightbulb,
+  Apple,
+  Home,
+  Utensils
 } from 'lucide-react';
 
 const ResultsPage = () => {
@@ -73,7 +77,7 @@ const ResultsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
         <div className="text-center">
           <svg className="animate-spin h-12 w-12 text-orange-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -87,7 +91,7 @@ const ResultsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
           <div className="text-center">
             <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -107,7 +111,7 @@ const ResultsPage = () => {
 
   if (!allergyData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
           <div className="text-center">
             <Info className="w-16 h-16 text-orange-500 mx-auto mb-4" />
@@ -128,15 +132,22 @@ const ResultsPage = () => {
   const { allergies, ai_response, response_metadata } = allergyData;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 p-4">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
-      
+
       <div className="relative max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-8 text-center">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6 relative">
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-6 left-6 text-white/90 hover:text-white transition-colors flex items-center gap-2 font-medium z-10"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
+          <div className="bg-linear-to-r from-orange-500 to-amber-500 p-8 text-center pt-12">
             <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
               <Shield className="w-10 h-10 text-orange-500" />
             </div>
@@ -159,7 +170,7 @@ const ResultsPage = () => {
             </div>
             {response_metadata && (
               <p className="text-sm text-gray-500 mt-3">
-                Generated on {new Date(response_metadata.generated_at).toLocaleDateString()} 
+                Generated on {new Date(response_metadata.generated_at).toLocaleDateString()}
                 {response_metadata.model_used && ` using ${response_metadata.model_used}`}
               </p>
             )}
@@ -197,11 +208,92 @@ const ResultsPage = () => {
               <ul className="space-y-2">
                 {ai_response.recommendations.map((recommendation, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
                     <span className="text-gray-700">{recommendation}</span>
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {/* Personalized Advice */}
+          {ai_response?.personalized_advice && Object.keys(ai_response.personalized_advice).length > 0 && (
+            <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-3xl shadow-xl p-6 border-2 border-blue-200">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Your Personalized Advice</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Health Management */}
+                {ai_response.personalized_advice?.health_management?.length > 0 && (
+                  <div className="bg-white rounded-2xl p-5 shadow-md">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Lightbulb className="w-5 h-5 text-amber-500" />
+                      <h4 className="font-semibold text-gray-900">Health Management</h4>
+                    </div>
+                    <ul className="space-y-2">
+                      {ai_response.personalized_advice.health_management.map((advice, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 shrink-0"></span>
+                          <span className="text-sm text-gray-700">{advice}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Nutrition Tips */}
+                {ai_response.personalized_advice?.nutrition_tips?.length > 0 && (
+                  <div className="bg-white rounded-2xl p-5 shadow-md">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Apple className="w-5 h-5 text-green-500" />
+                      <h4 className="font-semibold text-gray-900">Nutrition Tips</h4>
+                    </div>
+                    <ul className="space-y-2">
+                      {ai_response.personalized_advice.nutrition_tips.map((advice, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 shrink-0"></span>
+                          <span className="text-sm text-gray-700">{advice}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Lifestyle Recommendations */}
+                {ai_response.personalized_advice?.lifestyle_recommendations?.length > 0 && (
+                  <div className="bg-white rounded-2xl p-5 shadow-md">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Home className="w-5 h-5 text-purple-500" />
+                      <h4 className="font-semibold text-gray-900">Lifestyle Tips</h4>
+                    </div>
+                    <ul className="space-y-2">
+                      {ai_response.personalized_advice.lifestyle_recommendations.map((advice, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 shrink-0"></span>
+                          <span className="text-sm text-gray-700">{advice}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Dining Guidance */}
+                {ai_response.personalized_advice?.dining_guidance?.length > 0 && (
+                  <div className="bg-white rounded-2xl p-5 shadow-md">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Utensils className="w-5 h-5 text-orange-500" />
+                      <h4 className="font-semibold text-gray-900">Dining Guide</h4>
+                    </div>
+                    <ul className="space-y-2">
+                      {ai_response.personalized_advice.dining_guidance.map((advice, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 shrink-0"></span>
+                          <span className="text-sm text-gray-700">{advice}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -215,7 +307,7 @@ const ResultsPage = () => {
               <ul className="space-y-2">
                 {ai_response.foods_to_avoid.map((food, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="w-2 h-2 bg-red-500 rounded-full mt-2 shrink-0"></span>
                     <span className="text-gray-700">{food}</span>
                   </li>
                 ))}
@@ -233,7 +325,7 @@ const ResultsPage = () => {
               <ul className="space-y-2">
                 {ai_response.safe_alternatives.map((alternative, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
                     <span className="text-gray-700">{alternative}</span>
                   </li>
                 ))}
@@ -251,7 +343,7 @@ const ResultsPage = () => {
               <ul className="space-y-2">
                 {ai_response.cross_contamination_notes.map((note, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="w-2 h-2 bg-orange-500 rounded-full mt-2 shrink-0"></span>
                     <span className="text-gray-700">{note}</span>
                   </li>
                 ))}
@@ -269,7 +361,7 @@ const ResultsPage = () => {
               <ul className="space-y-2">
                 {ai_response.reading_labels_tips.map((tip, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 shrink-0"></span>
                     <span className="text-gray-700">{tip}</span>
                   </li>
                 ))}
@@ -287,7 +379,7 @@ const ResultsPage = () => {
               <ul className="space-y-2">
                 {ai_response.emergency_precautions.map((precaution, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="w-2 h-2 bg-red-600 rounded-full mt-2 shrink-0"></span>
                     <span className="text-gray-700 font-medium">{precaution}</span>
                   </li>
                 ))}
