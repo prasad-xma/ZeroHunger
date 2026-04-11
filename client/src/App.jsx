@@ -59,13 +59,13 @@ function AppContent() {
           <Route path="/add-meal" element={<MealDashboard activePage="add-meal"><AddMeal /></MealDashboard>} />
           <Route path="/meal-guidelines" element={<MealDashboard activePage="meal-guidelines"><MealGuidelines /></MealDashboard>} />
 
-          <Route path="/meal-planner" element={<WeeklyMealPlanner />} />
-          <Route path="/meal-planner/:planId" element={<MealPlanDetail />} />
-          <Route path="/progress" element={<ProgressTracker />} />
-          <Route path="/shopping-optimizer" element={<ShoppingOptimizer />} />
+          <Route path="/meal-planner" element={<MealDashboard activePage="meal-planner"><WeeklyMealPlanner /></MealDashboard>} />
+          <Route path="/meal-planner/:planId" element={<MealDashboard activePage="meal-planner"><MealPlanDetail /></MealDashboard>} />
+          <Route path="/progress" element={<MealDashboard activePage="progress"><ProgressTracker /></MealDashboard>} />
+          <Route path="/shopping-optimizer" element={<MealDashboard activePage="shopping-optimizer"><ShoppingOptimizer /></MealDashboard>} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route path="/nutrition" element={<NutritionDashboard />} />
+          <Route path="/nutrition" element={<MealDashboard activePage="nutrition-tracker"><NutritionDashboard /></MealDashboard>} />
         </>
       )}
     </Routes>
