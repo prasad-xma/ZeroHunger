@@ -51,7 +51,6 @@ async function getAllMeals(req, res) {
       data,
     });
   } catch (err) {
-    console.error("getAllMeals error:", err);
     return sendError(res, 500, "Server error");
   }
 }
@@ -73,7 +72,6 @@ async function getMeal(req, res) {
       data: mapMealFull(meal),
     });
   } catch (err) {
-    console.error("getMeal error:", err);
     if (err.name === "CastError") return sendError(res, 400, "Invalid meal ID");
     return sendError(res, 500, "Server error");
   }
@@ -95,7 +93,6 @@ async function createMeal(req, res) {
       data: mapMealFull(newMeal),
     });
   } catch (err) {
-    console.error("createMeal error:", err);
     if (err.name === "ValidationError") {
       const errors = Object.values(err.errors).map(e => e.message);
       return sendError(res, 400, "Validation failed", errors);
@@ -128,7 +125,6 @@ async function updateMeal(req, res) {
       data: mapMealFull(updatedMeal),
     });
   } catch (err) {
-    console.error("updateMeal error:", err);
     if (err.name === "CastError") return sendError(res, 400, "Invalid meal ID");
     if (err.name === "ValidationError") {
       const errors = Object.values(err.errors).map(e => e.message);
@@ -155,7 +151,6 @@ async function deleteMeal(req, res) {
       message: "Meal deleted successfully",
     });
   } catch (err) {
-    console.error("deleteMeal error:", err);
     if (err.name === "CastError") return sendError(res, 400, "Invalid meal ID");
     return sendError(res, 500, "Server error");
   }
@@ -180,7 +175,6 @@ async function searchMeals(req, res) {
       data,
     });
   } catch (err) {
-    console.error("searchMeals error:", err);
     return sendError(res, 500, "Server error");
   }
 }

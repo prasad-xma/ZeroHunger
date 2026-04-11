@@ -1,138 +1,191 @@
 import { useState } from 'react';
-import { ShoppingCart, Plus, AlertTriangle, DollarSign, Heart, Check } from 'lucide-react';
-import AllergyBadge from './AllergyBadge';
+import { ShoppingCart, Plus, AlertTriangle, DollarSign, Heart, Check, Edit, Trash2, X } from 'lucide-react';
 
-const ProductCard = ({ product, onAddToList, isInList }) => {
-  const [selectedStore, setSelectedStore] = useState(null);
+const ProductCard = ({ product, onAddToList, isInList, onUpdate, onDelete }) => {
+  const [price, setPrice] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: product.name,
+    quantity: product.quantity,
+    unit: product.unit
+  });
 
-  const handleAddToList = () => {
-    onAddToList(product, selectedStore);
+const handleAddToList = () => {
+    const priceValue = parseFloat(price) || 0;
+    onAddToList(product, { price: priceValue });
   };
 
-  const handleStoreSelect = (store) => {
-    setSelectedStore(store);
+  const handleEdit = () => {
+    setIsEditing(true);
+    // Pre-populate edit form with current product data
+    setEditForm({
+      name: product.name,
+      quantity: product.quantity,
+      unit: product.unit
+    });
+  };
+
+  const handleSave = () => {
+    console.log('Saving product:', editForm);
+    onUpdate(product.id, editForm);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditForm({
+      name: product.name,
+      quantity: product.quantity,
+      unit: product.unit
+    });
+    setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete(product.id);
+    setShowDeleteConfirm(false);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirm(false);
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-      {/* Health Score Indicator */}
-      <div className={`h-1 bg-gradient-to-r ${
-        product.healthScore >= 80 
-          ? 'from-green-400 to-green-500'
-          : product.healthScore >= 60 
-            ? 'from-yellow-400 to-yellow-500'
-            : 'from-red-400 to-red-500'
-      }`}></div>
-
+    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow group relative">
       <div className="p-4">
         {/* Product Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1">{product.name}</h3>
-            <p className="text-sm text-gray-500">{product.category}</p>
-          </div>
-          
-          {/* Health Score Badge */}
-          <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-            product.healthScore >= 80 
-              ? 'bg-green-100 text-green-800'
-              : product.healthScore >= 60 
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'bg-red-100 text-red-800'
-          }`}>
-            {product.healthScore}/100
-          </div>
-        </div>
-
-        {/* Allergy Warnings */}
-        {product.allergens && product.allergens.length > 0 && (
-          <div className="mb-3">
-            <AllergyBadge allergens={product.allergens} />
-          </div>
-        )}
-
-        {/* Nutritional Info */}
-        <div className="bg-gray-50 rounded-lg p-3 mb-4">
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex items-center gap-1">
-              <span className="text-gray-600">Calories:</span>
-              <span className="font-medium text-gray-900">{product.nutrition.calories}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-gray-600">Protein:</span>
-              <span className="font-medium text-gray-900">{product.nutrition.protein}g</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Store Selection */}
-        <div className="mb-4">
-          <div className="text-sm text-gray-600 mb-2">Choose Store:</div>
-          <div className="space-y-2">
-            {product.stores.map(store => (
-              <div
-                key={store.name}
-                onClick={() => handleStoreSelect(store)}
-                className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer transition-colors ${
-                  selectedStore?.name === store.name
-                    ? 'border-orange-300 bg-orange-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    selectedStore?.name === store.name
-                      ? 'border-orange-500 bg-orange-500'
-                      : 'border-gray-300'
-                  }`}>
-                    {selectedStore?.name === store.name && (
-                      <Check className="w-2.5 h-2.5 text-white" />
-                    )}
-                  </div>
-                  <span className={`text-sm ${
-                    selectedStore?.name === store.name
-                      ? 'font-medium text-orange-900'
-                      : 'text-gray-700'
-                  }`}>
-                    {store.name}
-                  </span>
+            {isEditing ? (
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                  className="w-full px-2 py-1 border rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  placeholder="Ingredient name"
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={editForm.quantity}
+                    onChange={(e) => setEditForm({...editForm, quantity: parseFloat(e.target.value) || 1})}
+                    className="w-24 px-2 py-1 border rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Quantity"
+                    min="0"
+                    step="0.1"
+                  />
+                  <select
+                    value={editForm.unit}
+                    onChange={(e) => setEditForm({...editForm, unit: e.target.value})}
+                    className="px-2 py-1 border rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  >
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="l">l</option>
+                    <option value="ml">ml</option>
+                    <option value="pcs">pcs</option>
+                    <option value="tbsp">tbsp</option>
+                    <option value="tsp">tsp</option>
+                    <option value="cup">cup</option>
+                    <option value="oz">oz</option>
+                    <option value="lb">lb</option>
+                  </select>
                 </div>
-                <div className="flex items-center gap-1">
-                  <DollarSign className="w-3 h-3 text-gray-500" />
-                  <span className={`text-sm font-medium ${
-                    selectedStore?.name === store.name
-                      ? 'text-orange-900'
-                      : 'text-gray-900'
-                  }`}>
-                    LKR {Math.round(store.price)}
-                  </span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSave}
+                    className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="px-3 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
-            ))}
+            ) : (
+              <>
+                <h3 className="font-semibold text-gray-900 mb-1">{product.name}</h3>
+                <p className="text-sm text-gray-500">{product.quantity} {product.unit}</p>
+              </>
+            )}
           </div>
+          <div className="flex gap-2 z-10 relative">
+            {!isEditing && (
+              <>
+                <button
+                  onClick={handleEdit}
+                  className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                  title="Edit ingredient"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                {showDeleteConfirm ? (
+  <div className="flex items-center gap-1 bg-red-50 border border-red-200 rounded-lg px-2 py-1">
+    <span className="text-xs text-red-700 font-medium whitespace-nowrap">Delete?</span>
+    <button
+      onClick={handleCancelDelete}
+      className="px-2 py-0.5 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition-colors"
+    >
+      Cancel
+    </button>
+    <button
+      onClick={handleConfirmDelete}
+      className="px-2 py-0.5 text-xs bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
+    >
+      OK
+    </button>
+  </div>
+) : (
+  <button
+    onClick={handleDelete}
+    className="p-1 text-red-600 hover:text-red-800 transition-colors"
+    title="Delete ingredient"
+  >
+    <Trash2 className="w-4 h-4" />
+  </button>
+)}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Price Input */}
+        <div className="mb-4">
+          <div className="text-sm text-gray-600 mb-2">Price (LKR):</div>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="Enter price"
+            className="w-full px-4 py-2 border-2 border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white"
+            min="0"
+            step="0.01"
+          />
         </div>
 
         {/* Add to List Button */}
         <button
           onClick={handleAddToList}
-          disabled={isInList || !selectedStore}
+          disabled={isInList}
           className={`w-full py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
             isInList
               ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-              : !selectedStore
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-orange-500 hover:bg-orange-600 text-white'
+              : 'bg-orange-500 hover:bg-orange-600 text-white'
           }`}
         >
           {isInList ? (
             <>
               <ShoppingCart className="w-4 h-4" />
               In List
-            </>
-          ) : !selectedStore ? (
-            <>
-              <Plus className="w-4 h-4" />
-              Select Store First
             </>
           ) : (
             <>
