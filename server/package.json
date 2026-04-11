@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "coverage": "jest --coverage",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
@@ -25,10 +27,14 @@
     "nodemon": "^3.1.14"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.29.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.3.2"
+    "@types/node": "^25.3.2",
+    "babel-jest": "^30.3.0",
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
   }
 }

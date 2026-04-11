@@ -13,6 +13,7 @@ import ResultsPage from './features/ai_food_allergies/Results.jsx';
 import WeeklyMealPlanner from './features/weekly_meal_planner/WeeklyMealPlanner.jsx';
 import MealPlanDetail from './features/weekly_meal_planner/MealPlanDetail.jsx';
 import ProgressTracker from './features/weekly_planner_prediction/ProgressTracker.jsx';
+import ShoppingOptimizer from './features/shopping/ShoppingOptimizer.jsx';
 //  import { Routes, Route, Navigate } from 'react-router-dom';
 
 function AppContent() {
@@ -60,6 +61,7 @@ function AppContent() {
           <Route path="/meal-planner" element={<WeeklyMealPlanner />} />
           <Route path="/meal-planner/:planId" element={<MealPlanDetail />} />
           <Route path="/progress" element={<ProgressTracker />} />
+          <Route path="/shopping-optimizer" element={<ShoppingOptimizer />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </>
       )}
