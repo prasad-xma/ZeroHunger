@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 
@@ -164,13 +164,12 @@ const LoginPage = ({ onSwitchToRegister }) => {
             <div className="mt-6 text-center">
               <p className="text-gray-600 text-sm">
                 Don't have an account?{" "}
-                <button
-                  type="button"
-                  onClick={onSwitchToRegister}
+                <Link
+                  to="/register"
                   className="text-orange-500 hover:text-orange-600 font-medium"
                 >
                   Sign up
-                </button>
+                </Link>
               </p>
               <a
                 href="#"
