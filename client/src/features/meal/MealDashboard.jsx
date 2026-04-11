@@ -164,6 +164,12 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
       icon: Plus,
       description: 'Create new meal'
     },
+    { 
+      id: 'logout', 
+      label: 'Logout', 
+      icon: LogOut,
+      description: 'Sign out'
+    },
     
   ];
 
@@ -201,6 +207,9 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
         break;
       case 'nutrition-tracker':
         navigate('/nutrition');
+        break;
+      case 'logout':
+        handleLogout();
         break;
       default:
         // Navigate to other meal sub-pages if onNavigate is provided
