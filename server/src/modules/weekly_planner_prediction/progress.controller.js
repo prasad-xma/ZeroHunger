@@ -19,14 +19,24 @@ exports.saveProgress = async (req, res) => {
         let performance = 0;
 
         if (mealPlan) {
-            const totalMeals = mealPlan.days.length * 3;
-            let completed = 0;
+            // Count only planned meals, not all possible meals
+            let totalPlannedMeals = 0;
+            let completedMeals = 0;
+            
             mealPlan.days.forEach(day => {
                 ["breakfast","lunch","dinner"].forEach(meal => {
-                    if (day.meals[meal].isCompleted) completed++;
+                    // Only count meals that have foods planned
+                    if (day.meals[meal].foods && day.meals[meal].foods.length > 0) {
+                        totalPlannedMeals++;
+                        if (day.meals[meal].isCompleted) {
+                            completedMeals++;
+                        }
+                    }
                 });
             });
-            performance = (completed / totalMeals) * 100;
+            
+            // Calculate performance only if there are planned meals
+            performance = totalPlannedMeals > 0 ? (completedMeals / totalPlannedMeals) * 100 : 0;
         }
 
         const existingProgress = await Progress.findOne({ weekStartDate });
