@@ -68,10 +68,16 @@ const WeeklyMealPlanner = () => {
       return;
     }
     try {
-      await weeklyMealService.deleteAllPlans();
+      console.log('Attempting to delete all plans...');
+      const result = await weeklyMealService.deleteAllPlans();
+      console.log('Delete all plans result:', result);
       setPlans([]);
+      alert('All plans deleted successfully!');
     } catch (error) {
       console.error('Error deleting all plans:', error);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
       if (error.response?.status === 401) {
         window.location.href = '/login';
       }
@@ -137,7 +143,7 @@ const WeeklyMealPlanner = () => {
 
         {/* Create Plan Form Modal */}
         {showCreateForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm  flex items-center justify-center z-50">
             <div className="bg-white rounded-3xl shadow-2xl p-8 w-96">
               <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6 -m-8 mb-6 rounded-t-3xl">
                 <h2 className="text-xl font-bold text-white text-center">Create New Meal Plan</h2>
@@ -205,12 +211,14 @@ const WeeklyMealPlanner = () => {
                     <button
                       onClick={() => viewDetails(plan._id)}
                       className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-lg transition-all"
+                      title="View Plan"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => deletePlan(plan._id)}
-                      className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-2 rounded-lg transition-all"
+                      className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+                      title="Delete Plan"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -237,12 +245,20 @@ const WeeklyMealPlanner = () => {
                   ))}
                 </div>
                 
-                <button
-                  onClick={() => viewDetails(plan._id)}
-                  className="w-full mt-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg"
-                >
-                  View Full Plan
-                </button>
+                <div className="flex space-x-3 mt-4">
+                  <button
+                    onClick={() => viewDetails(plan._id)}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    View Full Plan
+                  </button>
+                  <button
+                    onClick={() => deletePlan(plan._id)}
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    Delete Plan
+                  </button>
+                </div>
               </div>
             </div>
           ))}

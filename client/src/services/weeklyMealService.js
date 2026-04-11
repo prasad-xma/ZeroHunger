@@ -97,7 +97,9 @@ const deletePlan = async (planId) => {
 
 // Delete all plans
 const deleteAllPlans = async () => {
+  console.log('Making DELETE request to /weekly-meal-planner/all');
   const response = await api.delete('/weekly-meal-planner/all');
+  console.log('Delete all plans response:', response);
   return response.data;
 };
 

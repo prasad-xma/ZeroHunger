@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
 import RegisterPage from "./Register";
 import { vi } from "vitest";
@@ -15,9 +16,13 @@ describe("RegisterPage", () => {
   });
 
   test("renders registration form", () => {
-    render(<RegisterPage onSwitchToLogin={() => { }} />);
+    render(
+      <MemoryRouter>
+        <RegisterPage onSwitchToLogin={() => { }} />
+      </MemoryRouter>
+    );
 
-    expect(screen.getByText("Create Account 👋")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Create Account/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("First name")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Last name")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("your@email.com")).toBeInTheDocument();
@@ -27,7 +32,11 @@ describe("RegisterPage", () => {
   });
 
   test("updates input fields", () => {
-    render(<RegisterPage onSwitchToLogin={() => { }} />);
+    render(
+      <MemoryRouter>
+        <RegisterPage onSwitchToLogin={() => { }} />
+      </MemoryRouter>
+    );
 
     const firstName = screen.getByPlaceholderText("First name");
     const lastName = screen.getByPlaceholderText("Last name");
@@ -43,7 +52,11 @@ describe("RegisterPage", () => {
   });
 
   test("shows validation error when fields are empty", async () => {
-    render(<RegisterPage onSwitchToLogin={() => { }} />);
+    render(
+      <MemoryRouter>
+        <RegisterPage onSwitchToLogin={() => { }} />
+      </MemoryRouter>
+    );
 
     const submitBtn = screen.getByRole("button", { name: /Create Account/i });
     fireEvent.click(submitBtn);
@@ -54,7 +67,11 @@ describe("RegisterPage", () => {
   });
 
   test("shows validation error when passwords do not match", async () => {
-    render(<RegisterPage onSwitchToLogin={() => { }} />);
+    render(
+      <MemoryRouter>
+        <RegisterPage onSwitchToLogin={() => { }} />
+      </MemoryRouter>
+    );
 
     fireEvent.change(screen.getByPlaceholderText("First name"), { target: { value: "John" } });
     fireEvent.change(screen.getByPlaceholderText("Last name"), { target: { value: "Doe" } });
@@ -75,7 +92,11 @@ describe("RegisterPage", () => {
     mockRegister.mockResolvedValue({ data: { message: "User registered successfully" } });
     const mockSwitchToLogin = vi.fn();
 
-    render(<RegisterPage onSwitchToLogin={mockSwitchToLogin} />);
+    render(
+      <MemoryRouter>
+        <RegisterPage onSwitchToLogin={mockSwitchToLogin} />
+      </MemoryRouter>
+    );
 
     fireEvent.change(screen.getByPlaceholderText("First name"), { target: { value: "John" } });
     fireEvent.change(screen.getByPlaceholderText("Last name"), { target: { value: "Doe" } });
@@ -93,6 +114,15 @@ describe("RegisterPage", () => {
         lastName: "Doe",
         email: "john@mail.com",
         phoneNumber: "1234567890",
+        gender: "",
+        dateOfBirth: "",
+        address: {
+          street: "",
+          city: "",
+          state: "",
+          country: "",
+          postalCode: ""
+        },
         password: "password123",
         confirmPassword: "password123"
       });
@@ -105,7 +135,11 @@ describe("RegisterPage", () => {
       response: { data: { message: "Email already exists" } }
     });
 
-    render(<RegisterPage onSwitchToLogin={() => { }} />);
+    render(
+      <MemoryRouter>
+        <RegisterPage onSwitchToLogin={() => { }} />
+      </MemoryRouter>
+    );
 
     fireEvent.change(screen.getByPlaceholderText("First name"), { target: { value: "John" } });
     fireEvent.change(screen.getByPlaceholderText("Last name"), { target: { value: "Doe" } });

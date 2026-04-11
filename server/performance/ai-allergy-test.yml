@@ -1,0 +1,44 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 20
+      arrivalRate: 1
+      name: Warm up
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Register, Login and Generate AI Allergy Recommendation"
+    flow:
+      # Step 1: Register a new user
+      - post:
+          url: "/api/auth/register"
+          json:
+            firstName: "Performance"
+            lastName: "Tester"
+            email: "allergy-test-{{ $randomString(8) }}@example.com"
+            password: "password123"
+            confirmPassword: "password123"
+            phoneNumber: "1234567890"
+          capture:
+            - json: "$.user.email"
+              as: "userEmail"
+      
+      # Step 2: Login to get token
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ userEmail }}"
+            password: "password123"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      # Step 3: Generate AI Allergy Recommendations
+      - post:
+          url: "/api/ai-food-allergies/generate"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            allergies: ["peanuts", "milk", "egg"]
