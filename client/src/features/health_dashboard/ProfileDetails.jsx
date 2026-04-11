@@ -137,7 +137,7 @@ const ProfileDetails = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
         <div className="text-center">
           <svg className="animate-spin h-12 w-12 text-orange-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -151,7 +151,7 @@ const ProfileDetails = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
           <div className="text-center">
             <Heart className="w-16 h-16 text-red-500 mx-auto mb-4" />
@@ -171,7 +171,7 @@ const ProfileDetails = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
           <div className="text-center">
             <User className="w-16 h-16 text-orange-500 mx-auto mb-4" />
@@ -190,7 +190,7 @@ const ProfileDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 p-4">
+    <div className="min-h-screen bg-linear-to-br from-orange-50 to-amber-50 p-4">
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
@@ -198,7 +198,7 @@ const ProfileDetails = () => {
       <div className="relative max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
-          <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-8">
+          <div className="bg-linear-to-r from-orange-500 to-amber-500 p-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <button
@@ -373,7 +373,7 @@ const ProfileDetails = () => {
 
             {/* Allergies Section */}
             {allergyProfile && allergyProfile.allergies && allergyProfile.allergies.length > 0 && (
-              <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-3xl shadow-xl p-6 border-2 border-red-200">
+              <div className="bg-linear-to-br from-red-50 to-orange-50 rounded-3xl shadow-xl p-6 border-2 border-red-200">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <AlertTriangle className="w-6 h-6 text-red-500" />
                   Food Allergies
@@ -491,7 +491,7 @@ const ProfileDetails = () => {
                     <ul className="text-sm text-green-700 space-y-1">
                       {advice.advice?.meal_management?.timing?.slice(0, 3).map((tip, index) => (
                         <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-green-600 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-green-600 rounded-full mt-2 shrink-0"></span>
                           {tip}
                         </li>
                       ))}
@@ -503,7 +503,7 @@ const ProfileDetails = () => {
                     <ul className="text-sm text-blue-700 space-y-1">
                       {advice.advice?.lifestyle_tips?.hydration?.slice(0, 3).map((tip, index) => (
                         <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-blue-600 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-blue-600 rounded-full mt-2 shrink-0"></span>
                           {tip}
                         </li>
                       ))}
@@ -515,7 +515,7 @@ const ProfileDetails = () => {
                     <ul className="text-sm text-purple-700 space-y-1">
                       {advice.advice?.lifestyle_tips?.exercise?.slice(0, 3).map((tip, index) => (
                         <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-purple-600 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-purple-600 rounded-full mt-2 shrink-0"></span>
                           {tip}
                         </li>
                       ))}
@@ -527,7 +527,7 @@ const ProfileDetails = () => {
                     <ul className="text-sm text-indigo-700 space-y-1">
                       {advice.advice?.lifestyle_tips?.sleep?.slice(0, 3).map((tip, index) => (
                         <li key={index} className="flex items-start gap-1">
-                          <span className="w-1 h-1 bg-indigo-600 rounded-full mt-2 flex-shrink-0"></span>
+                          <span className="w-1 h-1 bg-indigo-600 rounded-full mt-2 shrink-0"></span>
                           {tip}
                         </li>
                       ))}
