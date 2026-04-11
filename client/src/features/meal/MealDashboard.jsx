@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { 
-  Home, 
-  Utensils, 
-  Plus, 
-  Search, 
-  Settings, 
+import {
+  Home,
+  Utensils,
+  Plus,
+  Search,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -109,52 +109,52 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
   }, []);
 
   const menuItems = [
-    { 
-      id: 'dashboard', 
-      label: 'Meal Dashboard', 
-      icon: Home, 
+    {
+      id: 'dashboard',
+      label: 'Meal Dashboard',
+      icon: Home,
       description: 'Overview & Stats'
     },
-    { 
-      id: 'health-dashboard', 
-      label: 'Health Dashboard', 
-      icon: Activity, 
+    {
+      id: 'health-dashboard',
+      label: 'Health Dashboard',
+      icon: Activity,
       description: 'Health Metrics & Profiles'
     },
-    { 
-      id: 'meal-planner', 
-      label: 'Weekly Meal Planner', 
-      icon: Calendar, 
+    {
+      id: 'meal-planner',
+      label: 'Weekly Meal Planner',
+      icon: Calendar,
       description: 'Plan your weekly meals'
     },
-    { 
-      id: 'progress', 
-      label: 'Progress Tracker', 
-      icon: TrendingUp, 
+    {
+      id: 'progress',
+      label: 'Progress Tracker',
+      icon: TrendingUp,
       description: 'Track goals & predictions'
     },
-    { 
-      id: 'shopping-optimizer', 
-      label: 'Shopping Optimizer', 
-      icon: ShoppingCart, 
+    {
+      id: 'shopping-optimizer',
+      label: 'Shopping Optimizer',
+      icon: ShoppingCart,
       description: 'Smart shopping lists'
     },
-    { 
-      id: 'meal-gallery', 
-      label: 'Meal Gallery', 
-      icon: Utensils, 
+    {
+      id: 'meal-gallery',
+      label: 'Meal Gallery',
+      icon: Utensils,
       description: 'Browse all meals'
     },
-    { 
-      id: 'meal-guidelines', 
-      label: 'Meal Guidelines', 
-      icon: ChefHat, 
+    {
+      id: 'meal-guidelines',
+      label: 'Meal Guidelines',
+      icon: ChefHat,
       description: 'Comprehensive meal guidelines'
     },
-    { 
-      id: 'add-meal', 
-      label: 'Add Meal', 
-      icon: Plus, 
+    {
+      id: 'add-meal',
+      label: 'Add Meal',
+      icon: Plus,
       description: 'Create new meal'
     },
   ];
@@ -207,18 +207,18 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
   };
 
   const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -241,7 +241,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
           )}
         </button>
 
-        {/* Modern Enhanced Sidebar */}
+
         <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:relative z-40 w-64 h-screen bg-white/95 backdrop-blur-xl shadow-2xl transition-transform duration-300 ease-in-out border-r border-orange-100 overflow-hidden flex flex-col`}>
           {/* Sidebar Header */}
           <div className="p-4 border-b border-gradient-to-r from-orange-100 to-amber-100 bg-gradient-to-r from-orange-50 to-amber-50">
@@ -269,23 +269,21 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
               {menuItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activePage === item.id;
-                
+
                 return (
                   <li key={item.id}>
                     <button
                       onClick={() => handleMenuClick(item.id)}
-                      className={`w-full group relative overflow-hidden rounded-xl transition-all duration-300 transform ${
-                        isActive
-                          ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg scale-105'
-                          : 'text-gray-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-gray-800 hover:scale-102'
-                      }`}
+                      className={`w-full group relative overflow-hidden rounded-xl transition-all duration-300 transform ${isActive
+                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg scale-105'
+                        : 'text-gray-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-amber-50 hover:text-gray-800 hover:scale-102'
+                        }`}
                     >
                       <div className="relative z-10 flex items-center space-x-3 px-4 py-3">
-                        <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                          isActive 
-                            ? 'bg-white/20 shadow-lg' 
-                            : 'bg-gradient-to-r from-orange-100 to-amber-100 group-hover:from-orange-200 group-hover:to-amber-200 shadow-md'
-                        }`}>
+                        <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${isActive
+                          ? 'bg-white/20 shadow-lg'
+                          : 'bg-gradient-to-r from-orange-100 to-amber-100 group-hover:from-orange-200 group-hover:to-amber-200 shadow-md'
+                          }`}>
                           <Icon size={18} className={isActive ? 'text-white' : 'text-orange-600'} />
                         </div>
                         <div className="flex-1 text-left">
@@ -325,7 +323,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                   </div>
 
                   <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    {/* Modern Header Section with Light Colors */}
+                    {/* Header Section with Light Colors */}
                     <div className="relative mb-8">
                       <div className="absolute inset-0 bg-gradient-to-r from-orange-100 via-amber-100 to-orange-100 rounded-3xl opacity-90"></div>
                       <div className="relative bg-white/90 backdrop-blur-xl rounded-3xl p-6 border border-orange-100 shadow-2xl">
@@ -339,13 +337,13 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                           <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-4">
                             Track nutrition, analyze patterns, and achieve your health goals with comprehensive meal insights
                           </p>
-                          
+
                           {/* Beautiful Big Flat Image */}
                           <div className="flex justify-center mb-4">
                             <div className="relative group w-full">
-                              <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=300&fit=crop&crop=center" 
-                                   alt="Gourmet Healthy Meal" 
-                                   className="w-full h-72 rounded-2xl object-cover shadow-2xl group-hover:scale-105 transition-transform duration-700" />
+                              <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=300&fit=crop&crop=center"
+                                alt="Gourmet Healthy Meal"
+                                className="w-full h-72 rounded-2xl object-cover shadow-2xl group-hover:scale-105 transition-transform duration-700" />
                               <div className="absolute inset-0 bg-gradient-to-t from-orange-600/40 to-transparent rounded-2xl"></div>
                               <div className="absolute bottom-6 left-6 right-6">
                                 <div className="bg-white/95 backdrop-blur-sm rounded-xl px-6 py-4 shadow-lg">
@@ -355,7 +353,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                               </div>
                             </div>
                           </div>
-                          
+
                           {/* Quick Summary Stats */}
                           <div className="flex flex-wrap justify-center gap-4 text-gray-700">
                             <div className="flex items-center">
@@ -514,12 +512,12 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             <p className="text-xs text-gray-600 mb-3">Prepare meals in batches to save time and maintain consistency.</p>
                             <div className="flex items-center space-x-2">
                               <div className="flex-1 bg-white rounded-full h-2 overflow-hidden">
-                                <div className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full" style={{width: '75%'}}></div>
+                                <div className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full" style={{ width: '75%' }}></div>
                               </div>
                               <span className="text-xs text-gray-600 font-medium">75% Effective</span>
                             </div>
                           </div>
-                          
+
                           <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-lg border border-amber-200">
                             <div className="flex items-center justify-between mb-2">
                               <h3 className="font-semibold text-gray-800 text-sm">Portion Control</h3>
@@ -528,7 +526,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             <p className="text-xs text-gray-600 mb-3">Use smaller plates and measure portions to control calorie intake naturally.</p>
                             <div className="flex items-center space-x-2">
                               <div className="flex-1 bg-white rounded-full h-2 overflow-hidden">
-                                <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full" style={{width: '85%'}}></div>
+                                <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full" style={{ width: '85%' }}></div>
                               </div>
                               <span className="text-xs text-gray-600 font-medium">85% Success</span>
                             </div>
@@ -548,7 +546,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                         </h2>
                         <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Excellent</span>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-200">
                           <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -561,7 +559,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             <span className="text-xs text-gray-500 ml-1">Optimal</span>
                           </div>
                         </div>
-                        
+
                         <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3">
                             <Brain className="w-6 h-6 text-white" />
@@ -573,7 +571,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             <span className="text-xs text-gray-500 ml-1">Great</span>
                           </div>
                         </div>
-                        
+
                         <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg border border-orange-200">
                           <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-3">
                             <Zap className="w-6 h-6 text-white" />
@@ -599,7 +597,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                         </h2>
                         <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">AI Powered</span>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex items-start space-x-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 hover:shadow-md transition-shadow">
                           <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -614,7 +612,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-start space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow">
                           <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Leaf className="w-4 h-4 text-white" />
@@ -628,7 +626,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-start space-x-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
                           <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Clock className="w-4 h-4 text-white" />
@@ -642,7 +640,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="flex items-start space-x-3 p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200 hover:shadow-md transition-shadow">
                           <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg flex items-center justify-center flex-shrink-0">
                             <Coffee className="w-4 h-4 text-white" />
@@ -652,8 +650,8 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             <p className="text-xs text-gray-600">Choose nutrient-dense snacks between meals to maintain energy.</p>
                             <div className="mt-2 flex items-center text-xs text-orange-600 font-medium">
                               <ArrowRight className="w-3 h-3 mr-1" />
-                              </div>
-                              <div className="absolute top-1/2 -right-2 -translate-y-1/2 bg-amber-100 text-amber-700 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            </div>
+                            <div className="absolute top-1/2 -right-2 -translate-y-1/2 bg-amber-100 text-amber-700 px-2 py-1 rounded-full text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                             </div>
                           </div>
                           <div className="text-center p-2 bg-orange-50 rounded-lg group hover:bg-orange-100 transition-colors cursor-pointer">
@@ -672,7 +670,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                         </div>
                         Complete Meal Management Overview
                       </h2>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
                           <div className="flex items-center justify-between mb-2">
@@ -685,7 +683,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                           <div className="text-xs text-gray-600">Total Meals</div>
                           <div className="mt-2 text-xs text-blue-600 font-medium">+12 this week</div>
                         </div>
-                        
+
                         <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
                           <div className="flex items-center justify-between mb-2">
                             <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
@@ -697,7 +695,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                           <div className="text-xs text-gray-600">Healthy Options</div>
                           <div className="mt-2 text-xs text-green-600 font-medium">76.5% ratio</div>
                         </div>
-                        
+
                         <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
                           <div className="flex items-center justify-between mb-2">
                             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg flex items-center justify-center">
@@ -709,7 +707,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                           <div className="text-xs text-gray-600">Avg Calories</div>
                           <div className="mt-2 text-xs text-orange-600 font-medium">Per meal</div>
                         </div>
-                        
+
                         <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
                           <div className="flex items-center justify-between mb-2">
                             <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
@@ -722,7 +720,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                           <div className="mt-2 text-xs text-purple-600 font-medium">User reviews</div>
                         </div>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
                           <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
@@ -745,7 +743,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                                 </div>
                                 <div className="flex items-center space-x-3">
                                   <div className="w-24 bg-gray-200 rounded-full h-2 overflow-hidden">
-                                    <div className={`h-full bg-gradient-to-r ${category.color} rounded-full`} style={{width: `${category.percentage}%`}}></div>
+                                    <div className={`h-full bg-gradient-to-r ${category.color} rounded-full`} style={{ width: `${category.percentage}%` }}></div>
                                   </div>
                                   <span className="text-sm font-semibold text-gray-700 w-12 text-right">{category.count}</span>
                                 </div>
@@ -753,7 +751,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                             ))}
                           </div>
                         </div>
-                        
+
                         <div>
                           <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
                             <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-2">
@@ -777,7 +775,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                                 </div>
                                 <div className="flex items-center space-x-3">
                                   <div className="w-20 bg-gray-200 rounded-full h-2 overflow-hidden">
-                                    <div className={`h-full bg-gradient-to-r ${diet.color} rounded-full`} style={{width: `${diet.percentage}%`}}></div>
+                                    <div className={`h-full bg-gradient-to-r ${diet.color} rounded-full`} style={{ width: `${diet.percentage}%` }}></div>
                                   </div>
                                   <span className="text-sm font-semibold text-gray-700 w-8 text-right">{diet.count}</span>
                                 </div>
@@ -797,7 +795,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
                       <div className="relative">
                         {/* Timeline Line */}
                         <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-orange-500 to-amber-600"></div>
-                        
+
                         <div className="space-y-4">
                           <div className="flex items-start relative">
                             <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-full flex items-center justify-center shadow-md z-10 relative">
