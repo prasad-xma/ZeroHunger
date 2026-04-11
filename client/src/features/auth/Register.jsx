@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { Link } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, MapPin, Calendar, ClipboardList, Target, BarChart3, Utensils } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, MapPin, Calendar, ClipboardList, Target, BarChart2, Utensils, Leaf, Rocket, AlertTriangle, CheckCircle } from 'lucide-react';
 // import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, Utensils, ClipboardList, Target, BarChart2, Leaf, Rocket, AlertTriangle, CheckCircle } from 'lucide-react';
 import { register as registerService } from '../../services/authService';
 

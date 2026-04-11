@@ -15,6 +15,11 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+// Mock SidebarLayout
+vi.mock("../../components/layouts/SidebarLayout", () => ({
+  default: ({ children }) => <div data-testid="sidebar-layout">{children}</div>,
+}));
+
 // Mock service
 vi.mock("../../services/healthService", () => ({
   getUserHealthProfiles: vi.fn(),
@@ -29,7 +34,7 @@ describe("HealthProfiles", () => {
 
   // test for loading state
   test("renders loading state", () => {
-    getUserHealthProfiles.mockReturnValue(new Promise(() => {}));
+    getUserHealthProfiles.mockReturnValue(new Promise(() => { }));
     render(<BrowserRouter><HealthProfiles /></BrowserRouter>);
     expect(screen.getByText("Loading profiles...")).toBeInTheDocument();
   });

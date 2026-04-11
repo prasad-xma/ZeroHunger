@@ -16,6 +16,11 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+// Mock SidebarLayout
+vi.mock("../../components/layouts/SidebarLayout", () => ({
+  default: ({ children }) => <div data-testid="sidebar-layout">{children}</div>,
+}));
+
 // Mock service
 vi.mock("../../services/aiFoodAllergyService", () => ({
   getUserAllergyProfile: vi.fn(),
@@ -28,7 +33,7 @@ describe("ResultsPage", () => {
   });
 
   test("renders loading state initially", () => {
-    getUserAllergyProfile.mockReturnValue(new Promise(() => {}));
+    getUserAllergyProfile.mockReturnValue(new Promise(() => { }));
     render(<BrowserRouter><ResultsPage /></BrowserRouter>);
     expect(screen.getByText("Loading your allergy profile...")).toBeInTheDocument();
   });
