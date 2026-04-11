@@ -137,7 +137,14 @@ const Landing = () => {
       icon: <ShoppingCart className="w-6 h-6" />,
       href: "/shopping-optimizer",
       color: "bg-purple-500 hover:bg-purple-600"
-    }
+    },
+    {
+      title: "Nutrition Track",
+      description: "Track your nutrition goals and daily progress",
+      icon: <Utensils className="w-6 h-6" />,
+      href: "/nutrition",
+      color: "bg-teal-500 hover:bg-teal-600"
+    },
   ];
 
   const renderCurrentPage = () => {

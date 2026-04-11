@@ -1,0 +1,26 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 30
+      arrivalRate: 3
+      name: "Warm up"
+    - duration: 60
+      arrivalRate: 8
+      name: "Normal load"
+    - duration: 30
+      arrivalRate: 15
+      name: "High load"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWQ3ZTA0NDM4OGIzNGQyMzIxMjA4YTciLCJyb2xlIjoidXNlciIsImlhdCI6MTc3NTkxMzQwNywiZXhwIjoxNzc1OTk5ODA3fQ.70kTxSf55HDIRStbLpmy8N6OLQ5K3wuocn_nuSso8Ec"
+
+scenarios:
+  - name: "Nutrition food calculate load test"
+    flow:
+      - post:
+          url: "/api/nutrition/foods/calculate"
+          json:
+            food: "chicken breast"
+            quantity: 200
+            measure: "g"
