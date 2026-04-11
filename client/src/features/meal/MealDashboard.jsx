@@ -182,6 +182,15 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
       case 'shopping-optimizer':
         navigate('/shopping-optimizer');
         break;
+      case 'meal-gallery':
+        navigate('/meals');
+        break;
+      case 'meal-guidelines':
+        navigate('/meal-guidelines');
+        break;
+      case 'add-meal':
+        navigate('/add-meal');
+        break;
       default:
         // Navigate to other meal sub-pages if onNavigate is provided
         if (onNavigate) {
