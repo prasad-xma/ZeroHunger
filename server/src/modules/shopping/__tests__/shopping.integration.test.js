@@ -8,13 +8,16 @@ const shoppingRoutes = require('../shopping.routes');
 const ShoppingList = require('../shopping.model');
 
 // Mock auth middleware so tests stay isolated to shopping module
-jest.mock('../../../middlewares/auth.middleware', () => ({
-  protect: (req, res, next) => {
-    const mockMongoose = require('mongoose');
-    req.user = { id: new mockMongoose.Types.ObjectId().toString() };
-    next();
-  }
-}));
+jest.mock('../../../middlewares/auth.middleware', () => {
+  const mockMongoose = require('mongoose');
+  const mockUserId = new mockMongoose.Types.ObjectId();
+  return {
+    protect: (req, res, next) => {
+      req.user = { id: mockUserId.toString() };
+      next();
+    },
+  };
+});
 
 const app = express();
 app.use(express.json());
@@ -22,6 +25,9 @@ app.use('/api/shopping', shoppingRoutes);
 
 describe('Shopping Integration Tests', () => {
   beforeAll(async () => {
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
     const mongoUri =
       process.env.MONGO_URI_TEST || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/shopping_test';
 

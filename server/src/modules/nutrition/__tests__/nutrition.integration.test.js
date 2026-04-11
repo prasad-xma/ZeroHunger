@@ -9,12 +9,16 @@ const NutritionTarget = require("../nutrition.target.model");
 const NutritionIntake = require("../nutrition.intake.model");
 
 // Mock auth middleware so tests stay isolated to nutrition module
-jest.mock("../../../middlewares/auth.middleware", () => ({
-  protect: (req, res, next) => {
-    req.user = { _id: new mongoose.Types.ObjectId() };
-    next();
-  },
-}));
+jest.mock("../../../middlewares/auth.middleware", () => {
+  const mongoose = require("mongoose");
+  const mockUserId = new mongoose.Types.ObjectId();
+  return {
+    protect: (req, res, next) => {
+      req.user = { _id: mockUserId };
+      next();
+    },
+  };
+});
 
 const app = express();
 app.use(express.json());
@@ -22,6 +26,9 @@ app.use("/api/nutrition", nutritionRoutes);
 
 describe("Nutrition Integration Tests", () => {
   beforeAll(async () => {
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
     const mongoUri =
       process.env.MONGO_URI_TEST || process.env.MONGO_URI || "mongodb://127.0.0.1:27017/nutrition_test";
 
