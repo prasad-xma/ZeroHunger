@@ -2,12 +2,20 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLEAI_API_KEY);
 
-const generateAllergyRecommendations = async (allergies) => {
+const generateAllergyRecommendations = async (allergies, userProfile = {}) => {
     try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
         
-        const prompt = `As a nutrition and food safety expert, provide comprehensive recommendations for someone with the following food allergies: ${allergies.join(', ')}.
+        let userContext = '';
+        if (userProfile.dateOfBirth) {
+            const age = Math.floor((new Date() - new Date(userProfile.dateOfBirth)) / (365.25 * 24 * 60 * 60 * 1000));
+            userContext += `The user is a ${age}-year-old ${userProfile.gender || ''}. `;
+        } else if (userProfile.gender) {
+            userContext += `The user is ${userProfile.gender}. `;
+        }
 
+        const prompt = `As a nutrition and food safety expert, provide comprehensive recommendations for someone with the following food allergies: ${allergies.join(', ')}.
+${userContext}
 Please provide a detailed response in the following JSON format:
 {
   "recommendations": [

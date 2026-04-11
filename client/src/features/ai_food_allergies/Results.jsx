@@ -151,29 +151,47 @@ const ResultsPage = () => {
             <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
               <Shield className="w-10 h-10 text-orange-500" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Your Allergy Profile</h1>
-            <p className="text-orange-100">Personalized recommendations based on your allergies</p>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {allergyData.userId?.firstName ? `${allergyData.userId.firstName}'s Allergy Profile` : 'Your Allergy Profile'}
+            </h1>
+            <p className="text-orange-100">Personalized recommendations tailored for you</p>
           </div>
 
           {/* Allergies summary */}
           <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Your Allergies</h2>
-            <div className="flex flex-wrap gap-2">
-              {allergies.map((allergy) => (
-                <span
-                  key={allergy}
-                  className="px-3 py-2 bg-red-100 text-red-800 rounded-full text-sm font-medium"
-                >
-                  {allergy}
-                </span>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Your Allergies</h2>
+                <div className="flex flex-wrap gap-2">
+                  {allergies.map((allergy) => (
+                    <span
+                      key={allergy}
+                      className="px-3 py-2 bg-red-100 text-red-800 rounded-full text-sm font-medium"
+                    >
+                      {allergy}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              {allergyData.userId && (
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Profile Context</h2>
+                  <div className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Name:</span>
+                      <span className="font-semibold text-gray-900">{allergyData.userId.firstName} {allergyData.userId.lastName}</span>
+                    </div>
+                    {response_metadata && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Last Assessment:</span>
+                        <span className="font-semibold text-gray-900">{new Date(response_metadata.generated_at).toLocaleDateString()}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-            {response_metadata && (
-              <p className="text-sm text-gray-500 mt-3">
-                Generated on {new Date(response_metadata.generated_at).toLocaleDateString()}
-                {response_metadata.model_used && ` using ${response_metadata.model_used}`}
-              </p>
-            )}
           </div>
         </div>
 

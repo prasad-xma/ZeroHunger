@@ -57,7 +57,8 @@ const healthRecommendationSchema = new mongoose.Schema({
         dietary_preference: {
             type: String,
             required: true,
-            enum: ['vegetarian', 'vegan', 'non-vegetarian', 'keto', 'paleo', 'mediterranean', 'gluten-free', 'dairy-free', 'other']
+            enum: ['vegetarian', 'vegan', 'non-vegetarian', 'keto', 'paleo', 'mediterranean', 'gluten-free', 'dairy-free', 'other'],
+            default: 'other'
         },
         medical_conditions: [{
             type: String,
