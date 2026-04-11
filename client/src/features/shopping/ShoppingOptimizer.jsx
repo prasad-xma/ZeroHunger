@@ -6,6 +6,7 @@ import PriceComparison from './PriceComparison';
 import ProductCard from './components/ProductCard';
 import { updateIngredient, deleteIngredient } from '../../services/shoppingService';
 import { normalizeIngredientName, normalizeIngredientWithQuantity } from './utils/ingredientNormalizer';
+import api from '../../services/api';
 
 const ShoppingOptimizer = () => {
   const navigate = useNavigate();
@@ -36,19 +37,9 @@ const ShoppingOptimizer = () => {
         setLoading(true);
         setError('');
         
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/shopping', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const response = await api.get('/shopping');
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch shopping lists');
-        }
-        
-        const shoppingLists = await response.json();
+        const shoppingLists = response.data;
         console.log('Shopping lists response:', shoppingLists);
         
         // Flatten all ingredients from all shopping lists
