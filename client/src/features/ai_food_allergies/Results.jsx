@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { getUserAllergyProfile, deleteAllergyProfile } from '../../services/aiFoodAllergyService';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Info, 
-  Shield, 
-  BookOpen, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  Shield,
+  BookOpen,
   Phone,
   ArrowLeft,
   Trash2,
@@ -136,11 +136,18 @@ const ResultsPage = () => {
       {/* Background decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-orange-200 rounded-full filter blur-3xl opacity-30"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full filter blur-3xl opacity-30"></div>
-      
+
       <div className="relative max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
-          <div className="bg-linear-to-r from-orange-500 to-amber-500 p-8 text-center">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6 relative">
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-6 left-6 text-white/90 hover:text-white transition-colors flex items-center gap-2 font-medium z-10"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back
+          </button>
+          <div className="bg-linear-to-r from-orange-500 to-amber-500 p-8 text-center pt-12">
             <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
               <Shield className="w-10 h-10 text-orange-500" />
             </div>
@@ -163,7 +170,7 @@ const ResultsPage = () => {
             </div>
             {response_metadata && (
               <p className="text-sm text-gray-500 mt-3">
-                Generated on {new Date(response_metadata.generated_at).toLocaleDateString()} 
+                Generated on {new Date(response_metadata.generated_at).toLocaleDateString()}
                 {response_metadata.model_used && ` using ${response_metadata.model_used}`}
               </p>
             )}
@@ -213,7 +220,7 @@ const ResultsPage = () => {
           {ai_response?.personalized_advice && Object.keys(ai_response.personalized_advice).length > 0 && (
             <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-3xl shadow-xl p-6 border-2 border-blue-200">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Your Personalized Advice</h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Health Management */}
                 {ai_response.personalized_advice?.health_management?.length > 0 && (

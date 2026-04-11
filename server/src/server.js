@@ -56,7 +56,7 @@ app.use('/api/nutrition', nutritionRoutes);
 app.use('/api/meals', mealRoutes);
 
 // ----- Weekly planner routes -----
-app.use('/api/meal-plan', weeklyMealRoutes);
+app.use('/api/weekly-meal-planner', weeklyMealRoutes);
 
 app.use('/api/progress', progressRoutes);
 

@@ -1,187 +1,186 @@
-const service = require('./weeklyMeal.service');
-
-const validateMealPlan = (req, res, next) => {
-    const { weekStartDate, goal } = req.body;
-    
-    if (!weekStartDate) {
-        return res.status(400).json({ 
-            message: "Missing required fields: weekStartDate" 
-        });
-    }
-    
-    if (isNaN(Date.parse(weekStartDate))) {
-        return res.status(400).json({ 
-            message: "Invalid weekStartDate format" 
-        });
-    }
-    
-    // userId will be added by auth middleware
-    if (!req.userId) {
-        return res.status(401).json({ 
-            message: "Unauthorized - User ID required" 
-        });
-    }
-    
-    next();
-};
-
-const validateFood = (req, res, next) => {
-    const { day, mealType, name, grams } = req.body;
-    
-    if (!day || !mealType || !name || !grams) {
-        return res.status(400).json({ 
-            message: "Missing required fields: day, mealType, name, grams" 
-        });
-    }
-    
-    if (grams <= 0 || grams > 10000) {
-        return res.status(400).json({ 
-            message: "Invalid grams value (must be between 1 and 10000)" 
-        });
-    }
-    
-    next();
-};
-
-const validateMealCompletion = (req, res, next) => {
-    const { day, mealType, isCompleted } = req.body;
-    
-    if (!day || !mealType || typeof isCompleted !== 'boolean') {
-        return res.status(400).json({ 
-            message: "Missing required fields: day, mealType, isCompleted (boolean)" 
-        });
-    }
-    
-    next();
-};
-
-const validateFoodUpdate = (req, res, next) => {
-    const { day, mealType, foodIndex, name, grams } = req.body;
-    
-    if (!day || !mealType || foodIndex === undefined || !name || !grams) {
-        return res.status(400).json({ 
-            message: "Missing required fields: day, mealType, foodIndex, name, grams" 
-        });
-    }
-    
-    if (foodIndex < 0) {
-        return res.status(400).json({ 
-            message: "foodIndex must be 0 or greater" 
-        });
-    }
-    
-    if (grams <= 0 || grams > 10000) {
-        return res.status(400).json({ 
-            message: "Invalid grams value (must be between 1 and 10000)" 
-        });
-    }
-    
-    next();
-};
-
-const validateFoodRemoval = (req, res, next) => {
-    const { day, mealType, foodIndex } = req.body;
-    
-    if (!day || !mealType || foodIndex === undefined) {
-        return res.status(400).json({ 
-            message: "Missing required fields: day, mealType, foodIndex" 
-        });
-    }
-    
-    if (foodIndex < 0) {
-        return res.status(400).json({ 
-            message: "foodIndex must be 0 or greater" 
-        });
-    }
-    
-    next();
-};
+const WeeklyMeal = require('./weeklyMeal.model');
+const generateWeekDays = require('./weekGenerator.utils');
 
 // Create weekly plan
-exports.createWeeklyMeal = [validateMealPlan, async (req, res) => {
+exports.createWeeklyMeal = async (req, res) => {
     try {
-        const result = await service.createWeeklyMeal(req.body);
+        console.log('Received request body:', req.body);
+        
+        const { weekStartDate, goal } = req.body;
+        
+        if (!weekStartDate) {
+            return res.status(400).json({ message: "Week start date is required" });
+        }
+
+        // Check if plan already exists for this date
+        const existing = await WeeklyMeal.findOne({ weekStartDate });
+        if (existing) {
+            return res.status(400).json({ message: "Weekly plan already exists for this date" });
+        }
+
+        const weeklyMeal = new WeeklyMeal({
+            weekStartDate: new Date(weekStartDate),
+            goal: goal || 'maintenance',
+            days: generateWeekDays()
+        });
+
+        const result = await weeklyMeal.save();
+        console.log('Created plan:', result);
         res.status(201).json(result);
     } catch (err) {
+        console.log('Error in createWeeklyMeal:', err.message);
         res.status(400).json({ message: err.message });
-    }
-}];
-
-// Get plan
-exports.getWeeklyMeal = async (req, res) => {
-    try {
-        const plan = await service.getWeeklyMealById(req.params.id);
-        res.json(plan);
-    } catch (err) {
-        res.status(404).json({ message: err.message });
     }
 };
 
-// Get plans by userId
-exports.getPlansByUser = async (req, res) => {
+// Get all plans
+exports.getAllPlans = async (req, res) => {
     try {
-        const plans = await service.getPlansByUserId(req.params.userId);
+        const plans = await WeeklyMeal.find().sort({ weekStartDate: -1 });
         res.json(plans);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
 };
 
-// Add food
-exports.addFood = [validateFood, async (req, res) => {
+// Get plan by ID
+exports.getWeeklyMeal = async (req, res) => {
+    try {
+        const plan = await WeeklyMeal.findById(req.params.id);
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+        res.json(plan);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+// Add food to meal
+exports.addFood = async (req, res) => {
     try {
         const { day, mealType, name, grams } = req.body;
-        const result = await service.addFoodToMeal(
-            req.params.id, day, mealType, { name, grams }
-        );
+        const plan = await WeeklyMeal.findById(req.params.id);
+        
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+
+        const dayData = plan.days.find(d => d.day === day);
+        if (!dayData) {
+            return res.status(400).json({ message: "Invalid day" });
+        }
+
+        if (!dayData.meals[mealType]) {
+            return res.status(400).json({ message: "Invalid meal type" });
+        }
+
+        dayData.meals[mealType].foods.push({ name, grams: Number(grams) });
+        const result = await plan.save();
         res.json(result);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-}];
+};
 
 // Update food in meal
-exports.updateFood = [validateFoodUpdate, async (req, res) => {
+exports.updateFood = async (req, res) => {
     try {
         const { day, mealType, foodIndex, name, grams } = req.body;
-        const result = await service.updateFoodInMeal(
-            req.params.id, day, mealType, foodIndex, { name, grams }
-        );
+        const plan = await WeeklyMeal.findById(req.params.id);
+        
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+
+        const dayData = plan.days.find(d => d.day === day);
+        if (!dayData || !dayData.meals[mealType]) {
+            return res.status(400).json({ message: "Invalid day or meal type" });
+        }
+
+        if (dayData.meals[mealType].foods[foodIndex]) {
+            dayData.meals[mealType].foods[foodIndex] = { name, grams: Number(grams) };
+        }
+
+        const result = await plan.save();
         res.json(result);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-}];
+};
 
 // Remove food from meal
-exports.removeFood = [validateFoodRemoval, async (req, res) => {
+exports.removeFood = async (req, res) => {
     try {
         const { day, mealType, foodIndex } = req.body;
-        const result = await service.removeFoodFromMeal(
-            req.params.id, day, mealType, foodIndex
-        );
+        const plan = await WeeklyMeal.findById(req.params.id);
+        
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+
+        const dayData = plan.days.find(d => d.day === day);
+        if (!dayData || !dayData.meals[mealType]) {
+            return res.status(400).json({ message: "Invalid day or meal type" });
+        }
+
+        dayData.meals[mealType].foods.splice(foodIndex, 1);
+        const result = await plan.save();
         res.json(result);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-}];
+};
 
-// Mark meal completed
-exports.completeMeal = [validateMealCompletion, async (req, res) => {
+// Mark meal as completed
+exports.completeMeal = async (req, res) => {
     try {
         const { day, mealType, isCompleted } = req.body;
-        const result = await service.completeMeal(req.params.id, day, mealType, isCompleted);
+        const plan = await WeeklyMeal.findById(req.params.id);
+        
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+
+        const dayData = plan.days.find(d => d.day === day);
+        if (!dayData || !dayData.meals[mealType]) {
+            return res.status(400).json({ message: "Invalid day or meal type" });
+        }
+
+        dayData.meals[mealType].isCompleted = isCompleted;
+        const result = await plan.save();
         res.json(result);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
-}];
+};
 
-// Weekly summary
+// Get weekly summary
 exports.getSummary = async (req, res) => {
     try {
-        const summary = await service.getWeeklySummary(req.params.id);
-        res.json(summary);
+        const plan = await WeeklyMeal.findById(req.params.id);
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+
+        let totalMeals = 0, completedMeals = 0;
+        plan.days.forEach(day => {
+            ['breakfast', 'lunch', 'dinner'].forEach(meal => {
+                totalMeals++;
+                if (day.meals[meal] && day.meals[meal].isCompleted) {
+                    completedMeals++;
+                }
+            });
+        });
+
+        const performance = totalMeals > 0 ? ((completedMeals / totalMeals) * 100).toFixed(2) : 0;
+
+        res.json({ 
+            goal: plan.goal, 
+            totalMeals, 
+            completedMeals, 
+            performance: Number(performance) 
+        });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -190,19 +189,22 @@ exports.getSummary = async (req, res) => {
 // Delete weekly plan
 exports.deleteWeeklyMeal = async (req, res) => {
     try {
-        const result = await service.deleteWeeklyMeal(req.params.id);
-        res.json({ message: "Weekly plan deleted successfully", deletedPlan: result });
+        const plan = await WeeklyMeal.findByIdAndDelete(req.params.id);
+        if (!plan) {
+            return res.status(404).json({ message: "Plan not found" });
+        }
+        res.json({ message: "Weekly plan deleted successfully", deletedPlan: plan });
     } catch (err) {
-        res.status(404).json({ message: err.message });
+        res.status(400).json({ message: err.message });
     }
 };
 
-// Delete all user plans
-exports.deleteAllUserPlans = async (req, res) => {
+// Delete all plans
+exports.deleteAllPlans = async (req, res) => {
     try {
-        const result = await service.deleteAllUserPlans(req.params.userId);
+        const result = await WeeklyMeal.deleteMany();
         res.json({ 
-            message: "All user plans deleted successfully", 
+            message: "All plans deleted successfully", 
             deletedCount: result.deletedCount 
         });
     } catch (err) {
@@ -210,34 +212,11 @@ exports.deleteAllUserPlans = async (req, res) => {
     }
 };
 
-// Delete all meals for a specific day
-exports.deleteDayMeals = async (req, res) => {
+// Get plans by user (for compatibility with frontend)
+exports.getPlansByUser = async (req, res) => {
     try {
-        const { day } = req.body;
-        if (!day) {
-            return res.status(400).json({ message: "Missing required field: day" });
-        }
-        
-        const result = await service.deleteDayMeals(req.params.id, day);
-        res.json({ message: `All meals for ${day} deleted successfully`, plan: result });
-    } catch (err) {
-        res.status(400).json({ message: err.message });
-    }
-};
-
-// Delete specific meal type for a day
-exports.deleteMealType = async (req, res) => {
-    try {
-        const { day, mealType } = req.body;
-        if (!day || !mealType) {
-            return res.status(400).json({ message: "Missing required fields: day, mealType" });
-        }
-        
-        const result = await service.deleteMealType(req.params.id, day, mealType);
-        res.json({ 
-            message: `${mealType} for ${day} deleted successfully`, 
-            plan: result 
-        });
+        const plans = await WeeklyMeal.find().sort({ weekStartDate: -1 });
+        res.json(plans);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
