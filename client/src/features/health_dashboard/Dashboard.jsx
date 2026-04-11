@@ -190,7 +190,7 @@ const Dashboard = () => {
         {/* Action Button */}
         <div className="mb-6 text-center">
           <button
-            onClick={() => navigate('/health-dashboard/create-profile')}
+            onClick={() => navigate('/questionnaire/comprehensive')}
             className="bg-linear-to-r from-orange-500 to-amber-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-orange-600 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all inline-flex items-center gap-2"
           >
             <Plus className="w-5 h-5" />
@@ -276,7 +276,7 @@ const Dashboard = () => {
               Start your health journey by creating your first health profile. Get personalized recommendations and track your progress over time.
             </p>
             <button
-              onClick={() => navigate('/health-dashboard/create-profile')}
+              onClick={() => navigate('/questionnaire/comprehensive')}
               className="px-8 py-4 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors text-lg font-semibold"
             >
               Create Your First Profile

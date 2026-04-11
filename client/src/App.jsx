@@ -10,10 +10,10 @@ import ProfileDetails from './features/health_dashboard/ProfileDetails.jsx';
 import HealthQuestionnaire from './features/questionnaire/ComprehensiveQuestionnaire.jsx';
 import QuestionnairePage from './features/ai_food_allergies/Questionnaire.jsx';
 import ResultsPage from './features/ai_food_allergies/Results.jsx';
+import CreateProfile from './features/health_dashboard/CreateProfile.jsx';
 
 function AppContent() {
   const { user, loading, isAuthenticated } = useAuth();
-  const [currentPage, setCurrentPage] = useState('register');
 
   // Show loading while checking authentication
   if (loading) {
@@ -35,8 +35,8 @@ function AppContent() {
       {/* Auth routes - only accessible when not authenticated */}
       {!isAuthenticated && (
         <>
-          <Route path="/login" element={<LoginPage onSwitchToRegister={() => setCurrentPage('register')} />} />
-          <Route path="/register" element={<RegisterPage onSwitchToLogin={() => setCurrentPage('login')} />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </>
       )}
@@ -48,6 +48,7 @@ function AppContent() {
           <Route path="/landing" element={<Landing />} />
           <Route path="/health-dashboard" element={<Dashboard />} />
           <Route path="/health-dashboard/profiles" element={<HealthProfiles />} />
+          <Route path="/health-dashboard/create-profile" element={<Navigate to="/questionnaire/comprehensive" replace />} />
           <Route path="/health-dashboard/profile/:profileId" element={<ProfileDetails />} />
           <Route path="/questionnaire/comprehensive" element={<HealthQuestionnaire />} />
           <Route path="/ai-food-allergies/questionnaire" element={<QuestionnairePage />} />
