@@ -155,11 +155,54 @@ const CreateProfile = () => {
     }));
   };
 
+  const validateForm = () => {
+    const requiredFields = [
+      { field: 'age', label: 'Age', section: 'user_profile' },
+      { field: 'gender', label: 'Gender', section: 'user_profile' },
+      { field: 'height_cm', label: 'Height', section: 'user_profile' },
+      { field: 'weight_kg', label: 'Current Weight', section: 'user_profile' },
+      { field: 'target_weight_kg', label: 'Target Weight', section: 'user_profile' },
+      { field: 'activity_level', label: 'Activity Level', section: 'user_profile' },
+      { field: 'goal', label: 'Goal', section: 'user_profile' },
+      { field: 'dietary_preference', label: 'Dietary Preference', section: 'user_profile' },
+      { field: 'sleep_hours', label: 'Sleep Hours', section: 'user_profile' },
+      { field: 'water_intake', label: 'Water Intake', section: 'user_profile' },
+      { field: 'meal_frequency', label: 'Meal Frequency', section: 'user_profile' },
+      { field: 'cooking_time', label: 'Cooking Time', section: 'user_profile' }
+    ];
+
+    const missingFields = [];
+
+    requiredFields.forEach(({ field, label, section }) => {
+      const value = formData[section][field];
+      if (value === '' || value === undefined || value === null) {
+        missingFields.push(label);
+      }
+    });
+
+    // Check nested exercise fields
+    if (!formData.user_profile.exercise.type) missingFields.push('Exercise Type');
+    if (formData.user_profile.exercise.frequency === '') missingFields.push('Exercise Frequency');
+    if (formData.user_profile.exercise.duration_min === '') missingFields.push('Exercise Duration');
+
+    if (!formData.profile_name) missingFields.push('Profile Name');
+
+    return missingFields;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setError('');
 
+    const missingFields = validateForm();
+    if (missingFields.length > 0) {
+      setError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    setIsLoading(true);
     try {
       const response = await createHealthProfile(formData);
       if (response.data.success) {
@@ -170,7 +213,8 @@ const CreateProfile = () => {
         setError(response.data.message || 'Failed to create health profile');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred while creating profile');
+      console.error('Submission error:', err);
+      setError(err.response?.data?.message || 'An error occurred while creating profile. Please check that all fields are correctly filled.');
     } finally {
       setIsLoading(false);
     }

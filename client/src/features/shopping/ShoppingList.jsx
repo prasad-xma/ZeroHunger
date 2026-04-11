@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { ShoppingCart, Trash2, Check, Plus, Minus, DollarSign, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Trash2, Check, Plus, Minus, DollarSign, TrendingUp, X } from 'lucide-react';
+import { normalizeIngredientName } from './utils/ingredientNormalizer';
 
-const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQuantity, budget, totalCost, onBudgetChange }) => {
+const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQuantity, budget, totalCost, onBudgetChange, onClearAll, onClearChecked }) => {
   const [listName, setListName] = useState('Weekly Groceries');
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const updateQuantity = (itemId, change) => {
     const currentItem = shoppingList.find(item => item.product.id === itemId);
@@ -15,7 +17,7 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
   const checkedItems = shoppingList.filter(item => item.checked);
   const uncheckedItems = shoppingList.filter(item => !item.checked);
   const checkedTotal = checkedItems.reduce((total, item) => 
-    total + (item.selectedStore.price * item.quantity), 0
+    total + ((item.selectedStore?.price || 0) * item.quantity), 0
   );
 
   const budgetRemaining = budget - totalCost;
@@ -134,18 +136,6 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                     }`}>
                       {item.product.name}
                     </h4>
-                    <div className="flex items-center gap-4 mt-1">
-                      <span className="text-sm text-gray-600">{item.product.category}</span>
-                      <span className="text-sm font-medium text-orange-600">
-                        LKR {Math.round(item.selectedStore.price)} each
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        at {item.selectedStore.name}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        Health Score: {item.product.healthScore}/100
-                      </span>
-                    </div>
                   </div>
 
                   {/* Quantity Controls */}
@@ -169,17 +159,34 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
                   {/* Item Total */}
                   <div className="text-right">
                     <p className="font-semibold text-gray-900">
-                      LKR {Math.round(item.selectedStore.price * item.quantity)}
+                      LKR {Math.round((item.selectedStore?.price || 0) * item.quantity)}
                     </p>
                   </div>
 
                   {/* Remove Button */}
-                  <button
-                    onClick={() => onRemoveItem(item.product.id)}
-                    className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </button>
+                  {confirmDeleteId === item.product.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onRemoveItem(item.product.id); setConfirmDeleteId(null); }}
+                        className="px-2 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+                      >
+                        Yes, remove
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
+                        className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(item.product.id); }}
+                      className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors relative z-10"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -190,14 +197,32 @@ const ShoppingList = ({ shoppingList, onRemoveItem, onToggleChecked, onUpdateQua
         {shoppingList.length > 0 && (
           <div className="border-t border-gray-200 p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">
-                  {checkedItems.length} of {shoppingList.length} items checked
-                </p>
-                {checkedItems.length > 0 && (
-                  <p className="text-sm text-green-600">
-                    Checked items total: LKR {Math.round(checkedTotal)}
+              <div className="flex gap-2">
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {checkedItems.length} of {shoppingList.length} items checked
                   </p>
+                  {checkedItems.length > 0 && (
+                    <p className="text-sm text-green-600">
+                      Checked items total: LKR {Math.round(checkedTotal)}
+                    </p>
+                  )}
+                </div>
+                {checkedItems.length > 0 && (
+                  <button
+                    onClick={onClearChecked}
+                    className="px-3 py-1 text-sm rounded-md border border-amber-300 text-amber-600 hover:bg-amber-50 transition-colors"
+                  >
+                    Clear Checked
+                  </button>
+                )}
+                {shoppingList.length > 0 && (
+                  <button
+                    onClick={onClearAll}
+                    className="px-3 py-1 text-sm rounded-md border border-red-300 text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    Clear All
+                  </button>
                 )}
               </div>
               <div className="text-right">

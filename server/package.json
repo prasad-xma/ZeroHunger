@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "coverage": "jest --coverage",
+    "test:nutrition": "jest server/src/modules/nutrition/__tests__ --runInBand",
+    "perf:intake": "artillery run performance/nutrition-intake.yml",
+    "perf:food": "artillery run performance/nutrition-food-calculate.yml",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
@@ -25,10 +30,16 @@
     "nodemon": "^3.1.14"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.29.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.3.2"
+    "@types/node": "^25.3.2",
+    "artillery": "^2.0.30",
+    "babel-jest": "^30.3.0",
+    "jest": "^30.3.0",
+    "mongodb-memory-server": "^11.0.1",
+    "supertest": "^7.2.2"
   }
 }

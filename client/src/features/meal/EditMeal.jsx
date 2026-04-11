@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { mealService } from '../../services/mealService';
 
-const EditMeal = ({ mealId, onNavigate }) => {
+const EditMeal = ({ onNavigate }) => {
+  const { mealId } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     image: '',
@@ -201,7 +204,7 @@ const EditMeal = ({ mealId, onNavigate }) => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
-          onClick={() => onNavigate('meal-detail', { mealId })}
+          onClick={() => navigate(`/meal/${mealId}`)}
           className="flex items-center space-x-2 text-gray-600 hover:text-orange-600 transition-colors"
         >
           ← Back to Details

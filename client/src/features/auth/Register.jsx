@@ -1,4 +1,7 @@
 import { useState } from 'react';
+
+import { Link } from 'react-router-dom';
+// import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, MapPin, Calendar, ClipboardList, Target, BarChart3, Utensils } from 'lucide-react';
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft, Utensils, ClipboardList, Target, BarChart2, Leaf, Rocket, AlertTriangle, CheckCircle } from 'lucide-react';
 import { register as registerService } from '../../services/authService';
 
@@ -48,6 +51,15 @@ const RegisterPage = ({ onSwitchToLogin }) => {
     lastName: '',
     email: '',
     phoneNumber: '',
+    gender: '',
+    dateOfBirth: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      country: '',
+      postalCode: '',
+    },
     password: '',
     confirmPassword: '',
   });
@@ -59,7 +71,19 @@ const RegisterPage = ({ onSwitchToLogin }) => {
   const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
     setError('');
     setSuccess('');
   };
@@ -86,7 +110,12 @@ const RegisterPage = ({ onSwitchToLogin }) => {
     try {
       const response = await registerService(formData);
       setSuccess(response.data?.message || 'User registered successfully');
-      setFormData({ firstName: '', lastName: '', email: '', phoneNumber: '', password: '', confirmPassword: '' });
+      setFormData({
+        firstName: '', lastName: '', email: '', phoneNumber: '',
+        gender: '', dateOfBirth: '',
+        address: { street: '', city: '', state: '', country: '', postalCode: '' },
+        password: '', confirmPassword: ''
+      });
       setTimeout(() => { if (onSwitchToLogin) onSwitchToLogin(); }, 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
@@ -481,13 +510,14 @@ const RegisterPage = ({ onSwitchToLogin }) => {
           <div className="left-panel">
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="brand-badge">
-                <Utensils size={14} />
+                <Utensils size={14} className="text-orange-200" />
+
                 <span>ZeroHunger</span>
               </div>
 
               <div className="hero-emoji-ring" style={{ marginTop: '1.5rem' }}>
                 <div className="emoji-ring">
-                  <Leaf size={48} color="white" strokeWidth={1.5} />
+                  <Utensils size={52} className="text-white/40" />
                 </div>
               </div>
 
@@ -532,10 +562,10 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
           {/* ── RIGHT PANEL ── */}
           <div className="right-panel">
-            <button type="button" onClick={onSwitchToLogin} className="back-btn">
+            <Link to="/login" className="back-btn" style={{ textDecoration: 'none' }}>
               <ArrowLeft size={15} />
               Back to Login
-            </button>
+            </Link>
 
             <h2 className="page-title">Create Account</h2>
             <p className="page-subtitle">Fill in your details to get started</p>
@@ -591,6 +621,91 @@ const RegisterPage = ({ onSwitchToLogin }) => {
                 onChange={handleChange}
                 placeholder="+1 000 000 0000"
               />
+
+              <div className="form-grid-2">
+                <div>
+                  <label className="block text-sm font-semibold mb-1.5" style={{ color: '#4B3F35', fontFamily: "'Nunito', sans-serif" }}>
+                    Gender
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                      <User className="h-4.5 w-4.5 group-focus-within:text-orange-500" style={{ color: '#C4B5A8', width: 18, height: 18 }} />
+                    </div>
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      className="w-full py-3 pl-10 pr-4 border-2 rounded-2xl text-sm transition-all bg-orange-50/40 focus:outline-none focus:bg-white"
+                      style={{ borderColor: '#EDD5C5', color: '#3D2C1E', fontFamily: "'Nunito', sans-serif" }}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                </div>
+                <InputField
+                  label="Date of Birth"
+                  icon={Calendar}
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Address Section */}
+              <p className="section-label" style={{ marginTop: 4 }}>Address Information</p>
+              <InputField
+                label="Street Address"
+                icon={MapPin}
+                type="text"
+                name="address.street"
+                value={formData.address.street}
+                onChange={handleChange}
+                placeholder="123 Main St"
+              />
+              <div className="form-grid-2">
+                <InputField
+                  label="City"
+                  icon={MapPin}
+                  type="text"
+                  name="address.city"
+                  value={formData.address.city}
+                  onChange={handleChange}
+                  placeholder="City"
+                />
+                <InputField
+                  label="State"
+                  icon={MapPin}
+                  type="text"
+                  name="address.state"
+                  value={formData.address.state}
+                  onChange={handleChange}
+                  placeholder="State"
+                />
+              </div>
+              <div className="form-grid-2">
+                <InputField
+                  label="Country"
+                  icon={MapPin}
+                  type="text"
+                  name="address.country"
+                  value={formData.address.country}
+                  onChange={handleChange}
+                  placeholder="Country"
+                />
+                <InputField
+                  label="Postal Code"
+                  icon={MapPin}
+                  type="text"
+                  name="address.postalCode"
+                  value={formData.address.postalCode}
+                  onChange={handleChange}
+                  placeholder="Postal Code"
+                />
+              </div>
 
               {/* Security */}
               <p className="section-label" style={{ marginTop: 4 }}>Security</p>
@@ -656,9 +771,9 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
             <div className="signin-row">
               Already have an account?{' '}
-              <button type="button" onClick={onSwitchToLogin} className="signin-link">
+              <Link to="/login" className="signin-link">
                 Sign in here
-              </button>
+              </Link>
             </div>
           </div>
         </div>

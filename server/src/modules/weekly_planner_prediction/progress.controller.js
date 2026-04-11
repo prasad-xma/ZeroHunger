@@ -19,14 +19,21 @@ exports.saveProgress = async (req, res) => {
         let performance = 0;
 
         if (mealPlan) {
-            const totalMeals = mealPlan.days.length * 3;
-            let completed = 0;
+            // Count all meals consistently with weekly meal service
+            let totalMeals = 0;
+            let completedMeals = 0;
+            
             mealPlan.days.forEach(day => {
                 ["breakfast","lunch","dinner"].forEach(meal => {
-                    if (day.meals[meal].isCompleted) completed++;
+                    totalMeals++;
+                    if (day.meals[meal].isCompleted) {
+                        completedMeals++;
+                    }
                 });
             });
-            performance = (completed / totalMeals) * 100;
+            
+            // Calculate performance based on all meals in the plan
+            performance = totalMeals > 0 ? (completedMeals / totalMeals) * 100 : 0;
         }
 
         const existingProgress = await Progress.findOne({ weekStartDate });

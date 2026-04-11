@@ -1,6 +1,21 @@
 // server/src/modules/nutrition/nutrition.controller.js
-const { validateTargetsInput, isISODateKey, validateFoodSearch, validateFoodCalculateBody } = require("./nutrition.validators");
-const { calculateTargetsAndRanges, searchFoodsByQuery, calculateFoodNutrition } = require("./nutrition.service");
+const {
+  validateTargetsInput,
+  isISODateKey,
+  validateFoodSearch,
+  validateFoodCalculateBody,
+} = require("./nutrition.validators");
+
+const {
+  calculateTargetsAndRanges,
+  searchFoodsByQuery,
+  calculateFoodNutrition,
+  upsertDailyIntake,
+  getDailyIntakeByDate,
+  getWeeklyIntakeSummary,
+  getTodaySummary,
+} = require("./nutrition.service");
+
 const NutritionTarget = require("./nutrition.target.model");
 
 function sendError(res, status, message, errors = []) {
@@ -19,6 +34,22 @@ function mapTargetDoc(doc) {
     results: doc.results,
     limits: doc.limits,
     ranges: doc.ranges,
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
+  };
+}
+
+function mapIntakeDoc(doc) {
+  return {
+    id: doc._id,
+    userId: doc.userId,
+    dateKey: doc.dateKey,
+    calories: doc.calories,
+    proteinG: doc.proteinG,
+    carbsG: doc.carbsG,
+    fatG: doc.fatG,
+    sugarG: doc.sugarG,
+    satFatG: doc.satFatG,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -164,7 +195,6 @@ async function updateMyTargets(req, res) {
     const { ok, errors, value } = validateTargetsInput(req.body);
     if (!ok) return sendError(res, 400, "Validation failed", errors);
 
-    // Optional: ensure user had a previous target (helps demo narrative)
     const hasAny = await NutritionTarget.exists({ userId });
     if (!hasAny) {
       return sendError(res, 404, "No existing targets to update. Save targets first.");
@@ -172,7 +202,6 @@ async function updateMyTargets(req, res) {
 
     const computed = calculateTargetsAndRanges(value);
 
-    // Create a new version (keeps history). "Latest" is newest createdAt.
     const doc = await NutritionTarget.create({
       userId,
       inputs: value,
@@ -208,7 +237,6 @@ async function updateMyTargets(req, res) {
   }
 }
 
-// Phase 1: Food search and calculate endpoints
 /**
  * GET /api/nutrition/foods/search?q=chicken breast
  * Protected (JWT)
@@ -239,7 +267,7 @@ async function searchFoods(req, res) {
 /**
  * POST /api/nutrition/foods/calculate
  * Protected (JWT)
- * No DB write (Phase 1)
+ * No DB write
  * Body: { food, quantity, measure }   measure: cup|g
  */
 async function calculateFood(req, res) {
@@ -257,6 +285,107 @@ async function calculateFood(req, res) {
   } catch (err) {
     console.error("calculateFood error:", err);
     return sendError(res, err.statusCode || 500, err.message || "Server error");
+  }
+}
+
+/**
+ * POST /api/nutrition/intake
+ * Protected (JWT)
+ * Upsert today's intake and increment totals
+ */
+async function upsertIntake(req, res) {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return sendError(res, 401, "Unauthorized");
+
+    if (req.body?.dateKey && !isISODateKey(req.body.dateKey)) {
+      return sendError(res, 400, "Validation failed", ["dateKey must be YYYY-MM-DD"]);
+    }
+
+    const doc = await upsertDailyIntake(userId, req.body);
+
+    return res.status(200).json({
+      success: true,
+      message: "Daily intake saved successfully",
+      data: mapIntakeDoc(doc),
+    });
+  } catch (err) {
+    console.error("upsertIntake error:", err);
+    return sendError(res, 500, "Server error");
+  }
+}
+
+/**
+ * GET /api/nutrition/intake/daily
+ * Protected (JWT)
+ * Get today's intake or intake by ?dateKey=YYYY-MM-DD
+ */
+async function getDailyIntake(req, res) {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return sendError(res, 401, "Unauthorized");
+
+    const dateKey = req.query?.dateKey;
+    if (dateKey && !isISODateKey(dateKey)) {
+      return sendError(res, 400, "Validation failed", ["dateKey must be YYYY-MM-DD"]);
+    }
+
+    const doc = await getDailyIntakeByDate(userId, dateKey);
+
+    return res.status(200).json({
+      success: true,
+      message: "Daily intake fetched successfully",
+      data: doc._id ? mapIntakeDoc(doc) : doc,
+    });
+  } catch (err) {
+    console.error("getDailyIntake error:", err);
+    return sendError(res, 500, "Server error");
+  }
+}
+
+/**
+ * GET /api/nutrition/summary/weekly
+ * Protected (JWT)
+ * Last 7 days intake totals
+ */
+async function getWeeklySummary(req, res) {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return sendError(res, 401, "Unauthorized");
+
+    const summary = await getWeeklyIntakeSummary(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Weekly summary fetched successfully",
+      data: summary,
+    });
+  } catch (err) {
+    console.error("getWeeklySummary error:", err);
+    return sendError(res, 500, "Server error");
+  }
+}
+
+/**
+ * GET /api/nutrition/summary/today
+ * Protected (JWT)
+ * Today's intake vs latest targets
+ */
+async function getTodayNutritionSummary(req, res) {
+  try {
+    const userId = req.user?._id;
+    if (!userId) return sendError(res, 401, "Unauthorized");
+
+    const summary = await getTodaySummary(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Today's nutrition summary fetched successfully",
+      data: summary,
+    });
+  } catch (err) {
+    console.error("getTodayNutritionSummary error:", err);
+    return sendError(res, 500, "Server error");
   }
 }
 
@@ -292,14 +421,6 @@ async function deleteMyLatestTargets(req, res) {
   }
 }
 
-// Phase 4+ placeholders (keep stable until next phases)
-function notImplemented(req, res) {
-  return res.status(501).json({
-    success: false,
-    message: "Not implemented yet (will be added in next phase).",
-  });
-}
-
 module.exports = {
   calculateTargets,
   saveTargets,
@@ -307,11 +428,11 @@ module.exports = {
   updateMyTargets,
   deleteMyLatestTargets,
 
-  // Phase 1
   searchFoods,
   calculateFood,
 
-  upsertIntake: notImplemented,
-  getDailyIntake: notImplemented,
-  getWeeklySummary: notImplemented,
+  upsertIntake,
+  getDailyIntake,
+  getWeeklySummary,
+  getTodayNutritionSummary,
 };

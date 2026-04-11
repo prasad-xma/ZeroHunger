@@ -91,20 +91,32 @@ function generateAlerts(ingredients, kitchenStock) {
 // Create new shopping list
 const createShoppingList = async (req, res) => {
     try {
-        const { name, recipes, kitchenStock } = req.body;
+        const { name, recipes, kitchenStock, ingredients } = req.body;
         
-        // Calculate consolidated ingredients
-        const consolidatedIngredients = consolidateIngredients(recipes);
+        // Use direct ingredients if provided, otherwise consolidate from recipes
+        let finalIngredients;
+        if (ingredients && Array.isArray(ingredients) && ingredients.length > 0) {
+            // Sanitize ingredients with valid units
+            const allowedUnits = ['kg', 'g', 'l', 'ml', 'pcs', 'tbsp', 'tsp', 'cup', 'oz', 'lb'];
+            finalIngredients = ingredients.map(ing => ({
+                ...ing,
+                quantity: parseFloat(ing.quantity) || 1,
+                unit: allowedUnits.includes(ing.unit) ? ing.unit : 'pcs'
+            }));
+        } else {
+            // Calculate consolidated ingredients from recipes
+            finalIngredients = consolidateIngredients(recipes);
+        }
         
         // Generate alerts based on kitchen stock
-        const alerts = generateAlerts(consolidatedIngredients, kitchenStock);
+        const alerts = generateAlerts(finalIngredients, kitchenStock);
         
         const shoppingList = await ShoppingList.create({
             user: req.user.id,
             name,
             recipes,
             kitchenStock,
-            ingredients: consolidatedIngredients,
+            ingredients: finalIngredients,
             alerts
         });
         
@@ -296,6 +308,88 @@ const deleteShoppingList = async (req, res) => {
     }
 };
 
+// Update single ingredient
+const updateIngredient = async (req, res) => {
+    try {
+        const { ingredientId } = req.params;
+        const { name, quantity, unit } = req.body;
+        
+        console.log('Update ingredient request:', { ingredientId, name, quantity, unit });
+        
+        // Find shopping list containing the ingredient
+        const shoppingList = await ShoppingList.findOne({
+            'ingredients._id': ingredientId
+        });
+        
+        console.log('Found shopping list:', shoppingList);
+        
+        if (!shoppingList) {
+            return res.status(404).json({ message: 'Ingredient not found' });
+        }
+        
+        // Update the specific ingredient using positional operator
+        await ShoppingList.updateOne(
+            { 'ingredients._id': ingredientId },
+            { 
+                $set: { 
+                    'ingredients.$.name': name,
+                    'ingredients.$.quantity': parseFloat(quantity) || 1,
+                    'ingredients.$.unit': unit
+                }
+            }
+        );
+        
+        console.log('Updated ingredient in place');
+        
+        // Fetch updated list and return directly
+        const updatedList = await ShoppingList.findById(shoppingList._id);
+        console.log('Updated list:', updatedList);
+        
+        res.json({
+            message: 'Ingredient updated successfully',
+            shoppingList: updatedList
+        });
+    } catch (err) {
+        console.error('Update ingredient error:', err.message);
+        res.status(500).json({ message: 'Failed to update ingredient' });
+    }
+};
+
+// Delete single ingredient
+const deleteIngredient = async (req, res) => {
+    try {
+        const { ingredientId } = req.params;
+        
+        // Find shopping list containing the ingredient
+        const shoppingList = await ShoppingList.findOne({
+            'ingredients._id': ingredientId
+        });
+        
+        if (!shoppingList) {
+            return res.status(404).json({ message: 'Ingredient not found' });
+        }
+        
+        // Remove the ingredient using $pull
+        await ShoppingList.updateOne(
+            { 'ingredients._id': ingredientId },
+            { $pull: { ingredients: { _id: ingredientId } } }
+        );
+        console.log('Removed ingredient from list');
+        
+        // Fetch updated list and return directly
+        const updatedList = await ShoppingList.findById(shoppingList._id);
+        console.log('Updated list:', updatedList);
+        
+        res.json({
+            message: 'Ingredient deleted successfully',
+            shoppingList: updatedList
+        });
+    } catch (err) {
+        console.error('Delete ingredient error:', err.message);
+        res.status(500).json({ message: 'Failed to delete ingredient' });
+    }
+};
+
 module.exports = {
     createShoppingList,
     getShoppingLists,
@@ -303,5 +397,7 @@ module.exports = {
     updateIngredientStatus,
     updateShoppingList,
     generatePDF,
-    deleteShoppingList
+    deleteShoppingList,
+    updateIngredient,
+    deleteIngredient
 };

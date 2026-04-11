@@ -1,5 +1,8 @@
 // server/src/modules/nutrition/nutrition.service.js
-// Pure calculation functions live here (no req/res, no DB).
+// Pure calculation functions live here (no req/res).
+
+const NutritionIntake = require("./nutrition.intake.model");
+const NutritionTarget = require("./nutrition.target.model");
 
 function round1(n) {
   return Math.round(n * 10) / 10;
@@ -142,7 +145,6 @@ function calculateTargetsAndRanges(inputs) {
   return out;
 }
 
-
 function toGrams(quantity, measure) {
   const m = String(measure).toLowerCase();
   if (m === "cup") {
@@ -202,13 +204,12 @@ async function calculateFoodNutrition({ food, quantity, measure }) {
       acc.fatG += Number(item?.fat_total_g ?? 0);
       acc.carbsG += Number(item?.carbohydrates_total_g ?? 0);
       acc.fiberG += Number(item?.fiber_g ?? 0);
+      acc.sugarG += Number(item?.sugar_g ?? 0);
+      acc.satFatG += Number(item?.fat_saturated_g ?? 0);
       return acc;
     },
-    { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, fiberG: 0 }
+    { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, fiberG: 0, sugarG: 0, satFatG: 0 }
   );
-
-  // Round to 1 decimal for grams, whole number for calories
-  const round1 = (n) => Math.round(n * 10) / 10;
 
   return {
     queryUsed: query,
@@ -219,8 +220,142 @@ async function calculateFoodNutrition({ food, quantity, measure }) {
     fatG: round1(totals.fatG),
     carbsG: round1(totals.carbsG),
     fiberG: round1(totals.fiberG),
+    sugarG: round1(totals.sugarG),
+    satFatG: round1(totals.satFatG),
 
     items, // return raw items for transparency/debug (frontend can ignore if needed)
+  };
+}
+
+function getTodayDateKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function normalizeIntakeValues(payload = {}) {
+  return {
+    calories: Number(payload.calories) || 0,
+    proteinG: Number(payload.proteinG) || 0,
+    carbsG: Number(payload.carbsG) || 0,
+    fatG: Number(payload.fatG) || 0,
+    sugarG: Number(payload.sugarG) || 0,
+    satFatG: Number(payload.satFatG) || 0,
+  };
+}
+
+async function upsertDailyIntake(userId, payload = {}) {
+  const dateKey = payload.dateKey || getTodayDateKey();
+  const values = normalizeIntakeValues(payload);
+
+  const doc = await NutritionIntake.findOneAndUpdate(
+    { userId, dateKey },
+    {
+      $setOnInsert: { userId, dateKey },
+      $inc: {
+        calories: values.calories,
+        proteinG: values.proteinG,
+        carbsG: values.carbsG,
+        fatG: values.fatG,
+        sugarG: values.sugarG,
+        satFatG: values.satFatG,
+      },
+    },
+    {
+      new: true,
+      upsert: true,
+      runValidators: true,
+    }
+  );
+
+  return doc;
+}
+
+async function getDailyIntakeByDate(userId, dateKey = getTodayDateKey()) {
+  const doc = await NutritionIntake.findOne({ userId, dateKey });
+  if (doc) return doc;
+
+  return {
+    userId,
+    dateKey,
+    calories: 0,
+    proteinG: 0,
+    carbsG: 0,
+    fatG: 0,
+    sugarG: 0,
+    satFatG: 0,
+  };
+}
+
+async function getWeeklyIntakeSummary(userId) {
+  const today = new Date();
+  const days = [];
+
+  for (let i = 6; i >= 0; i -= 1) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateKey = d.toISOString().slice(0, 10);
+    days.push(dateKey);
+  }
+
+  const docs = await NutritionIntake.find({
+    userId,
+    dateKey: { $in: days },
+  }).lean();
+
+  const map = new Map(docs.map((doc) => [doc.dateKey, doc]));
+
+  return days.map((dateKey) => {
+    const item = map.get(dateKey);
+
+    return {
+      dateKey,
+      calories: Number(item?.calories || 0),
+      proteinG: Number(item?.proteinG || 0),
+      carbsG: Number(item?.carbsG || 0),
+      fatG: Number(item?.fatG || 0),
+      sugarG: Number(item?.sugarG || 0),
+      satFatG: Number(item?.satFatG || 0),
+    };
+  });
+}
+
+function calculatePercent(value, target) {
+  if (!target || target <= 0) return 0;
+  return round1((value / target) * 100);
+}
+
+async function getTodaySummary(userId) {
+  const intake = await getDailyIntakeByDate(userId);
+  const latestTarget = await NutritionTarget.findOne({ userId }).sort({ createdAt: -1 }).lean();
+
+  if (!latestTarget) {
+    return {
+      intake,
+      targets: null,
+      percentages: {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+      },
+    };
+  }
+
+  const results = latestTarget.results || {};
+
+  return {
+    intake,
+    targets: {
+      tdeeCalories: Number(results.tdeeCalories || 0),
+      proteinG: Number(results.proteinG || 0),
+      carbsG: Number(results.carbsG || 0),
+      fatG: Number(results.fatG || 0),
+    },
+    percentages: {
+      calories: calculatePercent(intake.calories, results.tdeeCalories),
+      protein: calculatePercent(intake.proteinG, results.proteinG),
+      carbs: calculatePercent(intake.carbsG, results.carbsG),
+      fat: calculatePercent(intake.fatG, results.fatG),
+    },
   };
 }
 
@@ -229,7 +364,13 @@ module.exports = {
   calculateTDEE,
   calculateTargetsAndRanges,
 
-  // Food search + calculate functions (phase 1)
+  // Food search + calculate functions
   searchFoodsByQuery,
   calculateFoodNutrition,
+
+  // Intake + summaries
+  upsertDailyIntake,
+  getDailyIntakeByDate,
+  getWeeklyIntakeSummary,
+  getTodaySummary,
 };

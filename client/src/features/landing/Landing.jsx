@@ -137,7 +137,14 @@ const Landing = () => {
       icon: <ShoppingCart className="w-6 h-6" />,
       href: "/shopping-optimizer",
       color: "bg-purple-500 hover:bg-purple-600"
-    }
+    },
+    {
+      title: "Nutrition Track",
+      description: "Track your nutrition goals and daily progress",
+      icon: <Utensils className="w-6 h-6" />,
+      href: "/nutrition",
+      color: "bg-teal-500 hover:bg-teal-600"
+    },
   ];
 
   const renderCurrentPage = () => {
@@ -200,7 +207,7 @@ const Landing = () => {
                   Create your first health profile and get personalized recommendations tailored to your unique needs and goals.
                 </p>
                 <button
-                  onClick={() => window.location.href = '/health-dashboard/create-profile'}
+                  onClick={() => navigate('/questionnaire/comprehensive')}
                   className="bg-white text-orange-500 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
                 >
                   Get Started Now
@@ -222,7 +229,7 @@ const Landing = () => {
                         } else if (action.href === "/shopping-optimizer") {
                           navigate('/shopping-optimizer');
                         } else {
-                          window.location.href = action.href;
+                          navigate(action.href);
                         }
                       }}
                     >

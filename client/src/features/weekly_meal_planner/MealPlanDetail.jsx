@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { weeklyMealService } from '../../services/weeklyMealService';
-import { Calendar, Plus, Edit, Trash2, CheckCircle, Circle, X, TrendingUp, Clock } from 'lucide-react';
+import { mealService } from '../../services/mealService';
+import { Calendar, Plus, Edit, Trash2, CheckCircle, Circle, X, TrendingUp, Clock, ArrowLeft } from 'lucide-react';
+import WeeklySummary from './WeeklySummary';
 
 const MealPlanDetail = () => {
   const { planId } = useParams();
@@ -10,14 +12,34 @@ const MealPlanDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('meals');
   const [showAddFoodForm, setShowAddFoodForm] = useState(false);
+  const [meals, setMeals] = useState([]);
+  const [mealsLoading, setMealsLoading] = useState(false);
   const [foodFormData, setFoodFormData] = useState({
     day: '',
     mealType: '',
     name: '',
-    grams: ''
+    grams: '',
+    image: '',
+    calories: 0
   });
 
-  // Fetch plan details
+  // Fetch meals from database
+  const fetchMeals = async () => {
+    try {
+      setMealsLoading(true);
+      const response = await mealService.getAllMeals();
+      setMeals(response.data || response);
+    } catch (error) {
+      console.error('Error fetching meals:', error);
+      if (error.response?.status === 401) {
+        window.location.href = '/login';
+      }
+    } finally {
+      setMealsLoading(false);
+    }
+  };
+
+  // Fetch plan details and meals
   useEffect(() => {
     const fetchPlan = async () => {
       try {
@@ -34,14 +56,16 @@ const MealPlanDetail = () => {
     };
 
     fetchPlan();
+    fetchMeals();
   }, [planId]);
 
   // Add food to meal
   const addFood = async (e) => {
     e.preventDefault();
     try {
+      console.log('Adding food with data:', foodFormData);
       await weeklyMealService.addFood(planId, foodFormData);
-      setFoodFormData({ day: '', mealType: '', name: '', grams: '' });
+      setFoodFormData({ day: '', mealType: '', name: '', grams: '', image: '', calories: 0 });
       setShowAddFoodForm(false);
       // Refresh plan data
       const response = await weeklyMealService.getPlanById(planId);
@@ -156,13 +180,22 @@ const MealPlanDetail = () => {
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-6">
           <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-8">
             <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Meal Plan Details</h1>
-                <p className="text-orange-100">Week of {new Date(plan.weekStartDate).toLocaleDateString()}</p>
-                <div className="mt-2">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-white">
-                    {plan.goal}
-                  </span>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => navigate(-1)}
+                  className="text-white/90 hover:text-white transition-colors flex items-center gap-2 font-medium z-10"
+                  title="Back"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">Meal Plan Details</h1>
+                  <p className="text-orange-100">Week of {new Date(plan.weekStartDate).toLocaleDateString()}</p>
+                  <div className="mt-2">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-orange-500">
+                      {plan.goal}
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
@@ -256,7 +289,26 @@ const MealPlanDetail = () => {
                       <div className="space-y-2">
                         {day.meals.breakfast.foods.map((food, foodIndex) => (
                           <div key={foodIndex} className="flex justify-between items-center bg-white p-3 rounded-xl hover:shadow-md transition-all">
-                            <span className="text-gray-900">{food.name} - <span className="text-orange-600 font-medium">{food.grams}g</span></span>
+                            <div className="flex items-center space-x-3">
+                              {food.image ? (
+                                <img 
+                                  src={food.image} 
+                                  alt={food.name}
+                                  className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = 'https://via.placeholder.com/48x48/ff6b6b/ffffff?text=Food';
+                                  }}
+                                />
+                              ) : (
+                                <img 
+                                  src="https://via.placeholder.com/48x48/cccccc/666666?text=No+Img"
+                                  alt="No image"
+                                  className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                                />
+                              )}
+                              <span className="text-gray-900">{food.name} - <span className="text-orange-600 font-medium">{food.grams}g</span></span>
+                            </div>
                             <div className="flex space-x-2">
                               <button 
                                 onClick={() => updateFood(day.day, 'breakfast', foodIndex)}
@@ -303,7 +355,26 @@ const MealPlanDetail = () => {
                       <div className="space-y-2">
                         {day.meals.lunch.foods.map((food, foodIndex) => (
                           <div key={foodIndex} className="flex justify-between items-center bg-white p-3 rounded-xl hover:shadow-md transition-all">
-                            <span className="text-gray-900">{food.name} - <span className="text-orange-600 font-medium">{food.grams}g</span></span>
+                            <div className="flex items-center space-x-3">
+                              {food.image ? (
+                                <img 
+                                  src={food.image} 
+                                  alt={food.name}
+                                  className="w-12 h-12 rounded-lg object-cover border-gray-200"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = 'https://via.placeholder.com/48x48/ff6b6b/ffffff?text=Food';
+                                  }}
+                                />
+                              ) : (
+                                <img 
+                                  src="https://via.placeholder.com/48x48/cccccc/666666?text=No+Img"
+                                  alt="No image"
+                                  className="w-12 h-12 rounded-lg object-cover border-gray-200"
+                                />
+                              )}
+                              <span className="text-gray-900">{food.name} - <span className="text-orange-600 font-medium">{food.grams}g</span></span>
+                            </div>
                             <div className="flex space-x-2">
                               <button 
                                 onClick={() => updateFood(day.day, 'lunch', foodIndex)}
@@ -321,6 +392,8 @@ const MealPlanDetail = () => {
                           </div>
                         ))}
                       </div>
+                    {/* </div>
+                      </div> */}
                     </div>
 
                     {/* Dinner */}
@@ -350,7 +423,26 @@ const MealPlanDetail = () => {
                       <div className="space-y-2">
                         {day.meals.dinner.foods.map((food, foodIndex) => (
                           <div key={foodIndex} className="flex justify-between items-center bg-white p-3 rounded-xl hover:shadow-md transition-all">
-                            <span className="text-gray-900">{food.name} - <span className="text-orange-600 font-medium">{food.grams}g</span></span>
+                            <div className="flex items-center space-x-3">
+                              {food.image ? (
+                                <img 
+                                  src={food.image} 
+                                  alt={food.name}
+                                  className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                                  onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = 'https://via.placeholder.com/48x48/ff6b6b/ffffff?text=Food';
+                                  }}
+                                />
+                              ) : (
+                                <img 
+                                  src="https://via.placeholder.com/48x48/cccccc/666666?text=No+Img"
+                                  alt="No image"
+                                  className="w-12 h-12 rounded-lg object-cover border border-gray-200"
+                                />
+                              )}
+                              <span className="text-gray-900">{food.name} - <span className="text-orange-600 font-medium">{food.grams}g</span></span>
+                            </div>
                             <div className="flex space-x-2">
                               <button 
                                 onClick={() => updateFood(day.day, 'dinner', foodIndex)}
@@ -377,22 +469,14 @@ const MealPlanDetail = () => {
 
           {/* Summary Tab */}
           {activeTab === 'summary' && (
-            <div className="p-6">
-              <div className="text-center py-8">
-                <div className="w-20 h-20 bg-orange-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <TrendingUp className="w-10 h-10 text-orange-500" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Weekly Summary</h3>
-                <p className="text-gray-600">Track your meal planning progress</p>
-              </div>
-            </div>
+            <WeeklySummary plan={plan} />
           )}
         </div>
       </div>
 
       {/* Add Food Modal with beautiful blur background */}
       {showAddFoodForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-white/10 backdrop-blur-md  flex items-center justify-center z-50">
           <div className="bg-white rounded-3xl shadow-2xl p-8 w-96 transform transition-all">
             <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6 -m-8 mb-6 rounded-t-3xl">
               <h2 className="text-xl font-bold text-white text-center">Add Food to Meal</h2>
@@ -435,16 +519,36 @@ const MealPlanDetail = () => {
               
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Food Name
+                  Select Food
                 </label>
-                <input
-                  type="text"
+                <select
                   value={foodFormData.name}
-                  onChange={(e) => setFoodFormData({...foodFormData, name: e.target.value})}
+                  onChange={(e) => {
+                    const selectedMeal = meals.find(meal => meal.name === e.target.value);
+                    console.log('Selected meal:', selectedMeal);
+                    const updatedFormData = {
+                      ...foodFormData, 
+                      name: e.target.value,
+                      image: selectedMeal?.image || '',
+                      calories: selectedMeal?.nutrition?.calories || 0
+                    };
+                    console.log('Updated form data:', updatedFormData);
+                    setFoodFormData(updatedFormData);
+                  }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
-                  placeholder="Enter food name"
                   required
-                />
+                  disabled={mealsLoading}
+                >
+                  <option value="">Choose a food...</option>
+                  {meals.map((meal) => (
+                    <option key={meal._id} value={meal.name}>
+                      {meal.name} ({meal.nutrition?.calories || 0} cal)
+                    </option>
+                  ))}
+                </select>
+                {mealsLoading && (
+                  <p className="text-sm text-gray-500 mt-1">Loading meals...</p>
+                )}
               </div>
               
               <div className="mb-6">
@@ -484,4 +588,4 @@ const MealPlanDetail = () => {
   );
 };
 
-export default MealPlanDetail;
+export default MealPlanDetail; 
