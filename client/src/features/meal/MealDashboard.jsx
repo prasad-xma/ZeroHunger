@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Home, 
@@ -29,7 +30,8 @@ import {
   Award,
   Brain,
   Zap,
-  Leaf
+  Leaf,
+  ShoppingCart
 } from 'lucide-react';
 
 // Add custom styles for animations
@@ -84,6 +86,7 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
     goalProgress: 0
   });
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -108,9 +111,33 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
   const menuItems = [
     { 
       id: 'dashboard', 
-      label: 'Dashboard', 
+      label: 'Meal Dashboard', 
       icon: Home, 
       description: 'Overview & Stats'
+    },
+    { 
+      id: 'health-dashboard', 
+      label: 'Health Dashboard', 
+      icon: Activity, 
+      description: 'Health Metrics & Profiles'
+    },
+    { 
+      id: 'meal-planner', 
+      label: 'Weekly Meal Planner', 
+      icon: Calendar, 
+      description: 'Plan your weekly meals'
+    },
+    { 
+      id: 'progress', 
+      label: 'Progress Tracker', 
+      icon: TrendingUp, 
+      description: 'Track goals & predictions'
+    },
+    { 
+      id: 'shopping-optimizer', 
+      label: 'Shopping Optimizer', 
+      icon: ShoppingCart, 
+      description: 'Smart shopping lists'
     },
     { 
       id: 'meal-gallery', 
@@ -136,12 +163,33 @@ const MealDashboard = ({ children, activePage, onNavigate }) => {
     // Handle different menu item clicks
     switch (itemId) {
       case 'dashboard':
-        // Navigate to meals (meal management dashboard)
-        onNavigate('meals');
+        // If we are already on the meal dashboard (root), just refresh or set state
+        if (onNavigate) {
+          onNavigate('meals');
+        } else {
+          navigate('/');
+        }
+        break;
+      case 'health-dashboard':
+        navigate('/health-dashboard');
+        break;
+      case 'meal-planner':
+        navigate('/meal-planner');
+        break;
+      case 'progress':
+        navigate('/progress');
+        break;
+      case 'shopping-optimizer':
+        navigate('/shopping-optimizer');
         break;
       default:
-        // Navigate to other meal pages
-        onNavigate(itemId);
+        // Navigate to other meal sub-pages if onNavigate is provided
+        if (onNavigate) {
+          onNavigate(itemId);
+        } else {
+          // Fallback if used outside Landing.jsx
+          console.warn(`No navigation handler for ${itemId}`);
+        }
         break;
     }
   };
