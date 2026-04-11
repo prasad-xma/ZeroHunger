@@ -10,15 +10,14 @@ exports.predictMonthlyWeight = (history) => {
     return (last + delta * 4).toFixed(2); // next month estimate
 };
 
-exports.deleteProgress = async (progressId) => {
+exports.deleteProgress = async (id) => {
     const Progress = require('./progress.model');
-    const progress = await Progress.findByIdAndDelete(progressId);
-    if (!progress) throw new Error("Progress record not found");
-    return progress;
+    const deletedProgress = await Progress.findByIdAndDelete(id);
+    return deletedProgress;
 };
 
-exports.deleteAllUserProgress = async (userId) => {
+exports.deleteAllUserProgress = async () => {
     const Progress = require('./progress.model');
-    const result = await Progress.deleteMany({ userId });
+    const result = await Progress.deleteMany();
     return { deletedCount: result.deletedCount };
 };

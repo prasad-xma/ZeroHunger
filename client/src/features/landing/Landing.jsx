@@ -7,6 +7,7 @@ import MealDetail from '../meal/MealDetail';
 import AddMeal from '../meal/AddMeal';
 import EditMeal from '../meal/EditMeal';
 import MealGuidelines from '../meal/MealGuidelines';
+import ShoppingOptimizer from '../shopping/ShoppingOptimizer';
 import { 
   Heart, 
   Activity, 
@@ -17,7 +18,10 @@ import {
   ArrowRight,
   LogOut,
   User,
-  Settings
+  Settings,
+  Calendar,
+  BarChart3,
+  ShoppingCart
 } from 'lucide-react';
 
 const Landing = () => {
@@ -31,6 +35,7 @@ const Landing = () => {
     setCurrentPage(page);
     setCurrentParams(params);
   };
+  // const navigate = useNavigate();
 
   const handleLogout = async () => {
     setIsLoading(true);
@@ -62,10 +67,42 @@ const Landing = () => {
       title: "Personalized Nutrition",
       description: "Receive tailored meal plans and nutrition advice based on your health goals.",
       color: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: <ShoppingCart className="w-8 h-8" />,
+      title: "Shopping Optimizer",
+      description: "Create smart shopping lists with price comparison and health-aware recommendations.",
+      color: "from-purple-500 to-indigo-500"
+    },
+    {
+      icon: <Calendar className="w-8 h-8" />,
+      title: "Weekly Meal Planning",
+      description: "Plan your meals for entire week with smart recommendations and shopping lists.",
+      color: "from-blue-500 to-indigo-500"
+    },
+    {
+      icon: <BarChart3 className="w-8 h-8" />,
+      title: "Progress Tracking & AI Predictions",
+      description: "Track your weight, nutrition, and get AI-powered predictions for your health goals.",
+      color: "from-purple-500 to-pink-500"
     }
   ];
 
   const quickActions = [
+    {
+      title: "Weekly Meal Planner",
+      description: "Plan your meals for the entire week",
+      icon: <Calendar className="w-6 h-6" />,
+      href: "/meal-planner",
+      color: "bg-blue-500 hover:bg-blue-600"
+    },
+    {
+      title: "Progress Tracker",
+      description: "Track your weight and get AI predictions",
+      icon: <BarChart3 className="w-6 h-6" />,
+      href: "/progress",
+      color: "bg-purple-500 hover:bg-purple-600"
+    },
     {
       title: "Create Health Profile",
       description: "Start your health journey with a personalized profile",
@@ -93,6 +130,13 @@ const Landing = () => {
       icon: <Utensils className="w-6 h-6" />,
       href: "meals",
       color: "bg-blue-500 hover:bg-blue-600"
+    },
+    {
+      title: "Shopping Optimizer",
+      description: "Create smart shopping lists with price comparison",
+      icon: <ShoppingCart className="w-6 h-6" />,
+      href: "/shopping-optimizer",
+      color: "bg-purple-500 hover:bg-purple-600"
     }
   ];
 
@@ -132,6 +176,8 @@ const Landing = () => {
             <EditMeal mealId={currentParams.mealId} onNavigate={handleNavigate} />
           </MealDashboard>
         );
+      case 'shopping-optimizer':
+        return <ShoppingOptimizer />;
       default:
         return (
           <>
@@ -173,6 +219,8 @@ const Landing = () => {
                       onClick={() => {
                         if (action.href === "meals") {
                           handleNavigate('meals');
+                        } else if (action.href === "/shopping-optimizer") {
+                          navigate('/shopping-optimizer');
                         } else {
                           navigate(action.href);
                         }
@@ -305,6 +353,113 @@ const Landing = () => {
 
       {/* Render Current Page */}
       {renderCurrentPage()}
+      {/* Main Content */}
+      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Hero Section */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Welcome to Your <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-500 to-amber-500">Health Journey</span>
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Take control of your health with personalized recommendations, AI-powered insights, and comprehensive tracking tools.
+          </p>
+        </div>
+
+        {/* Call to Action */}
+        <div className="bg-linear-to-r from-orange-500 to-amber-500 rounded-3xl shadow-xl p-8 text-center mb-16">
+          <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Health Journey?</h2>
+          <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
+            Create your first health profile and get personalized recommendations tailored to your unique needs and goals.
+          </p>
+          <button
+            onClick={() => navigate('/questionnaire/comprehensive')}
+            // onClick={() => navigate('/health-dashboard/create-profile')}
+            className="bg-white text-orange-500 font-semibold py-3 px-8 rounded-xl hover:bg-gray-50 transition-colors inline-flex items-center gap-2"
+          >
+            Get Started Now
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {quickActions.map((action, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow p-6 cursor-pointer group"
+                onClick={() => navigate(action.href)}
+              >
+                <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform`}>
+                  {action.icon}
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{action.title}</h3>
+                <p className="text-gray-600 text-sm mb-4">{action.description}</p>
+                <div className="flex items-center text-orange-500 font-medium group-hover:text-orange-600 transition-colors">
+                  Get Started
+                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Features Grid */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Features</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {features.map((feature, index) => (
+              <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden group">
+                <div className={`h-2 bg-linear-to-r ${feature.color}`}></div>
+                <div className="p-6">
+                  <div className={`w-16 h-16 bg-linear-to-r ${feature.color} rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-105 transition-transform`}>
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Stats Section */}
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Your Health at a Glance</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Heart className="w-8 h-8 text-orange-500" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-sm text-gray-600">Health Profiles</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Shield className="w-8 h-8 text-red-500" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-sm text-gray-600">Allergy Assessments</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Activity className="w-8 h-8 text-green-500" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-sm text-gray-600">Health Metrics</p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Utensils className="w-8 h-8 text-blue-500" />
+              </div>
+              <p className="text-2xl font-bold text-gray-900">0</p>
+              <p className="text-sm text-gray-600">Meal Plans</p>
+            </div>
+          </div>
+        </div>
+
+        </main>
 
       {/* Footer */}
       <footer className="relative bg-white border-t border-gray-200 mt-16">

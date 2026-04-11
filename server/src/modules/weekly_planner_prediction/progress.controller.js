@@ -15,26 +15,31 @@ exports.saveProgress = async (req, res) => {
             return res.status(400).json({ message: "Invalid weight value" });
         }
 
-        // userId will be added by auth middleware
-        if (!req.userId) {
-            return res.status(401).json({ message: "Unauthorized - User ID required" });
-        }
-
-        const mealPlan = await WeeklyMeal.findOne({ userId: req.userId, weekStartDate });
+        const mealPlan = await WeeklyMeal.findOne({ weekStartDate });
         let performance = 0;
 
         if (mealPlan) {
-            const totalMeals = mealPlan.days.length * 3;
-            let completed = 0;
+            // Count only planned meals, not all possible meals
+            let totalPlannedMeals = 0;
+            let completedMeals = 0;
+            
             mealPlan.days.forEach(day => {
                 ["breakfast","lunch","dinner"].forEach(meal => {
-                    if (day.meals[meal].isCompleted) completed++;
+                    // Only count meals that have foods planned
+                    if (day.meals[meal].foods && day.meals[meal].foods.length > 0) {
+                        totalPlannedMeals++;
+                        if (day.meals[meal].isCompleted) {
+                            completedMeals++;
+                        }
+                    }
                 });
             });
-            performance = (completed / totalMeals) * 100;
+            
+            // Calculate performance only if there are planned meals
+            performance = totalPlannedMeals > 0 ? (completedMeals / totalPlannedMeals) * 100 : 0;
         }
 
-        const existingProgress = await Progress.findOne({ userId: req.userId, weekStartDate });
+        const existingProgress = await Progress.findOne({ weekStartDate });
         if (existingProgress) {
             existingProgress.weight = weight;
             existingProgress.performance = performance;
@@ -42,7 +47,7 @@ exports.saveProgress = async (req, res) => {
             return res.json(existingProgress);
         }
 
-        const progress = new Progress({ userId: req.userId, weekStartDate, weight, performance });
+        const progress = new Progress({ weekStartDate, weight, performance });
         await progress.save();
         res.status(201).json(progress);
     } catch (err) {
@@ -52,13 +57,13 @@ exports.saveProgress = async (req, res) => {
 
 exports.getPrediction = async (req, res) => {
     try {
-        const { userId, goal } = req.params;
+        const { goal } = req.params;
 
-        if (!userId || !goal) {
-            return res.status(400).json({ message: "Missing required parameters: userId, goal" });
+        if (!goal) {
+            return res.status(400).json({ message: "Missing required parameter: goal" });
         }
 
-        const history = await Progress.find({ userId }).sort({ weekStartDate: 1 });
+        const history = await Progress.find().sort({ weekStartDate: 1 });
 
         if (history.length < 2) {
             return res.status(400).json({ 
@@ -67,6 +72,7 @@ exports.getPrediction = async (req, res) => {
         }
 
         const predictedWeight = predictMonthlyWeight(history);
+        
         const advice = await getAIAdvice({
             goal,
             performance: history[history.length-1].performance,
@@ -87,13 +93,7 @@ exports.getPrediction = async (req, res) => {
 
 exports.getProgressHistory = async (req, res) => {
     try {
-        const { userId } = req.params;
-        
-        if (!userId) {
-            return res.status(400).json({ message: "Missing required parameter: userId" });
-        }
-
-        const history = await Progress.find({ userId }).sort({ weekStartDate: -1 });
+        const history = await Progress.find().sort({ weekStartDate: -1 });
         res.json(history);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -111,7 +111,7 @@ exports.deleteProgress = async (req, res) => {
 
 exports.deleteAllUserProgress = async (req, res) => {
     try {
-        const result = await deleteAllUserProgress(req.params.userId);
+        const result = await deleteAllUserProgress();
         res.json({ 
             message: "All user progress deleted successfully", 
             deletedCount: result.deletedCount 
