@@ -44,6 +44,12 @@ jspm_packages/
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
+# Test outputs
+test_output.txt
+*.test.log
+coverage/
+test_results.txt
+
 # TypeScript cache
 *.tsbuildinfo
 
