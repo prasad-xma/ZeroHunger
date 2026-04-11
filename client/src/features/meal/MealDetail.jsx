@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { mealService } from '../../services/mealService';
+import { addMealToShopping } from '../../services/shoppingService';
 import { 
   ArrowLeft, 
   Edit3, 
@@ -25,6 +26,8 @@ const MealDetail = ({ mealId, onNavigate }) => {
   const [meal, setMeal] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [shoppingMessage, setShoppingMessage] = useState('');
+  const [shoppingLoading, setShoppingLoading] = useState(false);
 
   useEffect(() => {
     fetchMealDetail();
@@ -55,6 +58,27 @@ const MealDetail = ({ mealId, onNavigate }) => {
     } catch (err) {
       setError('Failed to delete meal');
       console.error('Error deleting meal:', err);
+    }
+  };
+
+  const handleAddToShoppingList = async () => {
+    setShoppingLoading(true);
+    setShoppingMessage('');
+    
+    try {
+      const result = await addMealToShopping(mealId);
+      if (result.success) {
+        setShoppingMessage('Ingredients added to shopping list successfully!');
+      } else {
+        setShoppingMessage(result.error || 'Failed to add ingredients to shopping list');
+      }
+    } catch (err) {
+      setShoppingMessage('Failed to add ingredients to shopping list');
+      console.error('Error adding to shopping list:', err);
+    } finally {
+      setShoppingLoading(false);
+      // Clear message after 3 seconds
+      setTimeout(() => setShoppingMessage(''), 3000);
     }
   };
 
@@ -191,6 +215,18 @@ const MealDetail = ({ mealId, onNavigate }) => {
               Edit Recipe
             </button>
             <button
+              onClick={handleAddToShoppingList}
+              disabled={shoppingLoading}
+              className="px-6 py-4 bg-green-50 text-green-600 font-bold rounded-2xl hover:bg-green-100 transition-all duration-300 border border-green-100 flex items-center group disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {shoppingLoading ? (
+                <div className="w-5 h-5 mr-2 animate-spin rounded-full border-2 border-green-600 border-t-transparent"></div>
+              ) : (
+                <Utensils className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+              )}
+              {shoppingLoading ? 'Adding...' : 'Add Ingredients'}
+            </button>
+            <button
               onClick={handleDeleteMeal}
               className="px-6 py-4 bg-red-50 text-red-600 font-bold rounded-2xl hover:bg-red-100 transition-all duration-300 border border-red-100 flex items-center group"
             >
@@ -198,6 +234,13 @@ const MealDetail = ({ mealId, onNavigate }) => {
               Delete
             </button>
           </div>
+
+          {/* Shopping List Message */}
+          {shoppingMessage && (
+            <div className={`mx-8 mb-4 p-4 rounded-xl border ${shoppingMessage.includes('success') ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+              <p className="text-sm font-medium">{shoppingMessage}</p>
+            </div>
+          )}
 
           {/* Enhanced Content Grid */}
           <div className="p-8">

@@ -18,6 +18,8 @@ import WeeklyMealPlanner from './features/weekly_meal_planner/WeeklyMealPlanner.
 import MealPlanDetail from './features/weekly_meal_planner/MealPlanDetail.jsx';
 import ProgressTracker from './features/weekly_planner_prediction/ProgressTracker.jsx';
 import ShoppingOptimizer from './features/shopping/ShoppingOptimizer.jsx';
+//  import { Routes, Route, Navigate } from 'react-router-dom';
+import NutritionDashboard from "./features/nutrition/pages/NutritionDashboard";
 
 function AppContent() {
   const { loading, isAuthenticated } = useAuth();
@@ -59,6 +61,7 @@ function AppContent() {
           <Route path="/shopping-optimizer" element={<ShoppingOptimizer />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/nutrition" element={<NutritionDashboard />} />
         </>
       )}
     </Routes>

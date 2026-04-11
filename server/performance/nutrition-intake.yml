@@ -1,0 +1,29 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 60
+      arrivalRate: 10
+      name: "Normal load"
+    - duration: 30
+      arrivalRate: 20
+      name: "High load"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      Authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OWQ3ZTA0NDM4OGIzNGQyMzIxMjA4YTciLCJyb2xlIjoidXNlciIsImlhdCI6MTc3NTkxMzQwNywiZXhwIjoxNzc1OTk5ODA3fQ.70kTxSf55HDIRStbLpmy8N6OLQ5K3wuocn_nuSso8Ec"
+
+scenarios:
+  - name: "Nutrition intake upsert load test"
+    flow:
+      - post:
+          url: "/api/nutrition/intake"
+          json:
+            calories: 250
+            proteinG: 15
+            carbsG: 30
+            fatG: 8
+            sugarG: 5
+            satFatG: 2

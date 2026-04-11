@@ -1,3 +1,4 @@
+/*
 export const mockProducts = [
   {
     id: "product_1",
@@ -259,3 +260,4 @@ export const mockProducts = [
 export const categories = ['all', 'dairy', 'produce', 'grains', 'protein', 'snacks'];
 
 export const stores = ['Whole Foods', "Trader Joe's", 'Safeway'];
+*/

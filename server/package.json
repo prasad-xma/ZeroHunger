@@ -7,6 +7,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "coverage": "jest --coverage",
+    "test:nutrition": "jest server/src/modules/nutrition/__tests__ --runInBand",
+    "perf:intake": "artillery run performance/nutrition-intake.yml",
+    "perf:food": "artillery run performance/nutrition-food-calculate.yml",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
