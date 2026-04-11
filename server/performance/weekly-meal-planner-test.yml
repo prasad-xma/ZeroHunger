@@ -1,0 +1,72 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 20
+      arrivalRate: 1
+      name: Warm up
+    - duration: 30
+      arrivalRate: 5
+      name: Load test
+    - duration: 20
+      arrivalRate: 10
+      name: Stress test
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Weekly Meal Planner Performance Test"
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            firstName: "Performance"
+            lastName: "Tester"
+            email: "meal-test-{{ $randomString(8) }}@example.com"
+            password: "password123"
+            confirmPassword: "password123"
+            phoneNumber: "1234567890"
+          capture:
+            - json: "$.user.email"
+              as: "userEmail"
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ userEmail }}"
+            password: "password123"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - post:
+          url: "/api/meal-plan"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            weekStartDate: "2024-01-01T00:00:00.000Z"
+            goal: "Weight Loss"
+          capture:
+            - json: "$._id"
+              as: "mealPlanId"
+      - get:
+          url: "/api/meal-plan/{{ mealPlanId }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      - put:
+          url: "/api/meal-plan/{{ mealPlanId }}/add-food"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            day: "Monday"
+            mealType: "breakfast"
+            name: "Performance Test Food"
+            grams: 100
+            image: "test-food.jpg"
+            calories: 200
+      - put:
+          url: "/api/meal-plan/{{ mealPlanId }}/complete"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            day: "Monday"
+            mealType: "breakfast"
+            isCompleted: true
