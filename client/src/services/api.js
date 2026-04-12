@@ -2,8 +2,9 @@ import axios from 'axios';
 
 // create an axios instance with the base URL from environment variables
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://zerohunger-production.up.railway.app/api',
 });
+
 
 
 api.interceptors.request.use(
