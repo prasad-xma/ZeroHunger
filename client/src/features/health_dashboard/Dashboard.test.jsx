@@ -16,6 +16,11 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+// Mock SidebarLayout
+vi.mock("../../components/layouts/SidebarLayout", () => ({
+  default: ({ children }) => <div data-testid="sidebar-layout">{children}</div>,
+}));
+
 // Mock services
 vi.mock("../../services/healthService", () => ({
   getUserHealthProfiles: vi.fn(),
@@ -28,9 +33,9 @@ vi.mock("../../services/aiFoodAllergyService", () => ({
 }));
 
 global.ResizeObserver = class {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe() { }
+  unobserve() { }
+  disconnect() { }
 };
 
 // Tests for Dashboard component
@@ -41,10 +46,10 @@ describe("Dashboard", () => {
 
   // test for loading state
   test("renders loading state", () => {
-    getUserHealthProfiles.mockReturnValue(new Promise(() => {}));
-    getAllHealthAdvice.mockReturnValue(new Promise(() => {}));
-    getUserAllergyProfile.mockReturnValue(new Promise(() => {}));
-    
+    getUserHealthProfiles.mockReturnValue(new Promise(() => { }));
+    getAllHealthAdvice.mockReturnValue(new Promise(() => { }));
+    getUserAllergyProfile.mockReturnValue(new Promise(() => { }));
+
     render(<BrowserRouter><Dashboard /></BrowserRouter>);
     expect(screen.getByText("Loading your health dashboard...")).toBeInTheDocument();
   });

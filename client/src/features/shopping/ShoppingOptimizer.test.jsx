@@ -33,9 +33,21 @@ vi.mock('./components/ProductCard', () => ({
 
 // Mock shoppingService
 vi.mock('../../services/shoppingService', () => ({
-  updateIngredient: vi.fn(),
-  deleteIngredient: vi.fn(),
+  updateIngredient: vi.fn(() => Promise.resolve({ success: true })),
+  deleteIngredient: vi.fn(() => Promise.resolve({ success: true })),
 }));
+
+// Mock api service
+vi.mock('../../services/api', () => ({
+  default: {
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+import api from '../../services/api';
 
 // Mock ingredientNormalizer
 vi.mock('./utils/ingredientNormalizer', () => ({
@@ -55,16 +67,11 @@ const mockShoppingLists = [
 ];
 
 function mockFetchSuccess(data = mockShoppingLists) {
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: true,
-    json: () => Promise.resolve(data),
-  });
+  api.get.mockResolvedValue({ data });
 }
 
 function mockFetchFailure() {
-  global.fetch = vi.fn().mockResolvedValue({
-    ok: false,
-  });
+  api.get.mockRejectedValue(new Error('Failed to load shopping lists'));
 }
 
 describe('ShoppingOptimizer', () => {
@@ -118,14 +125,7 @@ describe('ShoppingOptimizer', () => {
       expect(screen.getByTestId('product-card-ing_001')).toBeInTheDocument();
       expect(screen.getByTestId('product-card-ing_002')).toBeInTheDocument();
     });
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/shopping'),
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: expect.stringContaining('Bearer mock-token')
-        })
-      })
-    );
+    expect(api.get).toHaveBeenCalledWith('/shopping');
   });
 
   it('shows error message in products tab when fetch fails', async () => {
@@ -133,12 +133,12 @@ describe('ShoppingOptimizer', () => {
     render(<ShoppingOptimizer />);
     fireEvent.click(screen.getByText('Products'));
     await waitFor(() => {
-      expect(screen.getByText('Failed to fetch shopping lists')).toBeInTheDocument();
+      expect(screen.getByText('Failed to load shopping lists')).toBeInTheDocument();
     });
   });
 
   it('shows loading spinner while fetching', async () => {
-    global.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
+    api.get.mockReturnValue(new Promise(() => { }));
     render(<ShoppingOptimizer />);
     fireEvent.click(screen.getByText('Products'));
     expect(screen.getByText('Loading...')).toBeInTheDocument();
@@ -255,7 +255,7 @@ describe('ShoppingOptimizer', () => {
     await waitFor(() => {
       expect(screen.getByTestId('shopping-list')).toBeInTheDocument();
     });
-    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(api.get).toHaveBeenCalledTimes(1);
   });
 
   it('handleDeleteProduct for custom item removes it from products without calling deleteIngredient', async () => {

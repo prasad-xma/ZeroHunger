@@ -3,30 +3,40 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const express = require("express");
+const { MongoMemoryServer } = require("mongodb-memory-server");
 
 const nutritionRoutes = require("../nutrition.routes");
 const NutritionTarget = require("../nutrition.target.model");
 const NutritionIntake = require("../nutrition.intake.model");
 
 // Mock auth middleware so tests stay isolated to nutrition module
-jest.mock("../../../middlewares/auth.middleware", () => ({
-  protect: (req, res, next) => {
-    req.user = { _id: new mongoose.Types.ObjectId() };
-    next();
-  },
-}));
+jest.mock("../../../middlewares/auth.middleware", () => {
+  const mongoose = require("mongoose");
+  const mockUserId = new mongoose.Types.ObjectId();
+  return {
+    protect: (req, res, next) => {
+      req.user = { _id: mockUserId };
+      next();
+    },
+  };
+});
 
 const app = express();
 app.use(express.json());
 app.use("/api/nutrition", nutritionRoutes);
 
+let mongoServer;
+
 describe("Nutrition Integration Tests", () => {
   beforeAll(async () => {
-    const mongoUri =
-      process.env.MONGO_URI_TEST || process.env.MONGO_URI || "mongodb://127.0.0.1:27017/nutrition_test";
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
 
     await mongoose.connect(mongoUri);
-  });
+  }, 30000);
 
   beforeEach(async () => {
     await NutritionTarget.deleteMany({});
@@ -37,7 +47,10 @@ describe("Nutrition Integration Tests", () => {
     await NutritionTarget.deleteMany({});
     await NutritionIntake.deleteMany({});
     await mongoose.connection.close();
-  });
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
+  }, 30000);
 
   test("POST /api/nutrition/targets should save nutrition targets", async () => {
     const res = await request(app).post("/api/nutrition/targets").send({
