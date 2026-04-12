@@ -1,6 +1,6 @@
 //needed for updated  moogodb versions
 require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
-
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
