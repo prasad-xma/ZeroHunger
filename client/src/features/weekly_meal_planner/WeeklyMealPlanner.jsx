@@ -14,6 +14,16 @@ const WeeklyMealPlanner = () => {
   });
   const navigate = useNavigate();
 
+  // Helper function to format goal display
+  const formatGoal = (goal) => {
+    const goalMap = {
+      'weight_loss': 'Weight Loss',
+      'muscle_gain': 'Muscle Gain',
+      'maintenance': 'Maintenance'
+    };
+    return goalMap[goal] || goal;
+  };
+
   // Fetch all plans
   const fetchPlans = async () => {
     try {
@@ -48,9 +58,6 @@ const WeeklyMealPlanner = () => {
 
   // Delete plan
   const deletePlan = async (planId) => {
-    if (!window.confirm('Are you sure you want to delete this plan?')) {
-      return;
-    }
     try {
       await weeklyMealService.deletePlan(planId);
       setPlans(plans.filter(p => p._id !== planId));
@@ -64,15 +71,11 @@ const WeeklyMealPlanner = () => {
 
   // Delete all plans
   const deleteAllPlans = async () => {
-    if (!window.confirm('Are you sure you want to delete all plans? This cannot be undone.')) {
-      return;
-    }
     try {
       console.log('Attempting to delete all plans...');
       const result = await weeklyMealService.deleteAllPlans();
       console.log('Delete all plans result:', result);
       setPlans([]);
-      alert('All plans deleted successfully!');
     } catch (error) {
       console.error('Error deleting all plans:', error);
       console.error('Error response:', error.response);
@@ -235,7 +238,7 @@ const WeeklyMealPlanner = () => {
                 </div>
                 <div className="mb-2">
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-500 bg-opacity-20 text-white">
-                    {plan.goal}
+                    {formatGoal(plan.goal)}
                   </span>
                 </div>
               </div>
