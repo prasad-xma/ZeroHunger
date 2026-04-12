@@ -3,6 +3,7 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const express = require('express');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const shoppingRoutes = require('../shopping.routes');
 const ShoppingList = require('../shopping.model');
@@ -23,16 +24,18 @@ const app = express();
 app.use(express.json());
 app.use('/api/shopping', shoppingRoutes);
 
+let mongoServer;
+
 describe('Shopping Integration Tests', () => {
   beforeAll(async () => {
     if (mongoose.connection.readyState !== 0) {
       await mongoose.disconnect();
     }
-    const mongoUri =
-      process.env.MONGO_URI_TEST || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/shopping_test';
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
 
     await mongoose.connect(mongoUri);
-  });
+  }, 30000);
 
   beforeEach(async () => {
     await ShoppingList.deleteMany({});
@@ -41,7 +44,10 @@ describe('Shopping Integration Tests', () => {
   afterAll(async () => {
     await ShoppingList.deleteMany({});
     await mongoose.connection.close();
-  });
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
+  }, 30000);
 
   describe('POST /api/shopping', () => {
     test('creates a shopping list with direct ingredients and returns 201', async () => {

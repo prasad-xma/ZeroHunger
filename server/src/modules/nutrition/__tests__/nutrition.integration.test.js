@@ -3,6 +3,7 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const express = require("express");
+const { MongoMemoryServer } = require("mongodb-memory-server");
 
 const nutritionRoutes = require("../nutrition.routes");
 const NutritionTarget = require("../nutrition.target.model");
@@ -24,16 +25,18 @@ const app = express();
 app.use(express.json());
 app.use("/api/nutrition", nutritionRoutes);
 
+let mongoServer;
+
 describe("Nutrition Integration Tests", () => {
   beforeAll(async () => {
     if (mongoose.connection.readyState !== 0) {
       await mongoose.disconnect();
     }
-    const mongoUri =
-      process.env.MONGO_URI_TEST || process.env.MONGO_URI || "mongodb://127.0.0.1:27017/nutrition_test";
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
 
     await mongoose.connect(mongoUri);
-  });
+  }, 30000);
 
   beforeEach(async () => {
     await NutritionTarget.deleteMany({});
@@ -44,7 +47,10 @@ describe("Nutrition Integration Tests", () => {
     await NutritionTarget.deleteMany({});
     await NutritionIntake.deleteMany({});
     await mongoose.connection.close();
-  });
+    if (mongoServer) {
+      await mongoServer.stop();
+    }
+  }, 30000);
 
   test("POST /api/nutrition/targets should save nutrition targets", async () => {
     const res = await request(app).post("/api/nutrition/targets").send({
