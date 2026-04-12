@@ -159,6 +159,8 @@ The following environment variable keys were configured across both platforms (s
 ### 4. Evidence of Successful Deployment
 * **Netlify Evidence**: [Screenshots Folder](https://drive.google.com/drive/folders/1VyBGjzuL580udpSKDfP0N2WIX6GsSNq0?usp=sharing)
 * **Railway Evidence**: [Screenshots Folder](https://drive.google.com/drive/folders/10aGcExMkp3jqgXlZSTHywJOCvhJE8L3O?usp=sharing)
+* **Full Deployment Report (PDF)**: [View Document](https://drive.google.com/file/d/1V-Lz-aWxG3H8cBTreuRUCWgKt09muo7I/view?usp=sharing)
+
 
 ## Testing
  
