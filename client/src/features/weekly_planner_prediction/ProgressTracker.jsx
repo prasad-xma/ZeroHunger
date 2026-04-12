@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { progressService } from '../../services/progressService';
-import { TrendingUp, Plus, Trash2, BarChart3, Target, ArrowLeft } from 'lucide-react';
+import { TrendingUp, Plus, Trash2, BarChart3, Target, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+
 
 const ProgressTracker = () => {
   const [progress, setProgress] = useState([]);
@@ -12,7 +13,10 @@ const ProgressTracker = () => {
     weekStartDate: '',
     weight: ''
   });
+  const [predictionLoading, setPredictionLoading] = useState(false);
+  const [predictionError, setPredictionError] = useState(null);
   const navigate = useNavigate();
+
 
   // Fetch progress data
   const fetchProgress = async () => {
@@ -49,15 +53,22 @@ const ProgressTracker = () => {
   // Get prediction
   const getPrediction = async (goal) => {
     try {
+      setPredictionLoading(true);
+      setPredictionError(null);
       const response = await progressService.getPrediction(goal);
       setPrediction(response.data || response);
     } catch (error) {
       console.error('Error getting prediction:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to get prediction. Please try again later.';
+      setPredictionError(errorMessage);
       if (error.response?.status === 401) {
         window.location.href = '/login';
       }
+    } finally {
+      setPredictionLoading(false);
     }
   };
+
 
   // Delete progress entry
   const deleteProgress = async (progressId) => {
@@ -221,18 +232,30 @@ const ProgressTracker = () => {
             </h3>
             <div className="flex space-x-4 mb-6">
               <button
+                disabled={predictionLoading}
                 onClick={() => getPrediction('weight_loss')}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
+                className={`flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg ${predictionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:from-blue-600 hover:to-blue-700'}`}
               >
-                Predict Weight Loss
+                {predictionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                <span>Predict Weight Loss</span>
               </button>
               <button
+                disabled={predictionLoading}
                 onClick={() => getPrediction('muscle_gain')}
-                className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+                className={`flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg ${predictionLoading ? 'opacity-50 cursor-not-allowed' : 'hover:from-purple-600 hover:to-purple-700'}`}
               >
-                Predict Muscle Gain
+                {predictionLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                <span>Predict Muscle Gain</span>
               </button>
             </div>
+            
+            {predictionError && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center text-red-700 animate-pulse">
+                <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
+                <p className="text-sm font-medium">{predictionError}</p>
+              </div>
+            )}
+
             
             {prediction && (
               <div className="bg-white rounded-xl p-6 border border-orange-200 shadow-lg">
