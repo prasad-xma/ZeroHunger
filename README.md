@@ -121,6 +121,45 @@ ZeroHunger/
 └── README.md
 ```
 
+## Deployment
+
+
+### 1. Backend Deployment (Railway)
+* **Platform**: Railway
+* **Live API URL**: [zerohunger-production.up.railway.app](https://zerohunger-production.up.railway.app)
+* **Setup Steps**:
+  1. Connected the ZeroHunger GitHub repository to Railway.
+  2. Configured the build settings to point to the `server` directory.
+  3. Added all necessary environment variables in the Railway "Variables" tab.
+  4. Deployed the application using Railway's automatic build service.
+
+### 2. Frontend Deployment (Netlify)
+* **Platform**: Netlify
+* **Live App URL**: [ZeroHunger Web App](https://69db2b7a91551e43ea66c34d--darling-toffee-fc68ad.netlify.app/)
+* **Setup Steps**:
+  1. Connected the GitHub repository to Netlify.
+  2. Set the Base Directory to `client`.
+  3. Set the Build Command to `npm run build`.
+  4. Set the Publish Directory to `dist`.
+  5. Configured the `VITE_API_BASE_URL` in the environment settings to link with the Railway backend.
+
+### 3. Environment Variables Used
+The following environment variable keys were configured across both platforms (secrets are not exposed):
+
+**Backend variables:**
+* `PORT`
+* `MONGODB_URI`
+* `JWT_SECRET`
+* `GOOGLE_AI_API_KEY`
+* `HF_API_KEY`
+
+**Frontend variables:**
+* `VITE_API_BASE_URL`
+
+### 4. Evidence of Successful Deployment
+* **Netlify Evidence**: [Screenshots Folder](https://drive.google.com/drive/folders/1VyBGjzuL580udpSKDfP0N2WIX6GsSNq0?usp=sharing)
+* **Railway Evidence**: [Screenshots Folder](https://drive.google.com/drive/folders/10aGcExMkp3jqgXlZSTHywJOCvhJE8L3O?usp=sharing)
+
 ## Testing
  
 ### 1. Overview
