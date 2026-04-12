@@ -12,6 +12,13 @@ const MealPlanDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('meals');
   const [showAddFoodForm, setShowAddFoodForm] = useState(false);
+  const [showUpdateFoodForm, setShowUpdateFoodForm] = useState(false);
+  const [updateFoodData, setUpdateFoodData] = useState({
+    dayName: '',
+    mealType: '',
+    foodIndex: null,
+    grams: ''
+  });
   const [meals, setMeals] = useState([]);
   const [mealsLoading, setMealsLoading] = useState(false);
   const [foodFormData, setFoodFormData] = useState({
@@ -22,6 +29,16 @@ const MealPlanDetail = () => {
     image: '',
     calories: 0
   });
+
+  // Helper function to format goal display
+  const formatGoal = (goal) => {
+    const goalMap = {
+      'weight_loss': 'Weight Loss',
+      'muscle_gain': 'Muscle Gain',
+      'maintenance': 'Maintenance'
+    };
+    return goalMap[goal] || goal;
+  };
 
   // Fetch meals from database
   const fetchMeals = async () => {
@@ -102,9 +119,6 @@ const MealPlanDetail = () => {
   };
 
   const removeFood = async (dayName, mealType, foodIndex) => {
-    if (!window.confirm('Are you sure you want to remove this food?')) {
-      return;
-    }
     try {
       await weeklyMealService.removeFood(planId, {
         day: dayName,
@@ -122,33 +136,32 @@ const MealPlanDetail = () => {
     }
   };
 
-  const updateFood = async (dayName, mealType, foodIndex) => {
-    const currentFood = plan.days.find(d => d.day === dayName)?.meals[mealType]?.foods[foodIndex];
-    if (!currentFood) return;
-
-    const newName = prompt('Update food name:', currentFood.name);
-    if (newName === null) return; // User cancelled
-
-    const newGrams = prompt('Update grams:', currentFood.grams);
-    if (newGrams === null) return; // User cancelled
-
-    if (newName && newGrams && !isNaN(newGrams)) {
-      try {
-        await weeklyMealService.updateFood(planId, {
-          day: dayName,
-          mealType,
-          foodIndex,
-          name: newName,
-          grams: parseInt(newGrams)
-        });
-        // Refresh plan data
-        const response = await weeklyMealService.getPlanById(planId);
-        setPlan(response.data || response);
-      } catch (error) {
-        console.error('Error updating food:', error);
-        if (error.response?.status === 401) {
-          window.location.href = '/login';
-        }
+  const updateFood = async (e) => {
+    e.preventDefault();
+    console.log('Update food form submitted with data:', updateFoodData);
+    try {
+      const result = await weeklyMealService.updateFood(planId, {
+        day: updateFoodData.dayName,
+        mealType: updateFoodData.mealType,
+        foodIndex: updateFoodData.foodIndex,
+        grams: parseInt(updateFoodData.grams)
+      });
+      console.log('Update food successful:', result);
+      
+      // Always close the modal regardless of success
+      setUpdateFoodData({ dayName: '', mealType: '', foodIndex: null, grams: '' });
+      setShowUpdateFoodForm(false);
+      
+      // Refresh plan data
+      const response = await weeklyMealService.getPlanById(planId);
+      setPlan(response.data || response);
+      console.log('Plan data refreshed');
+    } catch (error) {
+      console.error('Error updating food:', error);
+      // Still close the modal even on error
+      setShowUpdateFoodForm(false);
+      if (error.response?.status === 401) {
+        window.location.href = '/login';
       }
     }
   };
@@ -193,7 +206,7 @@ const MealPlanDetail = () => {
                   <p className="text-orange-100">Week of {new Date(plan.weekStartDate).toLocaleDateString()}</p>
                   <div className="mt-2">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-orange-500">
-                      {plan.goal}
+                      {formatGoal(plan.goal)}
                     </span>
                   </div>
                 </div>
@@ -311,7 +324,18 @@ const MealPlanDetail = () => {
                             </div>
                             <div className="flex space-x-2">
                               <button 
-                                onClick={() => updateFood(day.day, 'breakfast', foodIndex)}
+                                onClick={() => {
+                                  const currentFood = plan.days.find(d => d.day === day.day)?.meals['breakfast']?.foods[foodIndex];
+                                  if (currentFood) {
+                                    setUpdateFoodData({
+                                      dayName: day.day,
+                                      mealType: 'breakfast',
+                                      foodIndex: foodIndex,
+                                      grams: currentFood.grams.toString()
+                                    });
+                                    setShowUpdateFoodForm(true);
+                                  }
+                                }}
                                 className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-all"
                               >
                                 <Edit className="w-4 h-4" />
@@ -377,7 +401,18 @@ const MealPlanDetail = () => {
                             </div>
                             <div className="flex space-x-2">
                               <button 
-                                onClick={() => updateFood(day.day, 'lunch', foodIndex)}
+                                onClick={() => {
+                                  const currentFood = plan.days.find(d => d.day === day.day)?.meals['lunch']?.foods[foodIndex];
+                                  if (currentFood) {
+                                    setUpdateFoodData({
+                                      dayName: day.day,
+                                      mealType: 'lunch',
+                                      foodIndex: foodIndex,
+                                      grams: currentFood.grams.toString()
+                                    });
+                                    setShowUpdateFoodForm(true);
+                                  }
+                                }}
                                 className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-all"
                               >
                                 <Edit className="w-4 h-4" />
@@ -445,7 +480,18 @@ const MealPlanDetail = () => {
                             </div>
                             <div className="flex space-x-2">
                               <button 
-                                onClick={() => updateFood(day.day, 'dinner', foodIndex)}
+                                onClick={() => {
+                                  const currentFood = plan.days.find(d => d.day === day.day)?.meals['dinner']?.foods[foodIndex];
+                                  if (currentFood) {
+                                    setUpdateFoodData({
+                                      dayName: day.day,
+                                      mealType: 'dinner',
+                                      foodIndex: foodIndex,
+                                      grams: currentFood.grams.toString()
+                                    });
+                                    setShowUpdateFoodForm(true);
+                                  }
+                                }}
                                 className="text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50 transition-all"
                               >
                                 <Edit className="w-4 h-4" />
@@ -584,8 +630,57 @@ const MealPlanDetail = () => {
           </div>
         </div>
       )}
+      
+      {/* Update Food Modal */}
+      {showUpdateFoodForm && (
+        <div className="fixed inset-0 bg-white/10 backdrop-blur-md  flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 w-96 transform transition-all">
+            <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6 -m-8 mb-6 rounded-t-3xl">
+              <h2 className="text-xl font-bold text-white text-center">Update Food Grams</h2>
+            </div>
+            
+            <form onSubmit={updateFood} className="space-y-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Current Food: {plan.days.find(d => d.day === updateFoodData.dayName)?.meals[updateFoodData.mealType]?.foods[updateFoodData.foodIndex]?.name || 'Unknown'}
+                </label>
+              </div>
+              
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Grams
+                </label>
+                <input
+                  type="number"
+                  value={updateFoodData.grams}
+                  onChange={(e) => setUpdateFoodData({...updateFoodData, grams: e.target.value})}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                  placeholder="Enter grams"
+                  required
+                />
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowUpdateFoodForm(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all transform hover:scale-105 shadow-lg"
+                >
+                  Update Grams
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default MealPlanDetail; 
+export default MealPlanDetail;

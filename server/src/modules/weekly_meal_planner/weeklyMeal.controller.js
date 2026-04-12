@@ -9,12 +9,14 @@ exports.createWeeklyMeal = async (req, res) => {
         const { weekStartDate, goal } = req.body;
         
         if (!weekStartDate) {
+            console.log('Error: weekStartDate is missing');
             return res.status(400).json({ message: "Week start date is required" });
         }
 
         // Check if plan already exists for this date
         const existing = await WeeklyMeal.findOne({ weekStartDate });
         if (existing) {
+            console.log('Plan already exists for this date');
             return res.status(400).json({ message: "Weekly plan already exists for this date" });
         }
 
@@ -91,7 +93,7 @@ exports.addFood = async (req, res) => {
 // Update food in meal
 exports.updateFood = async (req, res) => {
     try {
-        const { day, mealType, foodIndex, name, grams } = req.body;
+        const { day, mealType, foodIndex, grams } = req.body;
         const plan = await WeeklyMeal.findById(req.params.id);
         
         if (!plan) {
@@ -104,7 +106,8 @@ exports.updateFood = async (req, res) => {
         }
 
         if (dayData.meals[mealType].foods[foodIndex]) {
-            dayData.meals[mealType].foods[foodIndex] = { name, grams: Number(grams) };
+            // Only update the grams field, keep other properties unchanged
+            dayData.meals[mealType].foods[foodIndex].grams = Number(grams);
         }
 
         const result = await plan.save();
