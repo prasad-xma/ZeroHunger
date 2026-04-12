@@ -14,7 +14,7 @@ router.get('/prediction/:goal', controller.getPrediction);
 router.get('/history', controller.getProgressHistory);
 
 // DELETE
-router.delete('/:id', controller.deleteProgress);
 router.delete('/all', controller.deleteAllUserProgress);
+router.delete('/:id', controller.deleteProgress);
 
 module.exports = router;
