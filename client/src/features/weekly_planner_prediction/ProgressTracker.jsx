@@ -74,9 +74,6 @@ const ProgressTracker = () => {
 
   // Delete all progress entries
   const deleteAllProgress = async () => {
-    if (!window.confirm('Are you sure you want to delete all progress entries? This cannot be undone.')) {
-      return;
-    }
     try {
       await progressService.deleteAllProgress();
       setProgress([]);
@@ -152,7 +149,7 @@ const ProgressTracker = () => {
 
         {/* Add Progress Form Modal */}
         {showAddForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-white/10 backdrop-blur-md  flex items-center justify-center z-50">
             <div className="bg-white rounded-3xl shadow-2xl p-8 w-96">
               <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-6 -m-8 mb-6 rounded-t-3xl">
                 <h2 className="text-xl font-bold text-white text-center">Add Progress Entry</h2>
@@ -285,7 +282,7 @@ const ProgressTracker = () => {
                     </p>
                     <p className="text-sm text-gray-600">Weight: {entry.weight} kg</p>
                     {entry.performance !== undefined && (
-                      <p className="text-sm text-orange-600">Performance: {entry.performance.toFixed(1)}%</p>
+                      <p className="text-sm text-white">Performance: {entry.performance.toFixed(1)}%</p>
                     )}
                   </div>
                   <button

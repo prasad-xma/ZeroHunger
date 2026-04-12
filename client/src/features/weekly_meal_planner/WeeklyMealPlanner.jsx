@@ -48,9 +48,6 @@ const WeeklyMealPlanner = () => {
 
   // Delete plan
   const deletePlan = async (planId) => {
-    if (!window.confirm('Are you sure you want to delete this plan?')) {
-      return;
-    }
     try {
       await weeklyMealService.deletePlan(planId);
       setPlans(plans.filter(p => p._id !== planId));
